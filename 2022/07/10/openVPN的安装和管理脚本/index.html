@@ -1,0 +1,470 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		脚本实现openvpn的一键安装，日常管理：加用户，吊销用户等。 openVPN的安装和管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="openVPN的安装和管理脚本">
+<meta property="og:url" content="http://example.com/2022/07/10/openVPN%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E7%AE%A1%E7%90%86%E8%84%9A%E6%9C%AC/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		脚本实现openvpn的一键安装，日常管理：加用户，吊销用户等。 openVPN的安装和管理">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-07-10T21:57:32.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.281Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="OpenVPN">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>openVPN的安装和管理脚本 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="openVPN的安装和管理脚本">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-10 21:57" pubdate>
+        July 10, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.3k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      53 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">openVPN的安装和管理脚本</h1>
+            
+            <div class="markdown-body">
+              <p>​		脚本实现openvpn的一键安装，日常管理：加用户，吊销用户等。</p>
+<h1 id="openVPN的安装和管理"><a href="#openVPN的安装和管理" class="headerlink" title="openVPN的安装和管理"></a>openVPN的安装和管理</h1><span id="more"></span>
+
+<h3 id="openVPN的完整部署配置过程"><a href="#openVPN的完整部署配置过程" class="headerlink" title="openVPN的完整部署配置过程"></a>openVPN的完整部署配置过程</h3><p>​		安装配置过程有交互式过程，写成脚本需要expect函数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">安装软件包</span><br>yum -y install openvpn easy-rsa<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">生成服务器配置文件</span><br>cp /usr/share/doc/openvpn/sample/sample-config-files/server.conf /etc/openvpn/<br><span class="hljs-meta prompt_">#</span><span class="language-bash">准备证书签发相关文件</span><br>cp -r /usr/share/easy-rsa/ /etc/openvpn/easy-rsa-server<br><span class="hljs-meta prompt_">#</span><span class="language-bash">准备签发证书相关变量的配置文件</span><br>cp /usr/share/doc/easy-rsa/vars.example /etc/openvpn/easy-rsa-server/3/vars<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">初始化数据,在当前目录下生成pki（公钥基础设施）目录及相关文件</span><br>cd /etc/openvpn/easy-rsa-server/3/<br>./easyrsa init-pki<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">创建CA机构</span><br>./easyrsa build-ca nopass			#需要回车键确认<br><span class="hljs-meta prompt_">#</span><span class="language-bash">服务端证书</span><br>./easyrsa gen-req server nopass     #需要回车键确认<br>./easyrsa sign server server		#需要输入yes确认<br>./easyrsa gen-dh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">客户端证书</span><br>cp -r /usr/share/easy-rsa/ /etc/openvpn/easy-rsa-client<br>cd /etc/openvpn/easy-rsa-client/3/<br>./easyrsa init-pki<br>./easyrsa gen-req username nopass   #需要回车键确认<br>cd /etc/openvpn/easy-rsa-server/3<br>./easyrsa import-req /etc/openvpn/easy-rsa-client/3/pki/reqs/username.req username<br>./easyrsa sign client username  	#需要输入yes确认<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">服务器文件复制到服务器目录</span><br>mkdir /etc/openvpn/certs<br>cp /etc/openvpn/easy-rsa-server/3/pki/ca.crt /etc/openvpn/certs/<br>cp /etc/openvpn/easy-rsa-server/3/pki/issued/server.crt /etc/openvpn/certs/ <br>cp /etc/openvpn/easy-rsa-server/3/pki/private/server.key<br>/etc/openvpn/certs/<br>cp /etc/openvpn/easy-rsa-server/3/pki/dh.pem <br>/etc/openvpn/certs/<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">客户端文件</span><br>mkdir /etc/openvpn/client/username/<br>cp &#123;/etc/openvpn/easy-rsa-client/3/pki/private/username.key , /etc/openvpn/easy-rsa-server/3/pki/issued/username.crt , /etc/openvpn/easy-rsa-server/3/pki/ca.crt &#125; /etc/openvpn/client/username/<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">修改服务器配置</span><br>cat &gt; /etc/openvpn/server.conf &lt;&lt;EOF<br>port 1194<br>proto tcp<br>dev tun<br>ca /etc/openvpn/certs/ca.crt<br>cert /etc/openvpn/certs/server.crt<br>key /etc/openvpn/certs/server.key  # This file should be kept secret<br>dh /etc/openvpn/certs/dh.pem<br>server 10.8.0.0 255.255.255.0<br>push &quot;route 172.30.0.0 255.255.255.0&quot;<br>keepalive 10 120<br>cipher AES-256-CBC<br>compress lz4-v2<br>push &quot;compress lz4-v2&quot;<br>max-clients 2048<br>user openvpn<br>group openvpn<br>status /var/log/openvpn/openvpn-status.log<br>log-append /var/log/openvpn/openvpn.log<br>verb 3<br>mute 20<br>EOF<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">配置iptables</span><br>echo net.ipv4.ip_forward = 1 &gt;&gt; /etc/sysctl.conf<br>echo &#x27;iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -j MASQUERADE&#x27; &gt;&gt; /etc/rc.d/rc.local<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">启动服务，CentOS8缺失unit文件，需要创建</span><br>cat &gt; /usr/lib/systemd/system/openvpn@.service &lt;&lt;EOF<br>[Unit]<br>Description=OpenVPN Robust And Highly Flexible Tunneling Application On %I<br>After=network.target<br>[Service]<br>Type=notify<br>PrivateTmp=true<br>ExecStart=/usr/sbin/openvpn --cd /etc/openvpn/ --config %i.conf<br>[Install]<br>WantedBy=multi-user.target<br>EOF<br><br>systemctl daemon-reload <br>systemctl enable --now openvpn@server<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="编写脚本"><a href="#编写脚本" class="headerlink" title="编写脚本"></a>编写脚本</h1><h3 id="脚本完成openVPN安装和初始配置"><a href="#脚本完成openVPN安装和初始配置" class="headerlink" title="脚本完成openVPN安装和初始配置"></a>脚本完成openVPN安装和初始配置</h3><p>​		上述过程稍加修改可写成安装脚本。</p>
+<p>​		包括：创建CA、生成自签名证书、生成dh密钥、修改配置文件、防火墙设置ip转发、CentOS8上还需要创建unit文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>yum -y install openvpn easy-rsa<br><br>cp /usr/share/doc/openvpn/sample/sample-config-files/server.conf /etc/openvpn/<br>cp -r /usr/share/easy-rsa/ /etc/openvpn/easy-rsa-server<br>cp /usr/share/doc/easy-rsa/vars.example /etc/openvpn/easy-rsa-server/3/vars<br><br>cd /etc/openvpn/easy-rsa-server/3/<br>./easyrsa init-pki<br><br>expect &lt;&lt;EOF<br>set timeout 60<br>spawn ./easyrsa build-ca nopass<br>expect &#123;<br>        &quot; [Easy-RSA CA]&quot; &#123; send &quot;\n&quot; &#125;<br>&#125;<br>expect eof<br>EOF<br><br>expect &lt;&lt;EOF<br>set timeout 60<br>spawn ./easyrsa gen-req server nopass <br>expect &#123;<br>        &quot; [server]&quot; &#123; send &quot;\n&quot; &#125;<br>&#125;<br>expect eof<br>EOF<br><br>expect &lt;&lt;EOF<br>set timeout 60<br>spawn ./easyrsa sign server server<br>expect &#123;<br>        &quot;Confirm request details:&quot; &#123; send &quot;yes\n&quot; &#125;<br>&#125;<br>expect eof<br>EOF<br>		<br>./easyrsa gen-dh<br><br>mkdir /etc/openvpn/certs<br>cp /etc/openvpn/easy-rsa-server/3/pki/ca.crt /etc/openvpn/certs/<br>cp /etc/openvpn/easy-rsa-server/3/pki/issued/server.crt /etc/openvpn/certs/ <br>cp /etc/openvpn/easy-rsa-server/3/pki/private/server.key<br>/etc/openvpn/certs/<br>cp /etc/openvpn/easy-rsa-server/3/pki/dh.pem /etc/openvpn/certs/<br><br>cat &gt; /etc/openvpn/server.conf &lt;&lt;EOF<br>port 1194<br>proto tcp<br>dev tun<br>ca /etc/openvpn/certs/ca.crt<br>cert /etc/openvpn/certs/server.crt<br>key /etc/openvpn/certs/server.key  # This file should be kept secret<br>dh /etc/openvpn/certs/dh.pem<br>server 10.8.0.0 255.255.255.0<br>push &quot;route 172.30.0.0 255.255.255.0&quot;<br>keepalive 10 120<br>cipher AES-256-CBC<br>compress lz4-v2<br>push &quot;compress lz4-v2&quot;<br>max-clients 2048<br>user openvpn<br>group openvpn<br>status /var/log/openvpn/openvpn-status.log<br>log-append /var/log/openvpn/openvpn.log<br>verb 3<br>mute 20<br>crl-verify /etc/openvpn/easy-rsa-server/3/pki/crl.pem<br>EOF<br><br>echo net.ipv4.ip_forward = 1 &gt;&gt; /etc/sysctl.conf<br>echo &#x27;iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -j MASQUERADE&#x27; &gt;&gt; /etc/rc.d/rc.local<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">启动服务，CentOS8缺失unit文件，需要创建</span><br><br>if [ `cat /etc/redhat-release | awk  &#x27;&#123; print$4 &#125;&#x27; | awk -F. &#x27;&#123;print$1&#125;&#x27;` -eq 8 ];then<br>cat &gt; /usr/lib/systemd/system/openvpn@.service &lt;&lt;EOF<br>[Unit]<br>Description=OpenVPN Robust And Highly Flexible Tunneling Application On %I<br>After=network.target<br>[Service]<br>Type=notify<br>PrivateTmp=true<br>ExecStart=/usr/sbin/openvpn --cd /etc/openvpn/ --config %i.conf<br>[Install]<br>WantedBy=multi-user.target<br>EOF<br>fi<br><br>systemctl daemon-reload <br>systemctl enable --now openvpn@server<br></code></pre></td></tr></table></figure>
+
+<h3 id="增加新用户脚本"><a href="#增加新用户脚本" class="headerlink" title="增加新用户脚本"></a>增加新用户脚本</h3><p>​		参考上文过程</p>
+<p>​		.&#x2F;easyrsa可以使用输入重定向改为非交互式</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>read -p &quot;请输入用户的姓名拼音: &quot; NAME<br><br>[ -e /etc/openvpn/easy-rsa-client/3 ] || cp -r /usr/share/easy-rsa/ /etc/openvpn/easy-rsa-client<br>cd /etc/openvpn/easy-rsa-client/3<br>./easyrsa gen-req $&#123;NAME&#125; nopass &lt;&lt;EOF<br>EOF<br><br>cd /etc/openvpn/easy-rsa-server/3<br>./easyrsa import-req /etc/openvpn/easy-rsa-client/3/pki/reqs/$&#123;NAME&#125;.req $&#123;NAME&#125;<br>./easyrsa sign client $&#123;NAME&#125; &lt;&lt;EOF<br>yes<br>EOF<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">证书文件复制到服务器client目录下</span><br>mkdir /etc/openvpn/client/$&#123;NAME&#125;/<br>cp &#123;/etc/openvpn/easy-rsa-client/3/pki/private/$&#123;NAME&#125;.key , /etc/openvpn/easy-rsa-server/3/pki/issued/$&#123;NAME&#125;.crt , /etc/openvpn/easy-rsa-server/3/pki/ca.crt &#125; /etc/openvpn/client/$&#123;NAME&#125;/<br></code></pre></td></tr></table></figure>
+
+<h3 id="吊销用户脚本"><a href="#吊销用户脚本" class="headerlink" title="吊销用户脚本"></a>吊销用户脚本</h3><p>​		依然使用.&#x2F;easyrsa脚本。</p>
+<p>​		第一次吊销证时需要编辑配置文件调用吊销证书的文件,后续吊销无需此步。每次吊销证书后,都需要重新启动服务才能生效。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>read -p &quot;请输入吊销用户的姓名拼音: &quot; NAME<br>cd /etc/openvpn/easy-rsa-server/3<br>./easyrsa revoke $&#123;NAME&#125; &lt;&lt;EOF<br>yes<br>EOF<br><br>./easyrsa gen-crl<br><br>[[ `cat /etc/openvpn/server.conf` =~ .*crl-verify.* ]] || echo &quot;crl-verify /etc/openvpn/easy-rsa-server/3/pki/crl.pem&quot; &gt;&gt; /etc/openvpn/server.conf<br><br>systemctl restart openvpn@server.service<br></code></pre></td></tr></table></figure>
+
+
+
+<p>可将上述3个脚本写成函数模块，通过select编写菜单选择调用。一个脚本完成以上3个功能。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/OpenVPN/">OpenVPN</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/OpenVPN/">OpenVPN</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%E6%80%BB%E7%BB%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">数据库原理总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/09/iptables%E4%BD%BF%E7%94%A8%E7%BB%83%E4%B9%A0/">
+                        <span class="hidden-mobile">iptables使用练习</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

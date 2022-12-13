@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		主要总结了Nginx提供web服务、实现四层和七层反向代理的配置方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx反向代理和web服务配置">
+<meta property="og:url" content="http://example.com/2022/08/08/Nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%92%8Cweb%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		主要总结了Nginx提供web服务、实现四层和七层反向代理的配置方法。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/08/08/Nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%92%8Cweb%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE/image-20220809095617774.png">
+<meta property="article:published_time" content="2022-08-08T17:17:25.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.253Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Nginx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/08/08/Nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%92%8Cweb%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE/image-20220809095617774.png">
+  
+  
+  <title>Nginx反向代理和web服务配置 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Nginx反向代理和web服务配置">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-08 17:17" pubdate>
+        August 8, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      16k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      133 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Nginx反向代理和web服务配置</h1>
+            
+            <div class="markdown-body">
+              <p>​		主要总结了Nginx提供web服务、实现四层和七层反向代理的配置方法。</p>
+<span id="more"></span>
+
+<h1 id="Nginx配置文件"><a href="#Nginx配置文件" class="headerlink" title="Nginx配置文件"></a>Nginx配置文件</h1><ul>
+<li>主配置文件：nginx.conf</li>
+<li>子配置文件: include conf.d&#x2F;*.conf</li>
+<li>fastcgi， uwsgi，scgi 等协议相关的配置文件</li>
+<li>mime.types：支持的mime类型，MIME(Multipurpose Internet Mail Extensions)多用途互联网邮件扩展类型，MIME消息能包含文本、图像、音频、视频以及其他应用程序专用的数据，是设定某种扩展名的文件用一种应用程序来打开的方式类型，当该扩展名文件被访问的时候，浏览器会自动使用指定应用程序来打开。多用于指定一些客户端自定义的文件名，以及一些媒体文件打开方式。</li>
+</ul>
+<h3 id="配置文件格式"><a href="#配置文件格式" class="headerlink" title="配置文件格式"></a>配置文件格式</h3><ul>
+<li>配置文件由指令与指令块构成</li>
+<li>每条指令以;分号结尾，指令与值之间以空格符号分隔</li>
+<li>可以将多条指令放在同一行,用分号分隔即可,但可读性差,不推荐</li>
+<li>指令块以{ }大括号将多条指令组织在一起,且可以嵌套指令块</li>
+<li>include语句允许组合多个配置文件以提升可维护性</li>
+<li>使用#符号添加注释，提高可读性</li>
+<li>使用$符号使用变量</li>
+<li>部分指令的参数支持正则表达式</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">主配置文件可分为event、http、mail、stream四部分</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">全局配置端，对全局生效，主要设置nginx的启动用户/组，启动的工作进程数量，工作模式，Nginx的PID</span><br>路径，日志路径等。<br>main block：主配置段，即全局配置段，对http,mail都有效<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">事件驱动相关的配置</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">events设置快，主要影响nginx服务器与用户的网络连接，比如是否允许同时接受多个网络连接，使用哪种事件驱动模型处理请求，每个工作进程可以同时支持的最大连接数，是否开启对多工作进程下的网络连接进行序列化等。</span><br>event &#123;<br> ...<br>&#125;   <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">http/https 协议相关配置段</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">http块是Nginx服务器配置中的重要部分，缓存、代理和日志格式定义等绝大多数功能和第三方模块都可以在这设置，http块可以包含多个server块，而一个server块中又可以包含多个location块，server块可以配置文件引入、MIME-Type定义、日志自定义、是否启用sendfile、连接超时时间和单个链接的请求上限等。</span><br>http &#123;<br>   include       mime.types;<br>   default_type application/octet-stream;<br>   sendfile       on;	#作为web服务器的时候打开sendfile加快静态文件传输，指定是否使用sendfile系统调用来传输文件,sendfile系统调用在两个文件描述符之间直接传递数据，从而避免了数据在内核缓冲区和用户缓冲区之间的拷贝，被称之为零拷贝。<br>   keepalive_timeout  65;  #长连接超时时间，单位是秒<br>   server &#123; #设置一个虚拟机主机，可以包含自己的全局快，同时也可以包含多个location模块。比如本虚拟机监听的端口、本虚拟机的名称和IP配置，多个server 可以使用一个端口，比如都使用80端口提供web服务<br>       listen       80;  #配置server监听的端口<br>       server_name localhost; #本server的名称，当访问此名称的时候nginx会调用当前serevr内部的配置进程匹配。<br>       location / &#123; #location是server的一个指令，为nginx服务器提供多且灵活的指令，基于nginx接受到的请求字符串，对用户请求的UIL进行匹配，并对特定的指令进行处理，实现地址重定向、数据缓存和应答控制等功能。<br>           root   html; #相当于默认页面的目录名称，默认是安装目录的相对路径，可以使用绝对路径配置。<br>           index index.html index.htm; #默认的页面文件名称<br><br>       &#125;<br>       error_page   500 502 503 504 /50x.html; #错误页面的文件名称<br>       location = /50x.html &#123; #location处理对应的不同错误码的页面定义到/50x.html，根为server中定义的目录。<br>           root   html;  #定义默认页面所在的目录<br>       &#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">默认配置文件不包括下面两个块</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">mail 协议相关配置段</span><br>mail &#123;<br> ...<br>&#125;    <br><span class="hljs-meta prompt_">#</span><span class="language-bash">stream 服务器相关配置段</span><br>stream &#123;<br> ...<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">导入其他路径的配置文件</span><br>include /apps/nginx/conf.d/*.conf<br><br></code></pre></td></tr></table></figure>
+
+<h1 id="Web服务配置"><a href="#Web服务配置" class="headerlink" title="Web服务配置"></a>Web服务配置</h1><p>基于不同的IP、不同的端口以及不用得域名实现不同的虚拟主机，依赖于核心模块ngx_http_core_module实现。</p>
+<h3 id="简单示例"><a href="#简单示例" class="headerlink" title="简单示例"></a>简单示例</h3><p>​		根据用户输入的url提供不同的页面，不同的访问错误页面，设置长连接、错误日志</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">为了便于修改和阅读，防止主配置文件过于臃肿，编写子配置文件</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">在主配置文件http段中添加server段（在配置文件的最后面添加此行）</span><br>http &#123;<br> ......<br> include /apps/nginx/conf/conf.d/*.conf; <br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">子配置文件</span><br>server &#123;<br> listen 80;<br> server_name www.test.com;<br> keepalive_requests 200;		#长连接设置：一次长连接资源请求最多200次<br> keepalive_timeout  65 60;		#长连接设置：一次长连接会话时间最多65秒，客户端显示60秒<br> error_log /apps/nginx/logs/test_error.log; #定义错误日志<br> error_page  500 502 503 504 /error.html;  #错误页<br> location = /error.html &#123;<br>   root /data/nginx/html;<br>&#125;<br> location / &#123;<br>   root /data/nginx/html/test;<br>   index index.html;<br> &#125;<br>&#125;<br>server &#123;<br> listen 80;<br> server_name www.test2.com;  <br> location / &#123;<br>   root /data/nginx/html/test2;<br>   index index.html;<br>   try_files $uri  $uri.html $uri/index.html /about/default.html;  #uri不存在则转到默认页面<br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="location匹配详解"><a href="#location匹配详解" class="headerlink" title="location匹配详解"></a>location匹配详解</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs shell">location [ = | ~ | ~* | ^~ ] uri &#123; ... &#125;<br>=   #用于标准uri前，需要请求字串与uri精确匹配，大小敏感,如果匹配成功就停止向下匹配并立即处理请求<br>^~  #用于标准uri前，表示包含正则表达式,并且匹配以指定的正则表达式开头,对uri的最左边部分做匹配检查，不区分字符大小写<br>~   #用于标准uri前，表示包含正则表达式,并且区分大小写<br>~*  #用于标准uri前，表示包含正则表达式,并且不区分大写<br>不带符号 #匹配起始于此uri的所有的uri<br>\   #用于标准uri前，表示包含正则表达式并且转义字符。可以将 . * ?等转义为普通符号<br><br>匹配优先级从高到低：=, ^~, ~/~*, 无符号<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">官方范例</span><br>location = / &#123;<br>   [ configuration A ]<br>&#125;<br>location / &#123;<br>   [ configuration B ]<br>&#125;<br>location /documents/ &#123;<br>   [ configuration C ]<br>&#125;<br>location ^~ /images/ &#123;<br>   [ configuration D ]<br>&#125;<br>location ~* \.(gif|jpg|jpeg)$ &#123;<br>   [ configuration E ]<br>&#125;<br>The “/” request will match configuration A(?), the “/index.html” request will <br>match configuration B,<br>the “/documents/document.html” request will match configuration C, the <br>“/images/1.gif” request will match configuration D, and the “/documents/1.jpg” <br>request will match configuration E.<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">生产案例</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">直接匹配网站根会加速Nginx访问处理</span><br>location = /index.html &#123;<br>   ......;<br>&#125;<br>location / &#123;<br>   ......;<br>&#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">静态资源配置方法1</span><br>location ^~ /static/ &#123;<br>   ......;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">静态资源配置方法2,应用较多</span><br>location ~* \.(gif|jpg|jpeg|png|css|js|ico)$ &#123;<br>   ......;<br>&#125;#多应用配置<br>location ~* /app1 &#123;<br>     ......;<br>&#125;<br>location ~* /app2 &#123;<br>     ......;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="状态页"><a href="#状态页" class="headerlink" title="状态页"></a>状态页</h3><p>​		基于nginx 模块 ngx_http_stub_status_module</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">实际使用时可加上验证功能</span><br>location /nginx_status &#123;<br>   stub_status;<br>   auth_basic           &quot;auth login&quot;;		# 需要ngx_http_auth_basic_module 模块<br>   auth_basic_user_file /apps/nginx/conf/.htpasswd;<br> &#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">状态页中数据</span><br>Active connections： #当前处于活动状态的客户端连接数，包括连接等待空闲连接数<br>=reading+writing+waiting<br>accepts：#统计总值，Nginx自启动后已经接受的客户端请求连接的总数。<br>handled：#统计总值，Nginx自启动后已经处理完成的客户端请求连接总数，通常等于accepts，除非有因<br>worker_connections限制等被拒绝的连接<br>requests：#统计总值，Nginx自启动后客户端发来的总的请求数。<br>Reading：#当前状态，正在读取客户端请求报文首部的连接的连接数,数值越大,说明排队现象严重,性能不足<br>Writing：#当前状态，正在向客户端发送响应报文过程中的连接数,数值越大,说明访问量很大<br>Waiting：#当前状态，正在等待客户端发出请求的空闲连接数，开启 keep-alive的情况下,这个值等于<br>active – (reading+writing)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">使用curl访问状态页配合文本工具筛选可统计访问情况</span><br></code></pre></td></tr></table></figure>
+
+<p>实用变量，其中$proxy_add_x_forwarded_for可解决后端服务器不能统计客户端访问的问题</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$</span><span class="language-bash">remote_addr		<span class="hljs-comment">#存放了客户端的地址，注意是客户端的公网IP</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">proxy_add_x_forwarded_for		<span class="hljs-comment">#此变量表示将客户端IP追加请求报文中X-Forwarded-For首部字段,多个IP之间用逗号分隔,如果请求中没有X-Forwarded-For,就使用$remote_addr</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">args 		<span class="hljs-comment">#变量中存放了URL中的所有参数</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">is_args		<span class="hljs-comment">#如果有参数为? 否则为空</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">document_root 		<span class="hljs-comment">#保存了针对当前资源的请求的系统根目录,例如:/apps/nginx/html</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">request_body_file		 <span class="hljs-comment">#做反向代理时发给后端服务器的本地资源的名称</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">request_uri		<span class="hljs-comment">#包含请求参数的原始URI，不包含主机名，相当于:$document_uri?$args</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">scheme		 <span class="hljs-comment">#请求的协议，例如:http，https,ftp等</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">server_protocol		 <span class="hljs-comment">#保存了客户端请求资源使用的协议的版本，例如:HTTP/1.0，HTTP/1.1，HTTP/2.0等</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">host		<span class="hljs-comment">#存放了请求的host名称</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">http_user_agent		<span class="hljs-comment">#客户端浏览器的详细信息</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">cookie_&lt;name&gt;		<span class="hljs-comment">#name为任意请求报文首部字部cookie的key名</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">http_cookie		<span class="hljs-comment">#客户端的所有cookie信息</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">http_&lt;name&gt;		<span class="hljs-comment">#name为任意请求报文首部字段,表示记录请求报文的首部字段，ame的对应的首部字段名需要为小写，如果有横线需要替换为下划线</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">也可以使用<span class="hljs-built_in">set</span>自定义变量</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="HTTPS配置"><a href="#HTTPS配置" class="headerlink" title="HTTPS配置"></a>HTTPS配置</h3><p>​		nginx 的https 功能基于模块ngx_http_ssl_module实现。yum安装自带，编译安装默认没有。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">自签名CA证书和服务器证书过程省略</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">将服务器证书和CA证书.crt文件内容合并为一个.pem文件，服务器证书内容需要在前</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">将所有请求重定向为https，在对安全有要求的网站非常常见，即使输入了使用http协议依然会转到https页面。</span><br>server &#123;<br> listen 80 default_server;<br> server_name www.test.com;<br> rewrite ^(.*)$ https://$server_name$1 permanent;<br>&#125;<br><br>server &#123;<br> listen 80;<br> listen 443 ssl;<br> ssl_certificate /apps/nginx/certs/www.test.com.pem;      #指定证书和私钥路径<br> ssl_certificate_key /apps/nginx/certs/www.test.com.key;<br> ssl_session_cache shared:sslcache:20m;		#在各worker之间使用一个共享的缓存，需要定义一个缓存名称和缓存空间大小，一M可以存储4000个会话信息，多个虚拟主机可以使用相同的缓存名称<br> ssl_session_timeout 10m;		#客户端连接可以复用ssl session cache中缓存的有效时长，默认5m<br> root /data/nginx/html; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="rewrite功能"><a href="#rewrite功能" class="headerlink" title="rewrite功能"></a>rewrite功能</h3><p>​		需要用 ngx_http_rewrite_module 模块，编译安装需要PCRE库。</p>
+<p>​		rewrite是nginx服务器的重要功能之一，实现URL重写。rewrite指令通过正则表达式的匹配来改变URI，可以同时存在一个或多个指令，按照顺序依次对URI进行匹配，rewrite主要是针对用户请求的URL或者是URI做具体处理。</p>
+<p>​		实现在改变网站结构之后，客户端不需要修改原来的书签，也无需其他网站修改我们的链接，就可以设置为访问，另外还可以在一定程度上提高网站的安全性。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">rewrite有四种不同的flag，分别是redirect(临时重定向302)、permanent(永久重定向301)、<span class="hljs-built_in">break</span>和last。其中前两种是跳转型的flag，后两种是代理型</span><br>redirect;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">临时重定向，重写完成后以临时重定向方式直接返回重写后生成的新URL给客户端，由客户端重新发起请求;使用相对路径,或者http://或https://开头，状态码：302</span><br>permanent;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">重写完成后以永久重定向方式直接返回重写后生成的新URL给客户端，由客户端重新发起请求，状态码：301。与临时的区别是浏览器会缓存，只要有缓存不需要访问代理进行重定向。</span><br>break;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">重写完成后,停止对当前URL在当前location中后续的其它重写操作，而后直接跳转至重写规则配置块之后的其它配置;结束循环，建议在location中使用。适用于一个URL一次重写</span><br>last;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">重写完成后,停止对当前URI在当前location中后续的其它重写操作，而后对新的URL启动新一轮重写检查，不建议在location中使用</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">适用于一个URL多次重写，要注意避免出现超过十次以及URL重写后返回错误的给用户。</span><br></code></pre></td></tr></table></figure>
+
+<p>案例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">接上文https配置，自动跳转https</span><br>location / &#123;    #针对全站跳转<br>   root /data/nginx/html/pc;<br>   index index.html;<br>    if ($scheme = http )&#123;  #如果没有加条件判断，会导致无限重定向，产生错误<br>   rewrite / https://$host redirect;<br>   &#125;  <br> &#125;<br> location /login &#123;     #针对有安全需求的URL进行跳转https <br> if ($scheme = http )&#123;  <br>   rewrite / https://$host/login redirect;<br>   &#125; <br> &#125;<br><span class="hljs-meta prompt_"> </span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">访问错误网页则回到某指引页面</span><br>location / &#123;<br>   root /data/nginx/html/pc;<br>   index index.html;<br>    if (!-e $request_filename) &#123;<br>       rewrite .* http://www.test.org/index.html; #实现客户端浏览器的302跳转<br>       #rewrite .* /index.html; #web服务器内部跳转<br>   &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h1><p>​		反向代理：reverse proxy，指的是代理外网用户的请求到内部的指定的服务器，并将数据返回给用户的</p>
+<p>一种方式。</p>
+<p>​		Nginx代理模块常用的有：</p>
+<p>​		ngx_http_proxy_module： 将客户端的请求以http协议转发至指定服务器进行处理</p>
+<p>​		ngx_http_upstream_module ：用于定义为proxy_pass,fastcgi_pass,uwsgi_pass等指令引用的后端服务器分组</p>
+<p>​		ngx_stream_proxy_module：将客户端的请求以tcp协议转发至指定服务器处理</p>
+<p>​		ngx_http_fastcgi_module：将客户端对php的请求以fastcgi协议转发至指定服务器助理</p>
+<p>​		ngx_http_uwsgi_module： 将客户端对Python的请求以uwsgi协议转发至指定服务器处理</p>
+<h3 id="HTTP协议代理"><a href="#HTTP协议代理" class="headerlink" title="HTTP协议代理"></a>HTTP协议代理</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">proxy_pass; 	用来设置将客户端请求转发给的后端服务器的主机，可以是主机名(将转发至后端服务做为主机头首部)、IP地址：端口的方式</span><br>proxy_pass http://10.0.0.18:80;		#类似于root<br>proxy_pass http://10.0.0.18:80/;	#类似于alias  location使用正则表达式匹配uri时不能加/<br>proxy_hide_header field;	#用于nginx作为反向代理的时候，在返回给客户端http响应时，隐藏后端服务器相应头部的信息，可以设置在http,server或location块<br>proxy_pass_header field;	#默认nginx在响应报文中不传递后端服务器的首部字段Date, Server, X-Pad, X-Accel等参数，如果要传递的话则要使用 proxy_pass_header field声明将后端服务器返回的值传递给客户端<br><br>proxy_set_header;   #可更改或添加客户端的请求头部信息内容并转发至后端服务器，比如在后端服务器想要获取客户端的真实IP的时候，就要更改每一个报文的头部<br><span class="hljs-meta prompt_">#</span><span class="language-bash">IP透传</span><br>proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;<br>proxy_set_header X-Real-IP  $remote_addr;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">在后端httpd服务器修改配置,添加日志记录X-Forwarded-For字段</span><br> LogFormat &quot;%h %l %u %t \&quot;%r\&quot; %&gt;s %b \&quot;%&#123;Referer&#125;i\&quot; \&quot;%&#123;User-Agent&#125;i\&quot; \&quot;%&#123;X-Real-IP&#125;i\&quot;&quot; combined<br><span class="hljs-meta prompt_">#</span><span class="language-bash">在后端服务器查看日志</span><br>[root@centos8 ~]#tail /var/log/httpd/access_log   -f<br>10.0.0.8 - - [09/Oct/2020:21:50:57 +0800] &quot;HEAD /static/index.html HTTP/1.0&quot; 200<br>- &quot;-&quot; &quot;curl/7.29.0&quot; &quot;10.0.0.7&quot;<br><br>proxy_connect_timeout 6s; 	#6s为自定义nginx与后端服务器建立连接的超时时间,超时会返回客户端504响应码<br>proxy_read_timeout time;	#配置nginx服务器向后端服务器或服务器组发起read请求后，等待的超时时间，默认60s<br>proxy_send_timeout time; 	#配置nginx项后端服务器或服务器组发起write请求后，等待的超时时间，默认60s<br>proxy_next_upstream error | timeout | invalid_header | http_500 | http_502 | http_503 | http_504;		#当一台后端朋务器出错,超时,无效首部,500等时,切换至下一个后端服务器提供服务<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">缓存功能</span><br>proxy_cache_valid [code ...] time;		#定义对特定响应码的响应内容的缓存时长，定义在http&#123;...&#125;中<br>proxy_cache_key $request_uri; 	#对指定的数据进行MD5的运算做为缓存的key<br>proxy_cache_valid 200 302 301 10m; 	#指定的状态码返回的数据缓存多长时间<br>proxy_cache_valid any 1m;   #除指定的状态码返回的数据以外的缓存多长时间,必须设置,否则不会缓<br>存<br>proxy_cache_path path;		#定义可用于proxy功能的缓存<br>   levels=1:2:2 #定义缓存目录结构层次，1:2:2可以生成2^4x2^8x2^8=2^20=1048576个目录<br>   keys_zone=proxycache:20m #指内存中缓存的大小，主要用于存放key和metadata（如：使用次数）,一般1M可存放8000个左右的key<br>   inactive=120s  #缓存有效时间  <br>   max_size=10g; #最大磁盘占用空间，磁盘存入文件内容的缓存空间最大值<br></code></pre></td></tr></table></figure>
+
+<p>示例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">针对部分页面代理</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">客户端访问http://www.test.com/static,实际访问的是后端服务器10.0.0.18的/var/www/html/static/index.html</span><br> location /static &#123;<br><span class="hljs-meta prompt_">   #</span><span class="language-bash">proxy_pass http://10.0.0.18:80/; <span class="hljs-comment">#注意有后面的/， 表示置换</span></span><br>   proxy_pass http://10.0.0.18:80;  #后面没有 / , 表示附加<br> &#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">针对部分资源</span><br>location ~ \.(jpe?g|png|bmp|gif)$ &#123;<br>   proxy_pass http://10.0.0.18;     #如果加/ 语法出错                                       <br> &#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">缓存部分页面</span><br>location /static &#123;  			#若放在server配置项对所有URL都进行缓存<br>   proxy_pass http://10.0.0.18:80;<br>   proxy_cache proxycache;<br>   proxy_cache_key $request_uri;<br><span class="hljs-meta prompt_">   #</span><span class="language-bash">proxy_cache_key $host$uri$is_args<span class="hljs-variable">$args</span>;		完整url</span><br>   proxy_cache_valid 200 302 301 10m;<br>   proxy_cache_valid any 5m;  	#必须指定哪些响应码的缓存<br>   <br><span class="hljs-meta prompt_">   #</span><span class="language-bash">proxy_set_header X-Real-IP <span class="hljs-variable">$remote_addr</span>;                   <span class="hljs-comment">#只添加客户端IP到</span></span><br>请求报文头部,转发至后端服务器<br>   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #添加客户端IP和反向代理服务器IP到请求报文头部<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><p>​		Nginx 可以基于ngx_http_upstream_module模块提供服务器分组转发、权重分配、状态监测、调度算法等高级功能。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">自定义一组服务器，配置在http块内</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">可以是server name，也可以是IP:port</span><br>upstream name &#123; <br> server .....<br> ......<br>&#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">server后可加如下参数：</span><br>weight=number 	#设置权重，默认为1,实现类似于LVS中的WRR,WLC等<br>max_conns=number  	#给当前后端server设置最大活动链接数，默认为0表示没有限制<br>max_fails=number  	#后端服务器的下线条件,当客户端访问时,对本次调度选中的后端服务器连续进行检测多少次,如果都失败就标记为不可用,默认为1次,当客户端访问时,才会利用TCP触发对探测后端服务器健康性检查,而非周期性的探测<br>fail_timeout=time #后端服务器的上线条件,对已经检测到处于不可用的后端服务器,每隔此时间间隔再次进行检测是否恢复可用，如果发现可用,则将后端服务器参与调度,默认为10秒<br>backup  #设置为备份服务器，当所有后端服务器不可用时,才会启用此备用服务器<br>down    #标记为down状态,可以平滑下线后端服务器<br>resolve #当server定义的是主机名的时候，当A记录发生变化会自动应用新IP而不用重启Nginx<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">若缓存放在后端服务器，调度到别的主机会丢失缓存，因此需要一致性<span class="hljs-built_in">hash</span>算法调度</span><br>hash $request_uri consistent; #基于用户请求的uri做hash<br>hash $cookie_sessionid  #基于cookie中的sessionid这个key进行hash调度,实现会话绑定<br>ip_hash;	#源地址hash调度方法，基于的客户端的remote_addr(源地址IPv4的前24位或整个IPv6地址)做hash计算，以实现会话保持<br></code></pre></td></tr></table></figure>
+
+<p><img src="image-20220809095617774.png" srcset="/img/loading.gif" lazyload alt="image-20220809095617774"></p>
+<p>​	如果节点较少可能出现哈希环偏斜现象，即聚集分布导致一个节点处理大多数请求，可以按比例增加虚拟节点解决该问题，如1:1变为1000:1000。</p>
+<p>调度示例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">访问http://www.test.com/web调度到2台后端服务器</span><br>http &#123;<br> upstream webserver &#123;<br> least_conn;	#最少连接调度算法，优先将客户端请求调度到当前连接最少的后端服务器,相当于LVS中的WLC<br> server 10.0.0.101:80 weight=1 fail_timeout=5s max_fails=3; #后端服务器状态监测<br> server 10.0.0.102:80 weight=1 fail_timeout=5s max_fails=3;<br> server 127.0.0.1:80 weight=1 fail_timeout=5s max_fails=3 backup;	#本机备用，可作sorry server<br> &#125;<br>server &#123;<br> listen 80;<br> server_name www.test.com;<br> location / &#123;<br>   index index.html index.php;<br>   root /data/nginx/html/pc;<br>   &#125;<br> location /web &#123;<br>   index index.html;<br>   proxy_pass http://webserver/;	#调度到webserver组<br>   proxy_next_upstream error | timeout | invalid_header | http_500 | http_502 | <br>http_503 | http_504;	#后端服务器出错后转为另一台提供服务		<br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="四层负载均衡"><a href="#四层负载均衡" class="headerlink" title="四层负载均衡"></a>四层负载均衡</h3><p>​		其基于ngx_stream_proxy_module模块实现tcp负载，依然需要模块ngx_stream_upstream_module</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs shell">stream &#123; #定义stream相关的服务；Context:main<br>   upstream backend &#123; #定义后端服务器<br>       hash $remote_addr consistent; #定义调度算法为对客户端IP作一致性hash<br>       server backend1.example.com:12345 weight=5; #定义具体server<br>       server 127.0.0.1:12345      max_fails=3 fail_timeout=30s;<br>       server unix:/tmp/backend3;<br>   &#125;<br>   upstream dns &#123;  #定义后端服务器<br>       server 10.0.0.1:53535;  #定义具体server<br>       server dns.example.com:53;<br>   &#125;<br>   server &#123; #定义server<br>       listen 12345; #监听IP:PORT<br>       proxy_connect_timeout 1s; #连接超时时间<br>       proxy_timeout 3s; #转发超时时间<br>       proxy_pass backend; #转发到具体服务器组<br>   &#125;<br>   server &#123;<br>       listen 127.0.0.1:53 udp reuseport;<br>       proxy_timeout 20s;<br>       proxy_pass dns;<br>   &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>案例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">代理mysql和redis，同一主机可在多个组内</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">Nginx的四层代理与LVS的不同，LVS只修改MAC地址，而Nginx对客户端和后端分别作三次握手，相当于默认后端不能看到真实客户端IP，</span><br>stream &#123;<br>   upstream mysql &#123;<br>     server 10.0.0.18:3306 max_fails=3 fail_timeout=30s;<br>     server 10.0.0.28:3306 max_fails=3 fail_timeout=30s;<br>   &#125;<br>   upstream redis &#123;<br>     server 10.0.0.18:6379 max_fails=3 fail_timeout=30s;<br>     server 10.0.0.28:6379 max_fails=3 fail_timeout=30s;<br>   &#125;<br>   server &#123;<br>   	 listen 3306;  #默认tcp，想用udp需要在后面加<br>   	 proxy_pass mysql;<br>   &#125;<br>   server &#123;<br>   	 listen 6379;  <br>   	 proxy_pass redis;<br>   &#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">DNS代理</span><br>stream &#123; <br> upstream dns &#123; <br> server 10.0.0.7:53; <br> server 10.0.0.17:53; <br>   &#125; <br>   server &#123; <br>   listen 53 udp; <br>   proxy_pass dns; <br>   proxy_timeout 1s; <br>   proxy_responses 1;  #使用UDP协议时，设置代理服务器响应客户端期望的数据报文数。该值<br>作为会话的终止条件<br>   error_log logs/dns.log; <br>   &#125; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="FastCGI"><a href="#FastCGI" class="headerlink" title="FastCGI"></a>FastCGI</h3><p>​		nginx&#x2F;apache服务器并不能直接运行 php、java这样的文件，apache实现的方式是打补丁，但是nginx缺通过与第三方基于协议实现，即通过某种特定协议将客户端请求转发给第三方服务处理，第三方服务器会新建新的进程处理用户的请求，处理完成后返回数据给Nginx并回收进程.</p>
+<p>​		基于模块ngx_http_fastcgi_module</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">fastcgi_pass address:port;		#转发请求到后端服务器，address为后端的fastcgi server的地址，可用位置：location, if in location<br>fastcgi_index name;		#fastcgi默认的主页资源，如fastcgi_index index.php;<br>fastcgi_param parameter value [if_not_empty];	#设置传递给FastCGI服务器的参数值，可以是文本，变量或组合，可用于将Nginx的内置变量赋值给自定义key，如fastcgi_param REMOTE_ADDR $remote_addr;<br>fastcgi_cache_key string; 	#定义用作缓存项的key的字符串，示例：fastcgi_cache_key $request_uri;<br>fastcgi_cache_valid [code ...] time; 	#不同的响应码各自的缓存时间<br>fastcgi_cache_path path;	#缓存定义，参数同proxy_cache_path<br></code></pre></td></tr></table></figure>
+
+<p>案例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">根据是否为php资源来调度（动静分离）</span><br>location / &#123;<br>   proxy_pass http://10.0.0.28;<br>   index index.html;<br> &#125;<br> location ~ \.php$ &#123;<br>   root /data/php;<br>   fastcgi_pass   10.0.0.18:9000;<br>   fastcgi_index index.php;<br><span class="hljs-meta prompt_">   #</span><span class="language-bash">fastcgi_param SCRIPT_FILENAME /data/php<span class="hljs-variable">$fastcgi_script_name</span>;</span><br>   fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;	#传递URL<br>   include       fastcgi_params;	#默认有一个参数文件定义了大量参数，直接调用。<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="系统参数优化"><a href="#系统参数优化" class="headerlink" title="系统参数优化"></a>系统参数优化</h1><p>​		默认的Linux内核参数考虑的是最通用场景，不符合用于支持高并发访问的Web服务器的定义。实际使用需要根据nginx的角色如内容服务器、反向代理或者提供压缩服务器的服务器，进行不同的内核参数调整。</p>
+<h3 id="x2F-etc-x2F-sysctl-conf"><a href="#x2F-etc-x2F-sysctl-conf" class="headerlink" title="&#x2F;etc&#x2F;sysctl.conf"></a>&#x2F;etc&#x2F;sysctl.conf</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell">fs.file-max = 1000000	#表示单个进程较大可以打开的句柄数<br>net.ipv4.tcp_tw_reuse = 1 	#参数设置为 1 ，表示允许将TIME_WAIT状态的socket重新用于新的TCP链接，这对于服务器来说意义重大，因为总有大量TIME_WAIT状态的链接存在<br>net.ipv4.tcp_keepalive_time = 600	#当keepalive启动时，TCP发送keepalive消息的频度;默认是2小时，将其设置为10分钟，可更快的清理无效链接<br>net.ipv4.tcp_fin_timeout = 30	#当服务器主动关闭链接时，socket保持在FIN_WAIT_2状态的较大时间8.2 PAM 资源限制优化<br>net.ipv4.tcp_max_tw_buckets = 5000	#表示操作系统允许TIME_WAIT套接字数量的较大值，如超过此值，TIME_WAIT套接字将立刻被清除并打印警告信息,默认为8000，过多的TIME_WAIT套接字会使Web服务器变慢<br>net.ipv4.ip_local_port_range = 1024 65000	#定义UDP和TCP链接的本地端口的取值范围<br>net.ipv4.tcp_rmem = 10240 87380 12582912	#定义了TCP接受缓存的最小值、默认值、较大值<br>net.ipv4.tcp_wmem = 10240 87380 12582912	#定义TCP发送缓存的最小值、默认值、较大值<br>net.core.netdev_max_backlog = 8096	#当网卡接收数据包的速度大于内核处理速度时，会有一个列队保存这些数据包。这个参数表示该列队的较大值<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">四个参数根据业务不同有较大差异</span><br>net.core.rmem_default = 6291456		#表示内核套接字接受缓存区默认大小<br>net.core.wmem_default = 6291456		#表示内核套接字发送缓存区默认大小<br>net.core.rmem_max = 12582912	#表示内核套接字接受缓存区较大大小<br>net.core.wmem_max = 12582912	#表示内核套接字发送缓存区较大大小<br><br>net.ipv4.tcp_syncookies = 1 	#与性能无关。用于解决TCP的SYN攻击<br>net.ipv4.tcp_max_syn_backlog = 8192		#这个参数表示TCP三次握手建立阶段接受SYN请求列队的较大长度，默认1024，将其设置的大一些可使出现Nginx繁忙来不及accept新连接时，Linux不至于丢失客户端发起的链接请求<br>net.ipv4.tcp_tw_recycle = 1 	#这个参数用于设置启用timewait快速回收<br>net.core.somaxconn=262114	#选项默认值是128，这个参数用于调节系统同时发起的TCP连接数，在高并发的请求中，默认的值可能会导致链接超时或者重传，因此需要结合高并发请求数来调节此值。<br>net.ipv4.tcp_max_orphans=262114<br><span class="hljs-meta prompt_">#</span><span class="language-bash">选项用于设定系统中最多有多少个TCP套接字不被关联到任何一个用户文件句柄上。如果超过这个数字，孤立链接将立即被复位并输出警告信息。这个限制指示为了防止简单的DOS攻击，不用过分依靠这个限制甚至认为的减小这个值，更多的情况是增加这个值</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="x2F-etc-x2F-security-x2F-limits-conf"><a href="#x2F-etc-x2F-security-x2F-limits-conf" class="headerlink" title="&#x2F;etc&#x2F;security&#x2F;limits.conf"></a>&#x2F;etc&#x2F;security&#x2F;limits.conf</h3><p>​		修改PAM资源限制</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">soft</span> nofile <span class="hljs-number">65535</span><br><span class="hljs-attribute">hard</span> nofile <span class="hljs-number">65535</span><br><span class="hljs-attribute">soft</span> nproc <span class="hljs-number">65535</span><br><span class="hljs-attribute">hard</span> nproc <span class="hljs-number">65535</span><br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/">反向代理</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Nginx/">Nginx</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/09/LVS%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">LVS原理和配置</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/08/Nginx%E5%9F%BA%E7%A1%80/">
+                        <span class="hidden-mobile">Nginx基础</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

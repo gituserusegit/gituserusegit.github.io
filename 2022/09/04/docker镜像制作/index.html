@@ -1,0 +1,483 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文总结了docker镜像制作的主要命令和步骤。 ​">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker镜像制作">
+<meta property="og:url" content="http://example.com/2022/09/04/docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文总结了docker镜像制作的主要命令和步骤。 ​">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/09/04/docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/image-20220905212025074.png">
+<meta property="og:image" content="http://example.com/2022/09/04/docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/image-20220905215130170.png">
+<meta property="og:image" content="http://example.com/2022/09/04/docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/image-20220905235331530.png">
+<meta property="article:published_time" content="2022-09-04T23:10:05.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.275Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="docker">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/09/04/docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/image-20220905212025074.png">
+  
+  
+  <title>docker镜像制作 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="docker镜像制作">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-09-04 23:10" pubdate>
+        September 4, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.8k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      41 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">docker镜像制作</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文总结了docker镜像制作的主要命令和步骤。</p>
+<p>​	<span id="more"></span></p>
+<h1 id="将容器提交为镜像"><a href="#将容器提交为镜像" class="headerlink" title="将容器提交为镜像"></a>将容器提交为镜像</h1><p><strong>Usage:	docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]</strong></p>
+<p>Create a new image from a container’s changes</p>
+<p>Options:<br>  -a, –author string    Author (e.g., “John Hannibal Smith <a href="mailto:&#x68;&#97;&#110;&#110;&#x69;&#x62;&#x61;&#x6c;&#64;&#x61;&#x2d;&#x74;&#101;&#x61;&#109;&#46;&#x63;&#111;&#109;">&#x68;&#97;&#110;&#110;&#x69;&#x62;&#x61;&#x6c;&#64;&#x61;&#x2d;&#x74;&#101;&#x61;&#109;&#46;&#x63;&#111;&#109;</a>“)<br>  -c, –change list      Apply Dockerfile instruction to the created image<br>  -m, –message string   Commit message<br>  -p, –pause            Pause container during commit (default true)</p>
+<h3 id="下载基础镜像"><a href="#下载基础镜像" class="headerlink" title="下载基础镜像"></a>下载基础镜像</h3><figure class="highlight elixir"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><pre><code class="hljs elixir">root<span class="hljs-variable">@ubuntu1804</span><span class="hljs-symbol">:~</span><span class="hljs-comment"># docker pull centos</span><br>root<span class="hljs-variable">@ubuntu1804</span><span class="hljs-symbol">:~</span><span class="hljs-comment"># docker images</span><br><span class="hljs-title class_">REPOSITORY</span>          <span class="hljs-title class_">TAG</span>                 <span class="hljs-title class_">IMAGE</span> <span class="hljs-title class_">ID</span>            <span class="hljs-title class_">CREATED</span>             <span class="hljs-title class_">SIZE</span><br>centos              latest              <span class="hljs-number">5</span>d0da3dc9764        <span class="hljs-number">11</span> months ago       <span class="hljs-number">231</span>MB<br></code></pre></td></tr></table></figure>
+
+<h3 id="进入容器安装服务"><a href="#进入容器安装服务" class="headerlink" title="进入容器安装服务"></a>进入容器安装服务</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">root@ubuntu1804:~# docker run -it 5d0da3dc9764 bash<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">安装时报错Error: Failed to download metadata <span class="hljs-keyword">for</span> repo <span class="hljs-string">&#x27;appstream&#x27;</span>: Cannot prepare internal mirrorlist: No URLs <span class="hljs-keyword">in</span> mirrorlist</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">上面下载了centos8镜像，由于yum源停止服务，需要修改仓库配置</span><br>[root@f3929ca91032 /]#sed -i &#x27;s/mirrorlist/#mirrorlist/g&#x27; /etc/yum.repos.d/CentOS-*<br>[root@f3929ca91032 /]#sed -i &#x27;s@#baseurl=http://mirror.centos.org@baseurl=http://vault.centos.org@g&#x27; /etc/yum.repos.d/CentOS-*<br><br>[root@f3929ca91032 /]# yum install nginx -y<br></code></pre></td></tr></table></figure>
+
+<h3 id="配置服务"><a href="#配置服务" class="headerlink" title="配置服务"></a>配置服务</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@f3929ca91032 /]#vi /etc/nginx/nginx.conf<br><span class="hljs-meta prompt_">#</span><span class="language-bash">加入该行关闭后台运行</span><br>daemon off;<br>[root@f3929ca91032 /]# vi /usr/share/nginx/html/index.html <br>nginx page on docker f392<br></code></pre></td></tr></table></figure>
+
+<h3 id="提交为镜像"><a href="#提交为镜像" class="headerlink" title="提交为镜像"></a>提交为镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">root@ubuntu1804:~# docker ps<br>CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS          <br>f3929ca91032        5d0da3dc9764        &quot;bash&quot;              17 minutes ago      Up 17 minutes                      <br>root@ubuntu1804:~# docker commit -a &quot;Chow 9527@huafu.com&quot; -m &quot;nginx v9527-1&quot; --change=&quot;EXPOSE 80&quot; f3929ca91032 centos8-nginx:v1<br>sha256:d0e6e079bbfd1c4886f7ff7575fd6343b359764a6c9cf442313b37a441ffe6eb<br><br>root@ubuntu1804:~# docker images<br>REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE<br>centos8-nginx       v1                  d0e6e079bbfd        About a minute ago   342MB<br>centos              latest              5d0da3dc9764        11 months ago        231MB<br><br></code></pre></td></tr></table></figure>
+
+<h1 id="测试镜像"><a href="#测试镜像" class="headerlink" title="测试镜像"></a>测试镜像</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">root@ubuntu1804:~# docker run -d -p 80:80 --name nginx-test-container centos8-nginx:v1 /usr/sbin/nginx<br>4567bd335c478f272ead64b6c07ce4d2c16a6f0001c0e5f3fd8a5cb34637f0cd<br>root@ubuntu1804:~# docker ps<br>CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                               NAMES<br>4567bd335c47        centos8-nginx:v1    &quot;/usr/sbin/nginx&quot;   8 seconds ago       Up 8 seconds        0.0.0.0:80-&gt;80/tcp, :::80-&gt;80/tcp   nginx-test-container<br></code></pre></td></tr></table></figure>
+
+<p>访问宿主机80端口</p>
+<p><img src="image-20220905212025074.png" srcset="/img/loading.gif" lazyload alt="image-20220905212025074"></p>
+<h1 id="dockerfile制作镜像"><a href="#dockerfile制作镜像" class="headerlink" title="dockerfile制作镜像"></a>dockerfile制作镜像</h1><p>详细可参考官方文档<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/reference/builder">https://docs.docker.com/engine/reference/builder</a></p>
+<p>​		Docker可以通过读取Dockerfile中的指令自动构建镜像。Dockerfile是一个文本文档，包含用户可以在命令行上调用的所有命令以组装镜像。dockerfile可以一个镜像为基础进行多次构建，例如可以先以系统镜像为基础，编写安装所需环境的dockerfile，再以生成的第二个镜像为基础，编写安装不同版本服务的dockerfile。</p>
+<p>​		下图为多次构建镜像示意</p>
+<p><img src="image-20220905215130170.png" srcset="/img/loading.gif" lazyload alt="image-20220905215130170"></p>
+<h3 id="Dockerfile基础"><a href="#Dockerfile基础" class="headerlink" title="Dockerfile基础"></a>Dockerfile基础</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile"><span class="hljs-keyword">FROM</span>  image:<span class="hljs-keyword">label</span><span class="language-bash"> 	<span class="hljs-comment">#用于指定父镜像，必须为除注释外第一行</span></span><br><span class="hljs-keyword">ADD</span><span class="language-bash"> <span class="hljs-comment">#用于添加宿主机本地的文件、目录、压缩等资源到镜像里面去，会自动解压tar.gz格式的压缩包，不会自动解压zip</span></span><br><span class="hljs-keyword">MAINTAINER</span>   <span class="hljs-comment">#镜像的作者信息</span><br><span class="hljs-keyword">LABEL</span><span class="language-bash"> <span class="hljs-comment">#设置镜像的属性标签</span></span><br><span class="hljs-keyword">COPY</span><span class="language-bash"> <span class="hljs-comment">#用于添加宿主机本地的文件、目录、压缩等资源到镜像里面去，不会解压任何压缩包</span></span><br><span class="hljs-keyword">ENV</span> <span class="hljs-comment">#设置容器环境变量</span><br><span class="hljs-keyword">USER</span> nginx <span class="hljs-comment">#指定运行操作的用户</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> COMMAND1 &amp;&amp; COMMAND2  <span class="hljs-comment">#执行shell命令，但是一定要以非交互式的方式执行</span></span><br><span class="hljs-keyword">VOLUME</span><span class="language-bash"> <span class="hljs-comment">#创建具有指定名称的挂载点，并将其标记为保存来自本机主机或其他容器的外部挂载卷。</span></span><br><span class="hljs-keyword">WORKDIR</span><span class="language-bash"> <span class="hljs-comment">#用于定义工作目录  WORKDIR /a  WORKDIR b 后目录变为/a/b</span></span><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">80</span> <span class="hljs-comment">#声明需要映射的端口（没有实际作用）</span><br><br><span class="hljs-keyword">CMD</span><span class="language-bash">  <span class="hljs-comment">#镜像启动为一个容器时候的默认命令或脚本， CMD [&quot;/bin/bash&quot;] </span></span><br><span class="hljs-keyword">ENTRYPOINT</span><span class="language-bash"> <span class="hljs-comment">#也可以用于定义容器在启动时候默认执行的命令或者脚本，如果是和CMD命令混合使用的时候，会将CMD的命令当做参数传递给ENTRYPOINT后面的脚本，可以在脚本中对参数做判断并相应的容器初始化操作。</span></span><br><br><span class="hljs-keyword">ENTRYPOINT</span><span class="language-bash">(脚本) + CMD(参数)	<span class="hljs-comment">#混用</span></span><br></code></pre></td></tr></table></figure>
+
+<p>以下用nginx的镜像构建过程为例</p>
+<h3 id="基础镜像"><a href="#基础镜像" class="headerlink" title="基础镜像"></a>基础镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">按上面的方法，配置centos镜像的软件仓库后提交为新镜像，并以此为基础镜像</span><br>root@ubuntu1804:~# docker images<br>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE<br>centos8             v2                  dc87a8b50bf1        4 seconds ago       260MB<br></code></pre></td></tr></table></figure>
+
+<h3 id="编写dockerfile"><a href="#编写dockerfile" class="headerlink" title="编写dockerfile"></a>编写dockerfile</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile">root@ubuntu1804:~<span class="hljs-comment"># mkdir nginx </span><br><span class="hljs-comment">#文件名必须为Dockerfile</span><br>root@ubuntu1804:~/nginx<span class="hljs-comment"># vim Dockerfile</span><br><span class="hljs-comment">#test2 nginx dockerfile</span><br><span class="hljs-keyword">FROM</span> centos8:v2	<br><span class="hljs-comment">#准备编译环境</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> yum install -y vim wget tree lrzsz gcc gcc-c++ automake pcre pcre-devel zlib zlib-devel openssl openssl-devel iproute net-tools iotop</span><br><span class="hljs-keyword">ADD</span><span class="language-bash"> nginx-1.16.1.tar.gz /usr/local/src/</span><br><span class="hljs-comment">#编译安装</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">cd</span> /usr/local/src/nginx-1.16.1 &amp;&amp; ./configure --prefix=/usr/local/nginx --with-http_sub_module &amp;&amp; make &amp;&amp; make install</span><br><span class="hljs-comment">#拷贝配置文件</span><br><span class="hljs-keyword">ADD</span><span class="language-bash"> nginx.conf /usr/local/nginx/conf/nginx.conf</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> useradd nginx -s /sbin/nologin</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">ln</span> -s /usr/local/nginx/sbin/nginx /usr/sbin/nginx</span><br><span class="hljs-comment">#准备测试页面</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;test nginx page&quot;</span> &gt; /usr/local/nginx/html/index.html</span><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">80</span> <span class="hljs-number">443</span><br><span class="hljs-keyword">CMD</span><span class="language-bash"> [<span class="hljs-string">&quot;nginx&quot;</span>,<span class="hljs-string">&quot;-g&quot;</span>,<span class="hljs-string">&quot;daemon off;&quot;</span>]</span><br><br><span class="hljs-comment">#CMD需要关闭后台执行		If you add a custom CMD in the Dockerfile, be sure to include -g daemon off; in the CMD in order for nginx to stay in the foreground, so that Docker can track the process properly (otherwise your container will stop immediately after starting)!</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="生成镜像"><a href="#生成镜像" class="headerlink" title="生成镜像"></a>生成镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs shell">root@ubuntu1804:~/nginx# ls<br>Dockerfile  nginx-1.16.1.tar.gz  nginx.conf<br>root@ubuntu1804:~/nginx# docker build -h<br>Usage:	docker build [OPTIONS] PATH | URL | -<br>  -f, --file string             Name of the Dockerfile (Default is &#x27;PATH/Dockerfile&#x27;)<br>  -t, --tag list                Name and optionally a tag in the &#x27;name:tag&#x27; format<br>root@ubuntu1804:~/nginx# docker build -t nginx-test:v1 .<br>...<br>...<br>Step 10/10 : CMD [&quot;nginx&quot;,&quot;-g&quot;,&quot;daemon off;&quot;]<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">Running <span class="hljs-keyword">in</span> 3a8df215e104</span><br>Removing intermediate container 3a8df215e104<br><span class="hljs-meta prompt_"> ---&gt; </span><span class="language-bash">7d3ed59330ba</span><br>Successfully built 7d3ed59330ba<br>Successfully tagged nginx-test:v1<br><br>root@ubuntu1804:~/nginx# docker images<br>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE<br>nginx-test          v1                  7d3ed59330ba        2 minutes ago       600MB<br><br>root@ubuntu1804:~/nginx# docker run -it -d -p 80:80 7d3ed59330ba  <br></code></pre></td></tr></table></figure>
+
+<p><img src="image-20220905235331530.png" srcset="/img/loading.gif" lazyload alt="image-20220905235331530"></p>
+<p>其他服务同理，docker镜像构建步骤类似。可以一步完成构建也可以分多次构建。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%AE%B9%E5%99%A8/">容器</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/docker/">docker</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">docker镜像存储与分发</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/04/docker%E5%AE%B9%E5%99%A8%E5%9F%BA%E7%A1%80/">
+                        <span class="hidden-mobile">docker容器基础</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

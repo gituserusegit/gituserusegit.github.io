@@ -1,0 +1,547 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要总结了Tomcat的安装、使用和配置方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tomcat配置总结">
+<meta property="og:url" content="http://example.com/2022/08/10/Tomcat%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要总结了Tomcat的安装、使用和配置方法。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/08/10/Tomcat%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/image-20220811145421292.png">
+<meta property="og:image" content="http://example.com/2022/08/10/Tomcat%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/image-20220811163555927.png">
+<meta property="og:image" content="http://example.com/2022/08/10/Tomcat%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/image-20220812175643796.png">
+<meta property="og:image" content="http://example.com/2022/08/10/Tomcat%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/image-20220812180929330.png">
+<meta property="article:published_time" content="2022-08-10T18:12:18.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.270Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Tomcat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/08/10/Tomcat%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/image-20220811145421292.png">
+  
+  
+  <title>Tomcat配置总结 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Tomcat配置总结">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-10 18:12" pubdate>
+        August 10, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      9k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      75 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Tomcat配置总结</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要总结了Tomcat的安装、使用和配置方法。</p>
+<span id="more"></span>
+
+<h1 id="Tomcat安装和使用"><a href="#Tomcat安装和使用" class="headerlink" title="Tomcat安装和使用"></a>Tomcat安装和使用</h1><p>​		Tomcat 服务器是一个免费的开放源代码的Web 应用服务器，属于轻量级应用服务器，并发性能较差，Tomcat 除了能处理HTML页面，还是一个Servlet和JSP容器，可以负责处理java应用。</p>
+<p>​		目前主流的使用的大版本是7和8。CentOS8包仓库中没有，其他Linux发行版带有的Tomcat版本较旧，依然需要自行下载安装。</p>
+<p>​		官网下载： <a target="_blank" rel="noopener" href="http://tomcat.apache.org/">http://tomcat.apache.org/</a></p>
+<p>​		国内镜像站点：<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/">https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/</a></p>
+<h3 id="安装和初始配置"><a href="#安装和初始配置" class="headerlink" title="安装和初始配置"></a>安装和初始配置</h3><p>​		Tomcat需要JAVA环境，因此要先安装JDK，可以选择付费的Oracle JDK 或开源的Open JDK。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">如安装Open JDK1.8版本需要以下两个软件包，可直接yum安装</span><br>java-1.8.0-openjdk.x86_64 java-1.8.0-openjdk-devel<br><span class="hljs-meta prompt_">#</span><span class="language-bash">安装后可查看版本信息java -version</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">下载Tomcat软件后解包，并进到软件目录下</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">软件路径加入PATH变量</span><br>echo &#x27;PATH=/usr/local/tomcat/bin:$PATH&#x27; &gt; /etc/profile.d/tomcat.sh<br>. /etc/profile.d/tomcat.sh<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">修改配置</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">若不指定该变量，将无法启动Tomcat</span><br>vim /usr/local/tomcat/conf/tomcat.conf<br>JAVA_HOME=/usr/local/jdk 	#或/usr/local/jdk/jre<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">可采用以下安装后自带脚本管理</span><br>catalina.sh 	#直接运行可查看丰富的用法和描述，可以在后面加上显示的command进行管理<br>startup.sh		#启动Tomcat<br>shutdown.sh		#关闭<br><span class="hljs-meta prompt_">#</span><span class="language-bash">按以上方法启动的Tomcat进程可以看到是由root身份运行，不安全。解决方法如下</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">为其进程创建专用账号</span> <br>useradd -r -s /sbin/nologin tomcat<br>chown -R tomcat.tomcat /安装路径/tomcat/<br><span class="hljs-meta prompt_">#</span><span class="language-bash">配置service文件</span><br>vim /lib/systemd/system/tomcat.service<br>[Unit]<br>Description=Tomcat<br>After=syslog.target network.target <br>[Service]<br>Type=forking<br>EnvironmentFile=/安装路径/tomcat/conf/tomcat.conf<br>ExecStart=/安装路径/tomcat/bin/startup.sh<br>ExecStop=/安装路径/tomcat/bin/shutdown.sh<br>PrivateTmp=true<br>User=tomcat			#使Tomcat进程以普通用户身份运行<br>Group=tomcat<br>[Install]<br>WantedBy=multi-user.target<br><br>systemctl daemon-reload<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">以后可通过systemd管理</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="文件结构"><a href="#文件结构" class="headerlink" title="文件结构"></a>文件结构</h3><p>Tomcat目录下有以下目录</p>
+<ul>
+<li><p>bin 服务启动、停止等相关程序和文件</p>
+</li>
+<li><p><strong>conf</strong> 配置文件</p>
+</li>
+<li><p>lib 库目录</p>
+</li>
+<li><p>logs 日志目录</p>
+</li>
+<li><p><strong>webapps</strong> 应用程序，应用部署目录</p>
+<p>​		每个部署的应用子目录含有以下文件</p>
+<ul>
+<li>主页配置：默认按以下顺序查找主页文件 index.html，index.htm、index.jsp</li>
+<li>WEB-INF&#x2F;：当前目录WebApp的私有资源路径，通常存储当前应用使用的web.xml和context.xml配置文件	</li>
+<li>META-INF&#x2F;：类似于WEB-INF，也是私有资源的配置信息，和WEB-INF&#x2F;目录一样浏览器无法访问</li>
+<li>classes&#x2F;：类文件，当前webapp需要的类</li>
+<li>lib&#x2F;：当前应用依赖的jar包</li>
+</ul>
+</li>
+<li><p>work   jsp编译后的结果文件，建议提前预热访问</p>
+</li>
+</ul>
+<h3 id="Tomcat组件结构"><a href="#Tomcat组件结构" class="headerlink" title="Tomcat组件结构"></a>Tomcat组件结构</h3><ul>
+<li>Server，代表整个Tomcat容器，一台主机可以启动多tomcat实例，需要确保端口不要产生冲突</li>
+<li>Service，实现组织Engine和Connector，建立两者之间关联关系, service 里面只能包含一个Engine</li>
+<li>Connector，有HTTP（默认端口8080&#x2F;tcp）、HTTPS（默认端口8443&#x2F;tcp）、AJP（默认端口8009&#x2F;tcp）协议的连接器，AJP（Apache Jserv protocol）是一种基于TCP的二进制通讯协议。</li>
+<li>Engine、Host（虚拟主机）、Context(上下文件,解决路径映射)都是容器类组件，可以嵌入其它组件，内部配置如何运行应用程序。</li>
+<li>可以内嵌到其他组件内，valve、logger、realm、loader、manager等。以logger举例，在不同容器组件内分别定义。</li>
+<li>集群类组件listener、cluster</li>
+</ul>
+<p><img src="image-20220811145421292.png" srcset="/img/loading.gif" lazyload alt="image-20220811145421292"></p>
+<h3 id="conf目录主要配置文件"><a href="#conf目录主要配置文件" class="headerlink" title="conf目录主要配置文件"></a>conf目录主要配置文件</h3><p>​		<strong>server.xml</strong> 	主配置文件</p>
+<p>​		<strong>web.xml</strong>		每个webapp只有“部署”后才能被访问，它的部署方式通常由web.xml进行定义，其存放位置为WEB-INF&#x2F;目录中；此文件为所有的webapps提供默认部署相关的配置,每个web应用也可以使用专用配置文件覆盖全局文件中的设置。</p>
+<p>​		<strong>context.xml</strong>		用于定义所有web应用均需加载的Context配置，此文件为所有的webapps提供默认配置，每个web应用也可以使用自已专用的配置，它通常由专用的配置文件context.xml来定义，其存放位置为WEB-INF&#x2F;目录中,覆盖全局的文件</p>
+<p>​		其它文件省略</p>
+<h3 id="应用部署"><a href="#应用部署" class="headerlink" title="应用部署"></a>应用部署</h3><p>​		将webapp的源文件放置到目标目录，通过web.xml和context.xml文件中配置的路径就可以访问该webapp，通过类加载器加载其特有的类和依赖的类到JVM上。</p>
+<p>​		自动部署：将war包放到webapps&#x2F;目录下，Tomcat一旦发现多了一个web应用的war包，默认会自动把它解压缩，加载并启动起来，来源于conf&#x2F;server.xml配置文件的这一行。最终可看到生成同名文件夹。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">Host</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;localhost&quot;</span>  <span class="hljs-attr">appBase</span>=<span class="hljs-string">&quot;webapps&quot;</span> <span class="hljs-attr">unpackWARs</span>=<span class="hljs-string">&quot;true&quot;</span> <span class="hljs-attr">autoDeploy</span>=<span class="hljs-string">&quot;true&quot;</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>​		自动部署较为方便，想移除应用项目时仅需删除.war包，过几秒后会发现应用文件夹也被移除。</p>
+<p>​		手动部署：分冷部署，将webapp放到指定目录，才去启动Tomcat服务；热部署，Tomcat服务不停止，需要依赖manager、ant脚本、tcd等工具。</p>
+<p>​		</p>
+<h1 id="Tomcat配置总结"><a href="#Tomcat配置总结" class="headerlink" title="Tomcat配置总结"></a>Tomcat配置总结</h1><p>​		实际使用前需要解决一个8005端口的安全风险</p>
+<h3 id="关闭管理端口"><a href="#关闭管理端口" class="headerlink" title="关闭管理端口"></a>关闭管理端口</h3><p>​		在主配置文件conf&#x2F;server.xml中可以看到</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">Server</span> <span class="hljs-attr">port</span>=<span class="hljs-string">&quot;8005&quot;</span> <span class="hljs-attr">shutdown</span>=<span class="hljs-string">&quot;SHUTDOWN&quot;</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>​		8005是Tomcat的管理端口，默认监听在本机上。无需验证就可发送SHUTDOWN字符串关闭server，tomcat接收到后就会执行该命令。但此行不能注释，否则无法启动Tomcat。</p>
+<p>解决方法如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">Server</span> <span class="hljs-attr">port</span>=<span class="hljs-string">&quot;-1&quot;</span> <span class="hljs-attr">shutdown</span>=<span class="hljs-string">&quot;SHUTDOWN&quot;</span>&gt;</span>			无效端口，相当于关闭<br><span class="hljs-tag">&lt;<span class="hljs-name">Server</span> <span class="hljs-attr">port</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">shutdown</span>=<span class="hljs-string">&quot;SHUTDOWN&quot;</span>&gt;</span>			使用随机端口，但有被扫描到该端口的风险<br></code></pre></td></tr></table></figure>
+
+<h3 id="主要配置"><a href="#主要配置" class="headerlink" title="主要配置"></a>主要配置</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs xml">一般情况下，一个Server实例配置一个Service，name属性相当于该Service的ID<br><span class="hljs-tag">&lt;<span class="hljs-name">Service</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Catalina&quot;</span>&gt;</span><br><br>连接器配置，包括监听端口，协议，https访问也由该连接器负责<br>如果以普通用户Tomcat身份运行进程，则不能使用1024以下端口<br>   <span class="hljs-tag">&lt;<span class="hljs-name">Connector</span> <span class="hljs-attr">port</span>=<span class="hljs-string">&quot;8080&quot;</span> <span class="hljs-attr">protocol</span>=<span class="hljs-string">&quot;HTTP/1.1&quot;</span></span><br><span class="hljs-tag">               <span class="hljs-attr">connectionTimeout</span>=<span class="hljs-string">&quot;20000&quot;</span></span><br><span class="hljs-tag">               <span class="hljs-attr">redirectPort</span>=<span class="hljs-string">&quot;8443&quot;</span> /&gt;</span><br><br>引擎设置，其中指定了默认虚拟主机，即以IP地址形式访问本机时访问的虚拟主机<br>   <span class="hljs-tag">&lt;<span class="hljs-name">Engine</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Catalina&quot;</span> <span class="hljs-attr">defaultHost</span>=<span class="hljs-string">&quot;localhost&quot;</span>&gt;</span><br>       <br>       <br>虚拟主机配置<br>name 必须是主机名，用主机名来匹配<br>appBase 当前主机的网页根目录，是相对于 $CATALINA_HOME ，也可以使用绝对路径<br>unpackWARs 是否自动解压war格式<br>autoDeploy 热部署，自动加载并运行应用<br>       <br><span class="hljs-tag">&lt;<span class="hljs-name">Host</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;web1.magedu.org&quot;</span> <span class="hljs-attr">appBase</span>=<span class="hljs-string">&quot;/data/webapps/&quot;</span> <span class="hljs-attr">unpackWARs</span>=<span class="hljs-string">&quot;True&quot;</span> <span class="hljs-attr">autoDeploy</span>=<span class="hljs-string">&quot;false&quot;</span>&gt;</span><br>虚拟主机专有访问日志，&amp;quot是双引号<br><span class="hljs-tag">&lt;<span class="hljs-name">Valve</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;org.apache.catalina.valves.AccessLogValve&quot;</span> <span class="hljs-attr">directory</span>=<span class="hljs-string">&quot;logs&quot;</span></span><br><span class="hljs-tag"><span class="hljs-attr">prefix</span>=<span class="hljs-string">&quot;web1_access_log&quot;</span> <span class="hljs-attr">suffix</span>=<span class="hljs-string">&quot;.txt&quot;</span> <span class="hljs-attr">pattern</span>=<span class="hljs-string">&quot;%h %l %u %t <span class="hljs-symbol">&amp;quot;</span>%r<span class="hljs-symbol">&amp;quot;</span> %s </span></span><br><span class="hljs-string"><span class="hljs-tag">%b&quot;</span> /&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">Host</span>&gt;</span><br> <br>如果不加日志也可以只写第一行<br></code></pre></td></tr></table></figure>
+
+<h3 id="context配置"><a href="#context配置" class="headerlink" title="context配置"></a>context配置</h3><p>​		该部分配置可实现路径映射：将url映射至指定路径，而非使用appBase下的物理目录，实现虚拟目录功能。应用独立配置，例如单独配置应用日志、单独配置应用访问控制。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs xml">映射指定路径<br><span class="hljs-tag">&lt;<span class="hljs-name">Context</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/test&quot;</span> <span class="hljs-attr">docBase</span>=<span class="hljs-string">&quot;/data/test&quot;</span> <span class="hljs-attr">reloadable</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br>映射站点的根目录<br><span class="hljs-tag">&lt;<span class="hljs-name">Context</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/&quot;</span> <span class="hljs-attr">docBase</span>=<span class="hljs-string">&quot;/data/website&quot;</span> <span class="hljs-attr">reloadable</span>=<span class="hljs-string">&quot;true&quot;</span> /&gt;</span><br><br>path：URL路径，如果path与appBase下面的子目录同名，context的docBase路径优先更高<br>docBase：可以是磁盘文件的绝对路径，也可以是相对路径<br>reloadable：true表示如果WEB-INF/classes或META-INF/lib目录下.class文件有改动，就会将WEB应用重新加载。生产环境中，建议使用false来禁用。<br><br>#范例，软件升级和回滚<br><span class="hljs-tag">&lt;/<span class="hljs-name">Host</span>&gt;</span> <br> <span class="hljs-tag">&lt;<span class="hljs-name">Host</span>  <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;node1.magedu.org&quot;</span>  <span class="hljs-attr">appBase</span>=<span class="hljs-string">&quot;/data/webapps1&quot;</span>&gt;</span><br> <span class="hljs-tag">&lt;<span class="hljs-name">Context</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/app1&quot;</span> <span class="hljs-attr">docBase</span>=<span class="hljs-string">&quot;/data/app1&quot;</span> <span class="hljs-attr">reloadable</span>=<span class="hljs-string">&quot;true&quot;</span> &gt;</span><br> <span class="hljs-tag">&lt;/<span class="hljs-name">Context</span>&gt;</span><br>创建软链接<br>ln -s /data/app1-v1/ /data/app1 <br>访问http://node1.magedu.org:8080/app1/  实际上访问了/data/app1-v1/     <br>升级只需换软链接ln -s /data/app1-v2/ /data/app1   或修改配置文件，但需要重新加载<br>回滚同理<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="多虚拟主机配置实验"><a href="#多虚拟主机配置实验" class="headerlink" title="多虚拟主机配置实验"></a>多虚拟主机配置实验</h3><p>​		模拟部署两个应用，客户端输入域名访问两个网站</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">创建目录，如果设置了Tomcat进程使用普通账号，这两个文件夹需要改所属者</span><br>mkdir /data/webapps&#123;1,2&#125;/ROOT -pv<br><span class="hljs-meta prompt_">#</span><span class="language-bash">准备测试jsp文件，内容如下</span><br>vim /data/webapps1/ROOT/index.jsp<br><br>&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot;<br>    pageEncoding=&quot;UTF-8&quot;%&gt;<br>&lt;!DOCTYPE html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>   &lt;meta charset=&quot;utf-8&quot;&gt;<br>   &lt;title&gt;jsp例子&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>后面的内容是服务器端动态生成字符串，最后拼接在一起<br>&lt;br&gt;<br>&lt;%=request.getRequestURL()%&gt;<br>&lt;/body&gt;<br>&lt;/html&gt;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">修改conf/server.xml，添加四行</span><br>	 &lt;Host  name=&quot;node1.magedu.org&quot;  appBase=&quot;/data/webapps1&quot;&gt;<br>     &lt;/Host&gt;<br>     &lt;Host  name=&quot;node2.magedu.org&quot;  appBase=&quot;/data/webapps2&quot;&gt;<br>     &lt;/Host&gt;<br>     <br><span class="hljs-meta prompt_">#</span><span class="language-bash">测试</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">Windows改域名解析文件后打开浏览器</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">访问 http://node1.magedu.org:8080/</span><br>后面的内容是服务器端动态生成字符串，最后拼接在一起<br>http://node1.magedu.org:8080/<br><span class="hljs-meta prompt_">#</span><span class="language-bash">访问 http://node2.magedu.org:8080/</span><br>后面的内容是服务器端动态生成字符串，最后拼接在一起<br>http://node2.magedu.org:8080/<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">在Linux上查看</span><br>curl http://node1.magedu.org:8080/<br>&lt;!DOCTYPE html&gt;<br>&lt;html&gt;<br>&lt;head&gt;<br>   &lt;meta charset=&quot;utf-8&quot;&gt;<br>   &lt;title&gt;jsp例子&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>后面的内容是服务器端动态生成字符串，最后拼接在一起<br>http://node1.magedu.org:8080/<br>&lt;/body&gt;<br>&lt;/html&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="开启管理页面"><a href="#开启管理页面" class="headerlink" title="开启管理页面"></a>开启管理页面</h3><p>​		Tomcat的状态页可以查看服务器信息，JVM内存使用情况，管理页可以部署和删除应用</p>
+<p>​		Tomcat的默认页面可以看到有几个按钮，点击可进入状态页和管理页面，默认不能访问。访问后提示403，访问被拒绝，根据提示修改配置文件。本质上是访问了webapps&#x2F;manage文件夹</p>
+<p><img src="image-20220811163555927.png" srcset="/img/loading.gif" lazyload alt="image-20220811163555927"></p>
+<p>只允许本机访问</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml">修改conf/tomcat-users.xml    <br>    <span class="hljs-tag">&lt;<span class="hljs-name">role</span> <span class="hljs-attr">rolename</span>=<span class="hljs-string">&quot;manager-gui&quot;</span>/&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">role</span> <span class="hljs-attr">rolename</span>=<span class="hljs-string">&quot;admin-gui&quot;</span> /&gt;</span>      添加新的role <br>    <span class="hljs-tag">&lt;<span class="hljs-name">user</span> <span class="hljs-attr">username</span>=<span class="hljs-string">&quot;admin&quot;</span> <span class="hljs-attr">password</span>=<span class="hljs-string">&quot;123456&quot;</span> <span class="hljs-attr">roles</span>=<span class="hljs-string">&quot;manager-gui,admin-gui&quot;</span>/&gt;</span>   添加验证用户，可输入用户名密码访问页面<br></code></pre></td></tr></table></figure>
+
+<p>允许远程访问</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xml">修改webapps/manager/META-INF/context.xml<br><span class="hljs-tag">&lt;<span class="hljs-name">Context</span> <span class="hljs-attr">antiResourceLocking</span>=<span class="hljs-string">&quot;false&quot;</span> <span class="hljs-attr">privileged</span>=<span class="hljs-string">&quot;true&quot;</span> &gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">Valve</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;org.apache.catalina.valves.RemoteAddrValve&quot;</span></span><br><span class="hljs-tag">         <span class="hljs-attr">allow</span>=<span class="hljs-string">&quot;127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1&quot;</span> /&gt;</span><br>    <br>可以猜到allow为允许的ipv4或ipv6地址，“|”为或的意思，添加允许的网段<br>allow=&quot;127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1|192\.168\.\d+\.\d+&quot; /&gt;<br></code></pre></td></tr></table></figure>
+
+<h1 id="Session复制"><a href="#Session复制" class="headerlink" title="Session复制"></a>Session复制</h1><p>​		尽管可以使用多台Tomcat+反向代理实现Tomcat的高可用，但一台主机下线将会导致session丢失，导致用户体验不佳。</p>
+<p>​		假设有多个Tomcat服务器都将Session持久化，如果节点A下线期间用户切换到了节点B上，节点B发现用户报文携带的节点A的session ID是陌生的，认为是新的会话，原有Sesssion将丢失。因此需要实现Session的高可用性来解决该问题。</p>
+<p>​		以下解决方案具有一定局限性（性能或并发性不佳），生产环境中一般使用Redis，小架构也可以使用memcached。</p>
+<h3 id="Tomcat-Session-Replication-Cluster"><a href="#Tomcat-Session-Replication-Cluster" class="headerlink" title="Tomcat Session Replication Cluster"></a><strong>Tomcat Session Replication Cluster</strong></h3><p>​		Tomcat 官方实现的Session 复制集群。此方案的缺点是基于多播实现心跳，TCP单播实现复制，Tomcat集群规模越大越不适合。且高并发连接时，单机上的所有session占据的内存空间非常巨大，甚至耗尽内存。</p>
+<p>​		可直接使用官方配置，稍作修改。</p>
+<p><a target="_blank" rel="noopener" href="https://tomcat.apache.org/tomcat-8.5-doc/cluster-howto.html">https://tomcat.apache.org/tomcat-8.5-doc/cluster-howto.html</a></p>
+<p><img src="image-20220812175643796.png" srcset="/img/loading.gif" lazyload alt="image-20220812175643796"></p>
+<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs pf">仅有以下内容可能需要修改<br> address=<span class="hljs-string">&quot;228.0.0.4&quot;</span>         <span class="hljs-comment">#指定的多播地址</span><br> <span class="hljs-keyword">port</span>=<span class="hljs-string">&quot;45564&quot;</span>   			 <span class="hljs-comment">#采用UDP</span><br> frequency=<span class="hljs-string">&quot;500&quot;</span>             <span class="hljs-comment">#间隔500ms发送</span><br> <span class="hljs-keyword">drop</span>Time=<span class="hljs-string">&quot;3000&quot;</span>/&gt;           <span class="hljs-comment">#故障阈值3s</span><br> <br> address=<span class="hljs-string">&quot;auto&quot;</span>   			 <span class="hljs-comment">#监听地址,此项建议修改为当前主机的IP</span><br> <span class="hljs-keyword">port</span>=<span class="hljs-string">&quot;4000&quot;</span> 				 <span class="hljs-comment">#监听端口</span><br> autoBind=<span class="hljs-string">&quot;100&quot;</span> 			 <span class="hljs-comment">#如果端口冲突,自动绑定其它端口,范围是4000-4100</span><br> selectorTimeout=<span class="hljs-string">&quot;5000&quot;</span>     <span class="hljs-comment">#自动绑定超时时长5s</span><br> <span class="hljs-keyword">max</span>Threads=<span class="hljs-string">&quot;6				#最大线程数</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Session服务器"><a href="#Session服务器" class="headerlink" title="Session服务器"></a>Session服务器</h3><p>​		使用MSM（memcached session manager）提供将Tomcat的session保持到memcached或redis的程序，可以实现高可用。</p>
+<p><img src="image-20220812180929330.png" srcset="/img/loading.gif" lazyload alt="image-20220812180929330"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">反向代理可以说nginx，HAproxy等软件，调度配置省略</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">两台session服务器安装memcached，配置需要相同</span><br>vim /etc/sysconfig/memcached<br>PORT=&quot;11211&quot;<br>USER=&quot;memcached&quot;<br>MAXCONN=&quot;1024&quot;<br>CACHESIZE=&quot;64&quot;<br>OPTIONS=&quot;&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">Tomcat配置 在Tomcat安装目录下的conf文件夹修改server.xml</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">在最后加入</span><br>&lt;Manager className=&quot;de.javakaffee.web.msm.MemcachedBackupSessionManager&quot;<br>    memcachedNodes=&quot;n1:10.0.0.103:11211,n2:10.0.0.104:11211&quot;  <br>    failoverNodes=&quot;n1&quot;<br>    requestUriIgnorePattern=&quot;.*\.(ico|png|gif|jpg|css|js)$&quot;<br>   <br>transcoderFactoryClass=&quot;de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFact<br>ory&quot;<br><span class="hljs-meta prompt_">   /&gt;</span><span class="language-bash"></span><br><span class="language-bash"></span><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">另一节点配置完全相同，仅修改该行</span><br>	failoverNodes=&quot;n2&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">需要将以下包放到Tomcat安装目录下的lib（库）目录</span><br>asm-5.2.jar<br>kryo-3.0.3.jar<br>kryo-serializers-0.45.jar<br>memcached-session-manager-2.3.2.jar<br>memcached-session-manager-tc8-2.3.2.jar<br>minlog-1.3.1.jar<br>msm-kryo-serializer-2.3.2.jar<br>objenesis-2.6.jar<br>reflectasm-1.11.9.jar<br>spymemcached-2.12.3.jar<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/web/">web</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Tomcat/">Tomcat</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/12/Tomcat%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Tomcat性能优化</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/09/HAproxy%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/">
+                        <span class="hidden-mobile">HAproxy配置总结</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

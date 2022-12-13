@@ -1,0 +1,545 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		主要概括了Zabbix 的server、agent、proxy部署和使用配置。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zabbix部署">
+<meta property="og:url" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		主要概括了Zabbix 的server、agent、proxy部署和使用配置。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830144136453.png">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830154020540.png">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830154109116.png">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830154322977.png">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830154452699.png">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830154521141.png">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830154617416.png">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830162452865.png">
+<meta property="og:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830234132144.png">
+<meta property="article:published_time" content="2022-08-30T14:33:16.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.271Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Zabbix">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/image-20220830144136453.png">
+  
+  
+  <title>Zabbix部署 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Zabbix部署">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-30 14:33" pubdate>
+        August 30, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.7k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      31 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Zabbix部署</h1>
+            
+            <div class="markdown-body">
+              <p>​		主要概括了Zabbix 的server、agent、proxy部署和使用配置。</p>
+<span id="more"></span>
+
+<p>​		Zabbix部署过程可简要概括为以下步骤：</p>
+<ol>
+<li>从zabbix官网下载二进制包或源码包（server、agent、proxy、java Gateway）</li>
+<li>为zabbix创建数据库和账号并授权</li>
+<li>修改zabbix配置使其能使用数据库</li>
+<li>修改web服务的php配置</li>
+<li>在浏览器中访问http:&#x2F;&#x2F;主机地址&#x2F;zabbix  或者  http:&#x2F;&#x2F;主机地址 进行初始化安装</li>
+<li>在监控主机上安装zabbix  agent</li>
+<li>在web管理界面添加agent主机</li>
+<li>部署proxy</li>
+<li>根据proxy模式修改agent配置</li>
+<li>web界面添加代理（hostname需要与配置中一致），为agent选择代理</li>
+</ol>
+<h1 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h1><p>​		主要参考：zabbix官方使用手册</p>
+<p>​		<a target="_blank" rel="noopener" href="https://www.zabbix.com/documentation/6.0/zh">https://www.zabbix.com/documentation/6.0/zh</a></p>
+<p>​		软件包下载：Zabbix官网产品下载页面</p>
+<p>​		<a target="_blank" rel="noopener" href="https://www.zabbix.com/cn/download">https://www.zabbix.com/cn/download</a></p>
+<p>​		server、agent、proxy、java Gateway选择版本至少大版本需一致，否则由于协议版本不一致影响互相通信。</p>
+<p>以下部署示例虚拟机：</p>
+<p>​		zabbix server  10.0.0.83</p>
+<p>​		zabbix agent  10.0.0.84</p>
+<p>​		zabbix proxy  10.0.0.85</p>
+<p>​		mysql  10.0.0.87</p>
+<h1 id="Zabbix-server二进制包安装"><a href="#Zabbix-server二进制包安装" class="headerlink" title="Zabbix server二进制包安装"></a>Zabbix server二进制包安装</h1><p>​		选择版本如下</p>
+<p><img src="image-20220830144136453.png" srcset="/img/loading.gif" lazyload alt="image-20220830144136453"></p>
+<h3 id="按照官网指示安装如下"><a href="#按照官网指示安装如下" class="headerlink" title="按照官网指示安装如下"></a>按照官网指示安装如下</h3><p>​		略作修改，步骤与官网一致</p>
+<p><strong>a. 安装zabbix仓库</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><pre><code class="hljs shell">rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/8/x86_64/zabbix-release-6.02.el8.noarch.rpm<br></code></pre></td></tr></table></figure>
+
+<h5 id="b-安装Zabbix-server，Web前端，agent"><a href="#b-安装Zabbix-server，Web前端，agent" class="headerlink" title="b. 安装Zabbix server，Web前端，agent"></a>b. 安装Zabbix server，Web前端，agent</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">dnf install zabbix-server-mysql zabbix-web-mysql zabbix-nginx-conf zabbix-sql-scripts zabbix-selinux-policy zabbix-agent<br></code></pre></td></tr></table></figure>
+
+<h5 id="c-创建初始数据库"><a href="#c-创建初始数据库" class="headerlink" title="c. 创建初始数据库"></a>c. 创建初始数据库</h5><p>在数据库主机上运行以下代码。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql -uroot <br>mysql&gt; create database zabbix_server character set utf8 collate utf8_bin;<br>mysql&gt; create user zabbix@&#x27;10.0.0.%&#x27; identified by &#x27;123456&#x27;;<br>mysql&gt; grant all privileges on zabbix_server.* to zabbix@&#x27;10.0.0.%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>导入初始架构和数据</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">zcat /usr/share/doc/zabbix-sql-scripts/mysql/server.sql.gz | mysql -uzabbix -p123456 -h10.0.0.87 zabbix_server<br><span class="hljs-meta prompt_">#</span><span class="language-bash">数据库主机上可看到zabbix_server库中新建了大量表</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="d-为Zabbix-server配置数据库"><a href="#d-为Zabbix-server配置数据库" class="headerlink" title="d. 为Zabbix server配置数据库"></a>d. 为Zabbix server配置数据库</h5><p>编辑配置文件 &#x2F;etc&#x2F;zabbix&#x2F;zabbix_server.conf</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">以下为修改过的行</span><br>DBHost=10.0.0.87<br>DBName=zabbix_server<br>DBUser=zabbix<br>DBPassword=123456<br></code></pre></td></tr></table></figure>
+
+<h5 id="e-为Zabbix前端配置PHP"><a href="#e-为Zabbix前端配置PHP" class="headerlink" title="e. 为Zabbix前端配置PHP"></a>e. 为Zabbix前端配置PHP</h5><p>编辑配置文件 &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;zabbix.conf 取消注释并设定 ‘listen’ 和 ‘server_name’ </p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">listen</span> <span class="hljs-number">80</span>;<br><span class="hljs-attribute">server_name</span> <span class="hljs-number">10.0.0.83</span>;<br></code></pre></td></tr></table></figure>
+
+<h5 id="f-启动Zabbix-server和agent进程"><a href="#f-启动Zabbix-server和agent进程" class="headerlink" title="f. 启动Zabbix server和agent进程"></a>f. 启动Zabbix server和agent进程</h5><p>启动Zabbix server和agent进程，并为它们设置开机自启：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">systemctl <span class="hljs-keyword">restart</span> zabbix-<span class="hljs-keyword">server</span> zabbix-agent nginx php-fpm<br>systemctl <span class="hljs-keyword">enable</span> zabbix-<span class="hljs-keyword">server</span> zabbix-agent nginx php-fpm<br></code></pre></td></tr></table></figure>
+
+<p><img src="image-20220830154020540.png" srcset="/img/loading.gif" lazyload alt="image-20220830154020540"></p>
+<p><img src="image-20220830154109116.png" srcset="/img/loading.gif" lazyload alt="image-20220830154109116"></p>
+<p><img src="image-20220830154322977.png" srcset="/img/loading.gif" lazyload alt="image-20220830154322977"></p>
+<p><img src="image-20220830154452699.png" srcset="/img/loading.gif" lazyload alt="image-20220830154452699"></p>
+<p><img src="image-20220830154521141.png" srcset="/img/loading.gif" lazyload alt="image-20220830154521141"></p>
+<p><img src="image-20220830154617416.png" srcset="/img/loading.gif" lazyload alt="image-20220830154617416"></p>
+<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><p>​		源码包<a target="_blank" rel="noopener" href="https://www.zabbix.com/cn/download_sources#60LTS">https://www.zabbix.com/cn/download_sources#60LTS</a></p>
+<p>​		编译安装指南<a target="_blank" rel="noopener" href="https://www.zabbix.com/documentation/6.0/zh/manual/installation/install">https://www.zabbix.com/documentation/6.0/zh/manual/installation/install</a></p>
+<p>​		完成安装后，其他配置与上面一致。</p>
+<h1 id="Zabbix-agent（监控节点）"><a href="#Zabbix-agent（监控节点）" class="headerlink" title="Zabbix agent（监控节点）"></a>Zabbix agent（监控节点）</h1><p>​		选择版本及参考安装步骤<a target="_blank" rel="noopener" href="https://www.zabbix.com/cn/download?zabbix=6.0&amp;os_distribution=centos&amp;os_version=8&amp;components=agent&amp;db=&amp;ws=">https://www.zabbix.com/cn/download?zabbix=6.0&amp;os_distribution=centos&amp;os_version=8&amp;components=agent&amp;db=&amp;ws=</a></p>
+<h3 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h3><p>​		安装软件仓库</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">rpm -Uvh https:<span class="hljs-regexp">//</span>repo.zabbix.com<span class="hljs-regexp">/zabbix/</span><span class="hljs-number">6.0</span><span class="hljs-regexp">/rhel/</span><span class="hljs-number">8</span><span class="hljs-regexp">/x86_64/</span>zabbix-release-<span class="hljs-number">6.0</span>-<span class="hljs-number">2</span>.el8.noarch.rpm<br></code></pre></td></tr></table></figure>
+
+<p>​		安装agent</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cmake">dnf <span class="hljs-keyword">install</span> zabbix-agent<br></code></pre></td></tr></table></figure>
+
+<p>​		启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl restart zabbix-agent</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> zabbix-agent</span><br></code></pre></td></tr></table></figure>
+
+<p>查看进程</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs tap">[root@agent ~]<span class="hljs-comment">#ps -ef | grep zabbix</span><br>zabbix     <span class="hljs-number"> 2428 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>16:13 ?        00:00:00 /usr/sbin/zabbix_agentd -c /etc/zabbix/zabbix_agentd.conf<br>zabbix     <span class="hljs-number"> 2429 </span>  <span class="hljs-number"> 2428 </span><span class="hljs-number"> 0 </span>16:13 ?        00:00:00 /usr/sbin/zabbix_agentd: collector [idle<span class="hljs-number"> 1 </span>sec]<br>zabbix     <span class="hljs-number"> 2430 </span>  <span class="hljs-number"> 2428 </span><span class="hljs-number"> 0 </span>16:13 ?        00:00:00 /usr/sbin/zabbix_agentd: listener <span class="hljs-comment">#1 [waiting for connection]</span><br>zabbix     <span class="hljs-number"> 2431 </span>  <span class="hljs-number"> 2428 </span><span class="hljs-number"> 0 </span>16:13 ?        00:00:00 /usr/sbin/zabbix_agentd: listener <span class="hljs-comment">#2 [waiting for connection]</span><br>zabbix     <span class="hljs-number"> 2432 </span>  <span class="hljs-number"> 2428 </span><span class="hljs-number"> 0 </span>16:13 ?        00:00:00 /usr/sbin/zabbix_agentd: listener <span class="hljs-comment">#3 [waiting for connection]</span><br>zabbix     <span class="hljs-number"> 2433 </span>  <span class="hljs-number"> 2428 </span><span class="hljs-number"> 0 </span>16:13 ?        00:00:00 /usr/sbin/zabbix_agentd: active checks <span class="hljs-comment">#1 [idle 1 sec]</span><br>root       <span class="hljs-number"> 2437 </span>  <span class="hljs-number"> 1743 </span><span class="hljs-number"> 0 </span>16:14 pts/2    00:00:00 grep --color=auto zabbix<br></code></pre></td></tr></table></figure>
+
+<h3 id="添加该主机"><a href="#添加该主机" class="headerlink" title="添加该主机"></a>添加该主机</h3><p><img src="image-20220830162452865.png" srcset="/img/loading.gif" lazyload alt="image-20220830162452865"></p>
+<h1 id="zabbix-proxy"><a href="#zabbix-proxy" class="headerlink" title="zabbix  proxy"></a>zabbix  proxy</h1><p>​		依然可参考官网指南进行安装，仅作少量修改</p>
+<h5 id="安装软件仓库并安装"><a href="#安装软件仓库并安装" class="headerlink" title="安装软件仓库并安装"></a>安装软件仓库并安装</h5><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">rpm -Uvh https:<span class="hljs-regexp">//</span>repo.zabbix.com<span class="hljs-regexp">/zabbix/</span><span class="hljs-number">6.0</span><span class="hljs-regexp">/rhel/</span><span class="hljs-number">8</span><span class="hljs-regexp">/x86_64/</span>zabbix-release-<span class="hljs-number">6.0</span>-<span class="hljs-number">1</span>.el8.noarch.rpm<br>dnf install zabbix-proxy-mysql<br></code></pre></td></tr></table></figure>
+
+<p>数据库</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">mysql&gt; <span class="hljs-keyword">create</span> <span class="hljs-keyword">database</span> zabbix_proxy <span class="hljs-type">character</span> <span class="hljs-keyword">set</span> utf8 <span class="hljs-keyword">collate</span> utf8_bin;<br>mysql&gt; <span class="hljs-keyword">create</span> <span class="hljs-keyword">user</span> <span class="hljs-string">&#x27;proxy&#x27;</span>@<span class="hljs-string">&#x27;10.0.0.%&#x27;</span> identified <span class="hljs-keyword">by</span> <span class="hljs-string">&#x27;123456&#x27;</span>;<br>mysql&gt; <span class="hljs-keyword">grant</span> <span class="hljs-keyword">all</span> <span class="hljs-keyword">privileges</span> <span class="hljs-keyword">on</span> zabbix_proxy.* <span class="hljs-keyword">to</span> <span class="hljs-string">&#x27;proxy&#x27;</span>@<span class="hljs-string">&#x27;10.0.0.%&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>编辑配置文件 &#x2F;etc&#x2F;zabbix&#x2F;zabbix_proxy.conf</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">ProxyMode=0		#0是主动模式 1是被动模式，会导致其他配置不同<br>DBHost=10.0.0.87<br>DBName=zabbix_proxy<br>DBUser=proxy<br>DBPassword=123456<br></code></pre></td></tr></table></figure>
+
+<p>导入初始架构和数据</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">zcat <span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/doc/</span>zabbix-proxy-mysql*/schema.sql.gz | mysql -uproxy -p123456 -h10.<span class="hljs-number">0.0</span>.<span class="hljs-number">87</span> zabbix_proxy<br></code></pre></td></tr></table></figure>
+
+<p>agent编辑配置文件 &#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">vim /etc/zabbix/zabbix_agentd.conf<br>Server=10.0.0.83,10.0.0.85  #运行proxy获取数据<br>ServerActive=10.0.0.85		#主动发送健康数据给proxy<br></code></pre></td></tr></table></figure>
+
+<p><img src="image-20220830234132144.png" srcset="/img/loading.gif" lazyload alt="image-20220830234132144"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%9B%91%E6%8E%A7/">监控</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Zabbix/">Zabbix</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/31/Zabbix%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Zabbix配置总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/">
+                        <span class="hidden-mobile">搭建web架构</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

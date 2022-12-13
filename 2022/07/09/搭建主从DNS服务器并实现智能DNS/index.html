@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		DNS（Domain Name Server，域名服务器）是进行域名(domain name)和与之相对应的IP地址 (IP address)转换的服务器。DNS中保存了一张域名(domain name)和与之相对应的IP地址 (IP address)的表，以解析消息的域名。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建主从DNS服务器并实现智能DNS">
+<meta property="og:url" content="http://example.com/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		DNS（Domain Name Server，域名服务器）是进行域名(domain name)和与之相对应的IP地址 (IP address)转换的服务器。DNS中保存了一张域名(domain name)和与之相对应的IP地址 (IP address)的表，以解析消息的域名。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/image-20220709165338549.png">
+<meta property="og:image" content="http://example.com/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/image-20220709174728319.png">
+<meta property="og:image" content="http://example.com/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/image-20220709174859860.png">
+<meta property="og:image" content="http://example.com/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/image-20220709201626562.png">
+<meta property="og:image" content="http://example.com/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/image-20220709203012766.png">
+<meta property="og:image" content="http://example.com/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/image-20220709210952037.png">
+<meta property="article:published_time" content="2022-07-09T15:22:29.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.298Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="练习">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/image-20220709165338549.png">
+  
+  
+  <title>搭建主从DNS服务器并实现智能DNS - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="搭建主从DNS服务器并实现智能DNS">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-09 15:22" pubdate>
+        July 9, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      42 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">搭建主从DNS服务器并实现智能DNS</h1>
+            
+            <div class="markdown-body">
+              <p>​		DNS（Domain Name Server，域名服务器）是进行域名(domain name)和与之相对应的IP地址 (IP address)转换的服务器。DNS中保存了一张域名(domain name)和与之相对应的IP地址 (IP address)的表，以解析消息的域名。</p>
+<span id="more"></span>
+
+<p>​		主DNS服务器：管理和维护所负责解析的域内解析库的服务器<br>​		从DNS服务器：从主服务器或从服务器”复制”（区域传输）解析库副本</p>
+<h1 id="主DNS服务器"><a href="#主DNS服务器" class="headerlink" title="主DNS服务器"></a>主DNS服务器</h1><p>服务器10.0.0.150  模拟网站<a target="_blank" rel="noopener" href="http://www.n67024.org/">www.n67024.org</a> → 10.0.0.153 </p>
+<h3 id="需要软件包：BIND"><a href="#需要软件包：BIND" class="headerlink" title="需要软件包：BIND"></a>需要软件包：BIND</h3><p>BIND主程序：&#x2F;usr&#x2F;sbin&#x2F;named</p>
+<p>服务脚本和Unit名称：&#x2F;etc&#x2F;rc.d&#x2F;init.d&#x2F;named，&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;named.service</p>
+<p>主配置文件：&#x2F;etc&#x2F;named.conf, &#x2F;etc&#x2F;named.rfc1912.zones, &#x2F;etc&#x2F;rndc.key</p>
+<p>管理工具：&#x2F;usr&#x2F;sbin&#x2F;rndc：remote name domain controller，默认与bind安装在同一主机，且只能通过127.0.0.1连接named进程，提供辅助性的管理功能；953&#x2F;tcp</p>
+<p>解析库文件：&#x2F;var&#x2F;named&#x2F;ZONE_NAME.ZONE</p>
+<h3 id="修改bind配置文件"><a href="#修改bind配置文件" class="headerlink" title="修改bind配置文件"></a>修改bind配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></div></td><td class="code"><pre><code class="hljs shell">vim /etc/named.conf             <br><span class="hljs-meta prompt_">#</span><span class="language-bash">注释掉下面两行</span><br>// listen-on port 53 &#123; 127.0.0.1; &#125;;<br>// allow-query     &#123; localhost; &#125;;<br>vim /etc/named.rfc1912.zones    <br><span class="hljs-meta prompt_">#</span><span class="language-bash">加上下面内容</span><br>zone &quot;n67024.org&quot; IN &#123;<br>   type master;<br>   file  &quot;n67024.org.zone&quot;;<br>&#125;;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">其中数据库文件可在named.localhost基础上修改</span><br>cp -p /var/named/named.localhost /var/named/n67024.org.zone<br>vim /var/named/n67024.org.zone<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">每条记录包括 name  ttl  IN  rr_type  value   若省略则从上一条继承</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">@为当前区域域名 soa记录中可指定邮箱  serial为版本号</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">SOA：Start Of Authority，起始授权记录；一个区域解析库有且仅能有一个SOA记录，必须位于解</span><br>析库的第一条记录<br><span class="hljs-meta prompt_">#</span><span class="language-bash">A：internet Address，作用，FQDN --&gt; IP</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">AAAA：FQDN --&gt; IPv6</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">PTR：PoinTeR，IP --&gt; FQDN</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">NS：Name Server，专用于标明当前区域的DNS服务器</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">CNAME ： Canonical Name，别名记录</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">MX：Mail eXchanger，邮件交换器</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">TTL 1D</span><br>@ IN SOA master admin.n67024.org. (<br>							 	0 ; serial<br> 								1D ; refresh<br> 								1H ; retry<br> 								1W ; expire<br> 								3H ) ; minimum<br>        	NS master<br>master  A    10.0.0.150         <br>www     A    10.0.0.153<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="检查格式后启动服务"><a href="#检查格式后启动服务" class="headerlink" title="检查格式后启动服务"></a>检查格式后启动服务</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">使用软件包所带命令检查</span><br>named-checkconf <br>named-checkzone n67024.org /var/named/n67024.org.zone<br>systemctl start named          #第一次启动服务<br><span class="hljs-meta prompt_">#</span><span class="language-bash">rndc reload                    <span class="hljs-comment">#不是第一次启动服务</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">客户端测试，更改网卡dns为配置好的主机</span><br>vim /etc/sysconfig/network-scripts/ifcfg-ens33<br>DNS1=10.0.0.150<br></code></pre></td></tr></table></figure>
+
+<p>效果如下</p>
+<p><img src="image-20220709165338549.png" srcset="/img/loading.gif" lazyload alt="image-20220709165338549"></p>
+<h1 id="从DNS服务器"><a href="#从DNS服务器" class="headerlink" title="从DNS服务器"></a>从DNS服务器</h1><h3 id="修改主服务器"><a href="#修改主服务器" class="headerlink" title="修改主服务器"></a>修改主服务器</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">添加允许从服务器区域传输</span><br>vim /etc/named.conf<br>allow-transfer &#123; 10.0.0.152;&#125;;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">添加从服务器</span><br>vim /var/named/n67024.org.zone<br>			NS		slave<br>slave   A       10.0.0.152<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">配置生效</span><br>rndc reload<br></code></pre></td></tr></table></figure>
+
+<h3 id="创建从服务器"><a href="#创建从服务器" class="headerlink" title="创建从服务器"></a>创建从服务器</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">创建过程类似主服务器，需要修改不允许其它主机进行区域传输</span><br>vim /etc/named.rfc1912.zones<br>allow-transfer &#123; none;&#125;;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">配置数据库文件</span><br>vim /etc/named.rfc1912.zones<br>zone &quot;n67024.org&quot; &#123;<br>   type slave;<br>   masters &#123; 10.0.0.150;&#125;;                                                       <br>   file &quot;slaves/n67024.org.slave&quot;;<br>&#125;;<br><br>systemctl start named<br><span class="hljs-meta prompt_">#</span><span class="language-bash">不是第一次启动rndc reload</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">查看是否同步数据库文件</span><br>[root@localhost ~]$ls /var/named/slaves<br>/var/named/slaves/n67024.org.slave<br></code></pre></td></tr></table></figure>
+
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">在测试主机上修改网卡配置，将上述主从DNS服务器分别设为DNS1和DNS2</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">Ubuntu上可这样修改</span><br>vim /etc/netplan/01-netcfg.yaml<br>      nameservers:<br>              addresses: [10.0.0.150,10.0.0.152]<br><br>root@ubuntu1804:~# netplan apply<br>root@ubuntu1804:~# curl www.n67024.org<br>hello<br></code></pre></td></tr></table></figure>
+
+<p>停止主DNS服务器，访问不受影响</p>
+<p><img src="image-20220709174728319.png" srcset="/img/loading.gif" lazyload alt="image-20220709174728319"></p>
+<p><img src="image-20220709174859860.png" srcset="/img/loading.gif" lazyload alt="image-20220709174859860"></p>
+<h1 id="智能DNS"><a href="#智能DNS" class="headerlink" title="智能DNS"></a>智能DNS</h1><p>​		智能DNS技术可以理解为根据客户端的ip提供就近的服务器，也就是说客户端ip不同，对于同一域名将返回不同的服务器ip地址。</p>
+<p>​		在本实验中需要DNS主机1台且自身模拟一个网站、模拟网站主机2台、不同网段客户端主机2台。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">主DNS服务器配置</span><br>vim /etc/named.conf<br><span class="hljs-meta prompt_">#</span><span class="language-bash">在文件最前面加下面行</span><br>acl beijingnet &#123;<br>    10.0.0.0/24;<br>&#125;;<br>acl shanghainet &#123;<br>    172.16.0.0/16;<br>&#125;;<br>acl othernet &#123;<br>   any;<br>&#125;;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">注释掉下面两行</span><br>// listen-on port 53 &#123; 127.0.0.1; &#125;;<br>// allow-query     &#123; localhost; &#125;;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">创建view</span><br>view beijingview &#123;<br>   match-clients &#123; beijingnet;&#125;;<br>   include &quot;/etc/named.rfc1912.zones.bj&quot;;<br>&#125;;<br>view shanghaiview &#123;<br>   match-clients &#123; shanghainet;&#125;;<br>   include &quot;/etc/named.rfc1912.zones.sh&quot;;<br>&#125;;<br>view otherview &#123;<br>   match-clients &#123; othernet;&#125;;<br>   include &quot;/etc/named.rfc1912.zones.other&quot;;<br>&#125;;<br>include &quot;/etc/named.root.key&quot;;<br></code></pre></td></tr></table></figure>
+
+<h3 id="区域配置文件"><a href="#区域配置文件" class="headerlink" title="区域配置文件"></a>区域配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs shell">vim /etc/named.rfc1912.zones.bj<br>zone &quot;.&quot; IN &#123;<br>   type hint;<br>   file &quot;named.ca&quot;;<br>&#125;;<br>zone &quot;n67024.org&quot; &#123;<br>   type master;<br>   file &quot;n67024.org.zone.bj&quot;;<br>&#125;;<br>vim /etc/named.rfc1912.zones.sh<br>zone &quot;.&quot; IN &#123;<br>   type hint;<br>   file &quot;named.ca&quot;;<br>&#125;;<br>zone &quot;n67024.org&quot; &#123;<br>   type master;<br>   file &quot;n67024.org.zone.sh&quot;;<br>&#125;;<br>vim /etc/named.rfc1912.zones.other<br>zone &quot;.&quot; IN &#123;<br>   type hint;<br>   file &quot;named.ca&quot;;<br>&#125;;<br>zone &quot;n67024.org&quot; &#123;<br>   type master;<br>   file &quot;n67024.org.zone.other&quot;;<br>&#125;;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">更改为进程所属文件</span><br>chgrp named /etc/named.rfc1912.zones.bj<br>chgrp named /etc/named.rfc1912.zones.sh<br>chgrp named /etc/named.rfc1912.zones.other<br></code></pre></td></tr></table></figure>
+
+<h3 id="创建数据库文件"><a href="#创建数据库文件" class="headerlink" title="创建数据库文件"></a>创建数据库文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">需要特别注意格式，格式错误将导致named服务无法启动</span><br><br>vim /var/named/n67024.org.zone.bj<br><span class="hljs-meta prompt_">$</span><span class="language-bash">TTL 1D</span><br>@   IN SOA master admin.n67024.org. (<br>                    0 ; serial<br>                   1D ; refresh<br>                   1H ; retry<br>                   1W ; expire<br>                   3H )   ; minimum<br>           NS   master<br>master     A    10.0.0.150<br>websrv     A    10.0.0.153                          <br>www       CNAME websrv<br><br>vim /var/named/n67024.org.zone.sh<br><span class="hljs-meta prompt_">$</span><span class="language-bash">TTL 1D</span><br>@   IN SOA master admin.n67024.org. (<br>                    0 ; serial<br>                   1D ; refresh<br>                   1H ; retry<br>                   1W ; expire<br>                   3H )   ; minimum<br>           NS   master<br>master     A    10.0.0.150<br>websrv     A    172.16.0.7                          <br>www       CNAME websrv<br>vim /var/named/n67024.org.zone.other<br><span class="hljs-meta prompt_">$</span><span class="language-bash">TTL 1D</span><br>@   IN SOA master admin.n67024.org. (<br>                    0 ; serial<br>                   1D ; refresh<br>                   1H ; retry<br>                   1W ; expire<br>                   3H )   ; minimum<br>           NS   master<br>master     A    10.0.0.150<br>websrv     A    10.0.0.7                          <br>www       CNAME websrv<br>chgrp named /var/named/n67024.org.zone.bj<br>chgrp named /var/named/n67024.org.zone.sh<br>chgrp named /var/named/n67024.org.zone.other<br><br>rndc reload<br></code></pre></td></tr></table></figure>
+
+<h3 id="测试效果"><a href="#测试效果" class="headerlink" title="测试效果"></a>测试效果</h3><p>分别在三台主机上访问</p>
+<p>web服务器1：10.0.0.153&#x2F;24<br>web服务器2：10.0.0.7&#x2F;16<br>web服务器3：172.16.0.7&#x2F;16</p>
+<p>DNS客户端1：10.0.0.151&#x2F;24 实现，确保DNS指向10.0.0.150<br>DNS客户端2：172.16.0.6&#x2F;16 实现，确保DNS指向172.16.0.8<br>DNS客户端3（主DNS自己）：10.0.0.150 实现，确保DNS指向127.0.0.1 （该ip意为指向自身）</p>
+<p>​		<img src="image-20220709201626562.png" srcset="/img/loading.gif" lazyload alt="image-20220709201626562"></p>
+<p>​		<img src="image-20220709203012766.png" srcset="/img/loading.gif" lazyload alt="image-20220709203012766"></p>
+<p><img src="image-20220709210952037.png" srcset="/img/loading.gif" lazyload alt="image-20220709210952037"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/09/iptables%E4%BD%BF%E7%94%A8%E7%BB%83%E4%B9%A0/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">iptables使用练习</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/">
+                        <span class="hidden-mobile">自动化系统部署</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

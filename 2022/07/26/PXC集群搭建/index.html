@@ -1,0 +1,475 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		在3台主机上使用Percona Xtradb Cluster搭建简单的PXC集群。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PXC集群搭建">
+<meta property="og:url" content="http://example.com/2022/07/26/PXC%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		在3台主机上使用Percona Xtradb Cluster搭建简单的PXC集群。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/07/26/PXC%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/image-20220726155515530.png">
+<meta property="og:image" content="http://example.com/2022/07/26/PXC%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/image-20220726155645418.png">
+<meta property="article:published_time" content="2022-07-26T13:49:29.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.262Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="PXC">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/07/26/PXC%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/image-20220726155515530.png">
+  
+  
+  <title>PXC集群搭建 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="PXC集群搭建">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-26 13:49" pubdate>
+        July 26, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      45 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">PXC集群搭建</h1>
+            
+            <div class="markdown-body">
+              <p>​		在3台主机上使用Percona Xtradb Cluster搭建简单的PXC集群。</p>
+<span id="more"></span>
+
+
+
+<p>​		在之前的Mysql集群架构文章中，演示了多主架构，其具有容易数据不一致、同时进行某一操作会互相锁死的问题。而PXC架构则即具有多主架构的特点，又通过特殊的机制解决了上述问题。</p>
+<h1 id="PXC原理"><a href="#PXC原理" class="headerlink" title="PXC原理"></a>PXC原理</h1><p>​		全称Percona Xtradb Cluster，是Galera Cluste方案的一种版本，与MariaDB Cluster类似。Galera本身是具有多主特性的，即采用multi-master的集群架构，是一个既稳健，又在数据一致性、完整性及高性能方面有出色表现的高可用解决方案。</p>
+<p>​		Galera Cluster的优点有：实现多节点读写，节点间无延迟同步复制，故障切换方便，热插拔，自动克隆数据使新增节点或有节点停机时不需要人工备份。</p>
+<p>​		缺点：为了防止冲突，使用DDL语句时需要全局验证，集群性能由集群中最差性能节点决定。全量拷贝数据时，提供数据的donor节点无法对外提供读写服务。</p>
+<h1 id="PXC集群搭建"><a href="#PXC集群搭建" class="headerlink" title="PXC集群搭建"></a>PXC集群搭建</h1><p>​		使用软件版本：Percona XtraDB Cluster 5.7      （不支持CentOS8，与Mysql不兼容）</p>
+<p>​		使用虚拟机：10.0.0.152    10.0.0.154    10.0.0.155</p>
+<p>​		</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></div></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#若yum源中没有该软件，可添加国内镜像站点percona路径</span><br><span class="hljs-comment">#分别在3台主机上安装</span><br>[root@localhost ~]<span class="hljs-variable">$yum</span> install Percona-XtraDB-Cluster-57 -y<br><br><span class="hljs-comment">#修改配置文件</span><br><span class="hljs-comment">#位置/etc/percona-xtradb-cluster.conf.d   /etc/my.cnf</span><br>[root@localhost ~]<span class="hljs-variable">$ls</span> /etc/percona-xtradb-cluster.conf.d<br>mysqld.cnf  mysqld_safe.cnf  wsrep.cnf<br><br><span class="hljs-comment">#第一个节点</span><br>[root@localhost ~]<span class="hljs-variable">$vim</span> /etc/percona-xtradb-cluster.conf.d/wsrep.cnf<br><span class="hljs-comment">#添加集群节点</span><br>wsrep_cluster_address=gcomm://10.0.0.152,10.0.0.154,10.0.0.155 <br><span class="hljs-comment">#指定当前节点IP</span><br>wsrep_node_address=10.0.0.152<br><span class="hljs-comment">#在SST传输时需要用到的认证凭据，格式为：&quot;用户：密码&quot;，实际使用时需要修改为更安全的密码</span><br>wsrep_sst_auth=<span class="hljs-string">&quot;sstuser:s3cretPass&quot;</span><br><span class="hljs-comment">#当前节点名 If wsrep_node_name is not specified,  then system hostname will be used</span><br>wsrep_node_name=pxc-cluster-node-n67024<br><br><span class="hljs-comment">#第二个节点 未提及则同上</span><br>wsrep_node_address=10.0.0.154<br>wsrep_node_name=pxc-cluster-node-n67025<br><br><span class="hljs-comment">#第三个节点</span><br>wsrep_node_address=10.0.0.155<br>wsrep_node_name=pxc-cluster-node-n67026<br><br><br><span class="hljs-comment">#启动</span><br>[root@localhost ~]<span class="hljs-variable">$systemctl</span> <span class="hljs-built_in">enable</span> --now mysql@bootstrap.service<br><span class="hljs-comment">#通过4567端口进行集群内节点间连接，通过3306端口对外服务</span><br>[root@localhost ~]<span class="hljs-variable">$ss</span> -ntul<br>Netid State      Recv-Q Send-Q                         Local Address:Port                                        Peer Address:Port              <br>    <br>tcp   LISTEN     0      128                                        *:4567                                                   *:*                  <br>                  <br>tcp   LISTEN     0      80                                      [::]:3306                                                [::]:*                  <br><br><span class="hljs-comment">#设置密码</span><br><span class="hljs-comment">#使用临时密码登录</span><br>[root@localhost ~]<span class="hljs-variable">$grep</span> <span class="hljs-string">&quot;temporary password&quot;</span> /var/log/mysqld.log<br>2022-07-26T07:06:53.895451Z 1 [Note] A temporary password is generated <span class="hljs-keyword">for</span> root@localhost: 4&amp;g*HTiU*xkd<br>[root@localhost ~]<span class="hljs-variable">$mysql</span> -uroot -p<span class="hljs-string">&#x27;4&amp;g*HTiU*xkd&#x27;</span><br>mysql&gt; alter user root@localhost identified by <span class="hljs-string">&quot;12345&quot;</span>;<br><span class="hljs-comment">#创建SST传输用户账号，并授权</span><br>mysql&gt; create user <span class="hljs-string">&#x27;sstuser&#x27;</span>@<span class="hljs-string">&#x27;localhost&#x27;</span> identified by <span class="hljs-string">&#x27;s3cretPass&#x27;</span>;<br>mysql&gt; grant all on *.* to sstuser@localhost;<br><br><span class="hljs-comment">#可通过变量信息查看当前节点状态</span><br>mysql&gt; show status like <span class="hljs-string">&#x27;wsrep%&#x27;</span>;<br><span class="hljs-comment">#查看SST是否完成，若为Joiner，则不可以加新节点</span><br>| wsrep_local_state_comment | Synced                               |<br><span class="hljs-comment">#集群规模</span><br>| wsrep_cluster_size         | 1                                   |<br><span class="hljs-comment">#是否已完全连接</span><br>| wsrep_cluster_status       | Primary                             |<br><br><span class="hljs-comment">#其他节点上启动集群</span><br>[root@localhost ~]<span class="hljs-variable">$systemctl</span> start mysql<br><span class="hljs-comment">#可观察到规模变化</span><br>mysql&gt; show status like <span class="hljs-string">&#x27;wsrep%&#x27;</span>;<br>| wsrep_cluster_size               | 2                                    |<br>mysql&gt; show status like <span class="hljs-string">&#x27;wsrep%&#x27;</span>;<br>| wsrep_cluster_size               | 3                                    |<br><br><span class="hljs-comment">#节点1</span><br>mysql&gt;  SHOW VARIABLES LIKE <span class="hljs-string">&#x27;wsrep_node_name&#x27;</span>;<br>+-----------------+-------------------------+<br>| Variable_name   | Value                   |<br>+-----------------+-------------------------+<br>| wsrep_node_name | pxc-cluster-node-n67024 |<br>+-----------------+-------------------------+<br>mysql&gt;  SHOW VARIABLES LIKE <span class="hljs-string">&#x27;wsrep_node_address&#x27;</span>;<br>+--------------------+------------+<br>| Variable_name      | Value      |<br>+--------------------+------------+<br>| wsrep_node_address | 10.0.0.152 |<br>+--------------------+------------+<br><span class="hljs-comment">#节点2</span><br>[root@localhost ~]<span class="hljs-variable">$mysql</span> -uroot -p12345<br>mysql&gt; SHOW VARIABLES LIKE <span class="hljs-string">&#x27;wsrep_node_name&#x27;</span>;<br>+-----------------+---------------------------+<br>| Variable_name   | Value                     |<br>+-----------------+---------------------------+<br>| wsrep_node_name | pxc-cluster-node-1-n67025 |<br>+-----------------+---------------------------+<br>mysql&gt; SHOW VARIABLES LIKE <span class="hljs-string">&#x27;wsrep_node_address&#x27;</span>;<br>+--------------------+------------+<br>| Variable_name      | Value      |<br>+--------------------+------------+<br>| wsrep_node_address | 10.0.0.154 |<br>+--------------------+------------+<br><span class="hljs-comment">#节点3</span><br>[root@localhost ~]<span class="hljs-variable">$mysql</span> -uroot -p12345<br>mysql&gt; SHOW VARIABLES LIKE <span class="hljs-string">&#x27;wsrep_node_name&#x27;</span>;<br>+-----------------+---------------------------+<br>| Variable_name   | Value                     |<br>+-----------------+---------------------------+<br>| wsrep_node_name | pxc-cluster-node-1-n67026 |<br>+-----------------+---------------------------+<br>mysql&gt; SHOW VARIABLES LIKE <span class="hljs-string">&#x27;wsrep_node_address&#x27;</span>;<br>+--------------------+------------+<br>| Variable_name      | Value      |<br>+--------------------+------------+<br>| wsrep_node_address | 10.0.0.155 |<br>+--------------------+------------+<br></code></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>​			测试是否均可读写</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#节点1<br>mysql&gt; show databases;<br>+--------------------+<br>| Database           |<br>+--------------------+<br>| information_schema |<br>| mysql              |<br>| performance_schema |<br>| sys                |<br>+--------------------+<br>mysql&gt; create database test;<br>#节点2<br>mysql&gt; show databases;<br>+--------------------+<br>| Database           |<br>+--------------------+<br>| information_schema |<br>| mysql              |<br>| performance_schema |<br>| sys                |<br>| test               |<br>+--------------------+<br>mysql&gt; create database test2;<br>#节点3<br>mysql&gt; show databases;<br>+--------------------+<br>| Database           |<br>+--------------------+<br>| information_schema |<br>| mysql              |<br>| performance_schema |<br>| sys                |<br>| test               |<br>| test2              |<br>+--------------------+<br>mysql&gt; create database test3;<br>#节点1<br>mysql&gt; show databases;<br>+--------------------+<br>| Database           |<br>+--------------------+<br>| information_schema |<br>| mysql              |<br>| performance_schema |<br>| sys                |<br>| test               |<br>| test2              |<br>| test3              |<br>+--------------------+<br><br></code></pre></td></tr></table></figure>
+
+<p>​		测试同时输入相同操作是否产生冲突</p>
+<p>​		在控制终端中打开撰写栏，选择发送到所有会话</p>
+<p><img src="image-20220726155515530.png" srcset="/img/loading.gif" lazyload alt="image-20220726155515530"></p>
+<p><img src="image-20220726155645418.png" srcset="/img/loading.gif" lazyload alt="image-20220726155645418"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#第一个节点<br>mysql&gt; create database test4;<br>ERROR 1007 (HY000): Can&#x27;t create database &#x27;test4&#x27;; database exists<br>#第二个节点<br>mysql&gt; create database test4;<br>Query OK, 1 row affected (0.00 sec)<br>#第三个节点<br>mysql&gt; create database test4;<br>ERROR 1007 (HY000): Can&#x27;t create database &#x27;test4&#x27;; database exists<br></code></pre></td></tr></table></figure>
+
+<p>​		数据库成功创建并且没有卡死，在三个节点上也能查看到test4数据库。说明PXC集群解决了多主架构的冲突问题。</p>
+<p>​		若想要扩展新的节点也很简单，只要在新主机上安装并修改配置文件即可加入集群，需要注意由于Galare集群数据同步的特性将完全覆盖原有数据。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/PXC/">PXC</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/26/HTTP%E5%8D%8F%E8%AE%AE%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">HTTP协议工作过程</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/22/%E6%95%B0%E6%8D%AE%E5%BA%93%E6%80%BB%E7%BB%93/">
+                        <span class="hidden-mobile">数据库总结</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

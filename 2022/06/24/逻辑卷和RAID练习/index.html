@@ -1,0 +1,495 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="逻辑卷的创建、缩容、扩容，逻辑卷快照备份。RAID独立硬盘冗余阵列原理，RAID设备创建 逻辑卷">
+<meta property="og:type" content="article">
+<meta property="og:title" content="逻辑卷和RAID练习">
+<meta property="og:url" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="逻辑卷的创建、缩容、扩容，逻辑卷快照备份。RAID独立硬盘冗余阵列原理，RAID设备创建 逻辑卷">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/image-20220624204119983.png">
+<meta property="og:image" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/image-20220624205124017.png">
+<meta property="og:image" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/image-20220624234259831.png">
+<meta property="og:image" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/image-20220624234316115.png">
+<meta property="og:image" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/image-20220624234327249.png">
+<meta property="og:image" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/image-20220624234337644.png">
+<meta property="og:image" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/image-20220624234345584.png">
+<meta property="article:published_time" content="2022-06-24T20:32:20.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.318Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="磁盘管理">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/image-20220624204119983.png">
+  
+  
+  <title>逻辑卷和RAID练习 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="逻辑卷和RAID练习">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-06-24 20:32" pubdate>
+        June 24, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      34 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">逻辑卷和RAID练习</h1>
+            
+            <div class="markdown-body">
+              <p>逻辑卷的创建、缩容、扩容，逻辑卷快照备份。RAID独立硬盘冗余阵列原理，RAID设备创建</p>
+<h1 id="逻辑卷"><a href="#逻辑卷" class="headerlink" title="逻辑卷"></a>逻辑卷</h1><span id="more"></span>
+
+<h3 id="逻辑卷实现过程"><a href="#逻辑卷实现过程" class="headerlink" title="逻辑卷实现过程"></a>逻辑卷实现过程</h3><p>将设备指定为物理卷</p>
+<p>用一个或者多个物理卷来创建一个卷组，物理卷是用固定大小的物理区域（Physical Extent，</p>
+<p>PE）来定义的</p>
+<p>在物理卷上创建的逻辑卷， 是由物理区域（PE）组成</p>
+<p>可以在逻辑卷上创建文件系统并挂载</p>
+<p><img src="image-20220624204119983.png" srcset="/img/loading.gif" lazyload alt="image-20220624204119983"></p>
+<h3 id="逻辑卷创建"><a href="#逻辑卷创建" class="headerlink" title="逻辑卷创建"></a>逻辑卷创建</h3><p>​	创建一个至少有两个PV组成的大小为20G的名为testvg的VG，要求PE大小为16M，而后在卷组中创建大小为5G的逻辑卷testlv;挂载至&#x2F;users目录。</p>
+<p>​	<img src="image-20220624205124017.png" srcset="/img/loading.gif" lazyload alt="image-20220624205124017"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><pre><code class="hljs shell">[root@localhost ~]$pvcreate /dev/sdb /dev/sdc<br>  Physical volume &quot;/dev/sdb&quot; successfully created.<br>  Physical volume &quot;/dev/sdc&quot; successfully created.<br>[root@localhost ~]$vgcreate -s 16M testvg /dev/sdb /dev/sdc<br>  Volume group &quot;testvg&quot; successfully created<br>[root@localhost ~]$lvcreate -L 5G -n testlv testvg<br>  Logical volume &quot;testlv&quot; created.<br>[root@localhost ~]$mkfs.ext4 /dev/testvg/testlv  <br>[root@localhost ~]$mkdir /users<br>[root@localhost ~]$mount /dev/testvg/testlv  /users<br>[root@localhost ~]$lsblk<br>NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT<br>sda               8:0    0   20G  0 disk <br>├─sda1            8:1    0    1G  0 part /boot<br>└─sda2            8:2    0   19G  0 part <br>  ├─centos-root 253:0    0   17G  0 lvm  /<br>  └─centos-swap 253:1    0    2G  0 lvm  [SWAP]<br>sdb               8:16   0   10G  0 disk <br>└─testvg-testlv 253:2    0    5G  0 lvm  /users<br>sdc               8:32   0   10G  0 disk <br>sr0              11:0    1  4.4G  0 rom  <br><br></code></pre></td></tr></table></figure>
+
+<h3 id="逻辑卷扩容和缩容"><a href="#逻辑卷扩容和缩容" class="headerlink" title="逻辑卷扩容和缩容"></a>逻辑卷扩容和缩容</h3><p>扩展testlv至7G，要求archlinux用户的文件不能丢失。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">新建用户archlinux,要求其家目录为/users/archlinux，而后su切换至archlinux用户，复制/etc/pam.d/目录至自己的家目录。</span><br>[archlinux@localhost /root]$ll -d /users/archlinux/pam.d/<br>drwxr-xr-x. 2 archlinux archlinux 4096 Jun 24 21:23 /users/archlinux/pam.d/<br>[root@localhost ~]$lvextend -L 7G /dev/testvg/testlv <br>  Size of logical volume testvg/testlv changed from 5.00 GiB (320 extents) to 7.00 GiB (448 extents).<br>  Logical volume testvg/testlv successfully resized.<br>[root@localhost ~]$resize2fs /dev/testvg/testlv<br>[root@localhost ~]$lsblk<br>└─testvg-testlv 253:2    0    7G  0 lvm  /users<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">确认文件有无丢失</span><br>[root@localhost ~]$ll -d /users/archlinux/pam.d/<br>drwxr-xr-x. 2 archlinux archlinux 4096 Jun 24 21:23 /users/archlinux/pam.d/<br></code></pre></td></tr></table></figure>
+
+<p>收缩testlv至3G，要求archlinux用户的文件不能丢失</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">xfs文件系统不支持缩容，可使用xfsdump备份数据，卸载文件系统后缩容，最后再重新创建文件系统</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">缩容需要取消挂载</span><br>[root@localhost ~]umount /dev/testvg/testlv<br>[root@localhost ~]e2fsck -f /dev/testvg/testlv<br>[root@localhost ~]resize2fs /dev/testvg/testlv 3G<br>[root@localhost ~]lvreduce -L 3G /dev/testvg/testlv<br>[root@localhost ~]mount /dev/testvg/testlv /users<br><span class="hljs-meta prompt_">#</span><span class="language-bash">确认文件有无丢失</span><br>[root@localhost ~]$ll -d /users/archlinux/pam.d/<br>drwxr-xr-x. 2 archlinux archlinux 4096 Jun 24 21:23 /users/archlinux/pam.d/<br></code></pre></td></tr></table></figure>
+
+<h3 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h3><p>对testlv创建快照，并尝试基于快照备份数据，验正快照的功能</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">创建快照</span><br>[root@localhost ~]lvcreate -l 64 -s -n testlv-snapshot /dev/testvg/testlv<br>[root@localhost ~]mkfs.ext4 /dev/testvg/testlv-snapshot<br>[root@localhost ~]mkdir  -p /mnt/backup<br>[root@localhost ~]mount -o ro,nouuid /dev/testvg/testlv-snapshot   /mnt/snap<br><span class="hljs-meta prompt_">#</span><span class="language-bash">删除文件</span><br>[root@localhost ~]$rm -rf /users/archlinux/pam.d<br><span class="hljs-meta prompt_">#</span><span class="language-bash">恢复后快照逻辑卷将消失</span><br>[root@localhost ~]$umount /dev/testvg/testlv-snapshot <br>[root@localhost ~]$umount /dev/testvg/testlv<br>[root@localhost ~]$lvconvert --merge /dev/testvg/testlv-snapshot <br>[root@localhost ~]$ll -d /users/archlinux/pam.d/<br>drwxr-xr-x. 2 archlinux archlinux 4096 Jun 24 21:23 /users/archlinux/pam.d/<br><br></code></pre></td></tr></table></figure>
+
+<h1 id="RAID"><a href="#RAID" class="headerlink" title="RAID"></a>RAID</h1><p>RAID（独立硬盘冗余阵列）把多个硬盘组成一个逻辑硬盘，操作系统将其视作一个实体硬盘。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>RAID0：数据分散存放在每个磁盘中，并行读写数据，因此读写速度最快，但没有容错能力，一个磁盘损坏将丢失全部数据。至少需要2个磁盘。</p>
+<p><img src="image-20220624234259831.png" srcset="/img/loading.gif" lazyload alt="image-20220624234259831"></p>
+<p>RAID1：相同的数据存放在每个磁盘中，并行读取数据，因此读速度上升，写速度下降，每个磁盘相当于互为备份，容错能力最高，但磁盘利用率最低。至少需要2个磁盘。</p>
+<p><img src="image-20220624234316115.png" srcset="/img/loading.gif" lazyload alt="image-20220624234316115"></p>
+<p>RAID5：数据分散存放在每个磁盘中，并且还有一位校验位分散存放在每个磁盘中，并行读写数据，因此读写性能上升，允许一个磁盘损坏，损坏时通过其他磁盘的数据和校验位根据算法可恢复丢失的数据。相比于RAID4校验位放置于校验盘，RAID5分散存放可防止校验盘频繁读取造成寿命下降。至少需要3个磁盘。</p>
+<p><img src="image-20220624234327249.png" srcset="/img/loading.gif" lazyload alt="image-20220624234327249"></p>
+<p>RAID还可以组合使用</p>
+<p>RAID10：先由多块磁盘组成RAID1镜像组，存放同样的部分数据，再由多个RAID1磁盘组成RAID10。因为RAID0的特性，读写性能上升，由于RAID1的特性，最多允许每组镜像中损坏一个磁盘。最少需要4个磁盘。</p>
+<p><img src="image-20220624234337644.png" srcset="/img/loading.gif" lazyload alt="image-20220624234337644"></p>
+<p>RAID01：先由多块磁盘组成RAID0磁盘分散存放数据，再由多个存有相同数据RAID0磁盘组成RAID01。因为RAID1的特性，读速度上升，写速度将随着RAID0组的增加而降低。容错能力较高。最少需要4个磁盘。</p>
+<p><img src="image-20220624234345584.png" srcset="/img/loading.gif" lazyload alt="image-20220624234345584"></p>
+<h3 id="创建RAID"><a href="#创建RAID" class="headerlink" title="创建RAID"></a>创建RAID</h3><p>创建10G的RAID1，要求CHUNK为128K，文件系统为ext4，有一个空闲盘，开机可自动挂载至&#x2F;backup目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">使用mdadm工具实现软RAID</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">-C: 创建模式</span> <br> -n #: 使用#个块设备来创建此RAID <br> -l #：指明要创建的RAID的级别<br> -a &#123;yes|no&#125;：自动创建目标RAID设备的设备文件<br> -c CHUNK_SIZE: 指明块大小,单位k<br> -x #: 指明空闲盘的个数<br>[root@localhost ~]mdadm -C /dev/md0 -a yes -l 1 -n 3 -x 1 -c 128 /dev/sd&#123;b,c,d&#125;<br>[root@localhost ~]mkfs.ext4 /dev/md0<br>[root@localhost ~]vim /etc/fstab<br>/dev/md0   /backup    ext4    defaults   0    0<br></code></pre></td></tr></table></figure>
+
+<p>创建一个可用空间为10G的RAID10设备，要求CHUNK为256K，文件系统为ext4，开机可自动挂载至&#x2F;mydata目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@localhost ~]mdadm -C /dev/md0 -a yes -l 1 -n 2 -c 256 /dev/sd&#123;b,c&#125;<br>[root@localhost ~]mdadm -C /dev/md1 -a yes -l 1 -n 2 -c 256 /dev/sd&#123;d,e&#125;<br>[root@localhost ~]mdadm -C /dev/md2 -a yes -l 0 -n 2 -c 256 /dev/md&#123;0,1&#125;<br>[root@localhost ~]mkfs.ext4 /dev/md2<br>[root@localhost ~]vim /etc/fstab<br>/dev/md2   /mydata    ext4    defaults   0    0<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BB%83%E4%B9%A0/">练习</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/">磁盘管理</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/25/TCP%E5%8D%8F%E8%AE%AE%E5%92%8C%E7%BD%91%E5%8D%A1%E9%85%8D%E7%BD%AE/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">TCP协议和网卡配置</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/24/%E5%85%8D%E5%AF%86%E7%99%BB%E5%BD%95%E8%84%9A%E6%9C%AC%E7%BC%96%E5%86%99/">
+                        <span class="hidden-mobile">免密登录脚本编写</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

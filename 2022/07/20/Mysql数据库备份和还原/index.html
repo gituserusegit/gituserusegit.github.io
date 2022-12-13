@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文将概述使用Xtrabackup工具备份和还原Mysql8.0数据库。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql数据库备份和还原">
+<meta property="og:url" content="http://example.com/2022/07/20/Mysql%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E5%92%8C%E8%BF%98%E5%8E%9F/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文将概述使用Xtrabackup工具备份和还原Mysql8.0数据库。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-07-20T09:46:37.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.253Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Xtrabackup">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>Mysql数据库备份和还原 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Mysql数据库备份和还原">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-20 09:46" pubdate>
+        July 20, 2022 am
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.5k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      38 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Mysql数据库备份和还原</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文将概述使用Xtrabackup工具备份和还原Mysql8.0数据库。</p>
+<span id="more"></span>
+
+<p>​		Xtrabackup是percona提供的mysql数据库备份工具，惟一能够对innodb和xtradb数据库进行热备的开源工具。软件包为percona-xtrabackup ，在Epel源中。（CentOS8默认没有提供，需要先按照percona源）</p>
+<h1 id="Xtrabackup备份和还原"><a href="#Xtrabackup备份和还原" class="headerlink" title="Xtrabackup备份和还原"></a>Xtrabackup备份和还原</h1><p>​		xtrabackup工具备份和还原，需要三步实现		</p>
+<p>​			备份：对数据库做完全或增量备份</p>
+<p>​			预准备： 还原前，先对备份的数据，整理至一个临时目录</p>
+<p>​			还原：将整理好的数据，复制回数据库目录中</p>
+<p>​		还原需要注意：还原目录需要为空，因为默认不会覆盖文件。还原前要关停数据库实例。检查备份还原过程文件的所属者所属组是否发生变化。</p>
+<h3 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h3><p>​			以下为xtrabackup旧版本命令，新版本备份和还原步骤依然为上述三步，使用方法类似。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">备份</span><br>innobackupex [option] BACKUP-ROOT-DIR<br><br>--user：#该选项表示备份账号<br>--password：#该选项表示备份的密码<br>--host：#该选项表示备份数据库的地址<br>--databases：#该选项接受的参数为数据库名，如果要指定多个数据库，彼此间需要以空格隔开；<br>如：&quot;xtra_test dba_test&quot;，同时，在指定某数据库时，也可以只指定其中的某张表。<br>如：&quot;mydatabase.mytable&quot;。该选项对innodb引擎表无效，还是会备份所有innodb表<br>--defaults-file：#该选项指定从哪个文件读取MySQL配置，必须放在命令行第一个选项位置<br>--incremental：#该选项表示创建一个增量备份，需要指定--incremental-basedir<br>--incremental-basedir：#该选项指定为前一次全备份或增量备份的目录，与--incremental同时使用<br>--incremental-dir：#该选项表示还原时增量备份的目录<br>--include=name：#指定表名，格式：databasename.tablename<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">预准备</span><br>innobackupex --apply-log [option] BACKUP-DIR<br><br>--apply-log：#一般情况下,在备份完成后，数据尚且不能用于恢复操作，因为备份的数据中可能会包含尚未提交的事务或已经提交但尚未同步至数据文件中的事务。因此，此时数据文件仍处理不一致状态。此选项作用是通过回滚未提交的事务及同步已经提交的事务至数据文件使数据文件处于一致性状态<br>--use-memory：#和--apply-log选项一起使用，当prepare 备份时，做crash recovery分配的内存大小，单位字节，也可1MB,1M,1G,1GB等，推荐1G<br>--export：#表示开启可导出单独的表之后再导入其他Mysql中<br>--redo-only：#此选项在prepare base full backup，往其中合并增量备份时候使用，但不包括对最后<br>一个增量备份的合并<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">还原</span><br>innobackupex --copy-back [选项] BACKUP-DIR<br>innobackupex --move-back [选项] [--defaults-group=GROUP-NAME] BACKUP-DIR<br>--copy-back：#做数据恢复时将备份数据文件拷贝到MySQL服务器的datadir<br>--move-back：#这个选项与--copy-back相似，唯一的区别是它不拷贝文件，而是移动文件到目的地。这<br>个选项移除backup文件，用时候必须小心。使用场景：没有足够的磁盘空间同事保留数据文件和Backup副本<br>--force-non-empty-directories #指定该参数时候，使得innobackupex --copy-back或--moveback选项转移文件到非空目录，已存在的文件不会被覆盖。如果--copy-back和--move-back文件需要从备<br>份目录拷贝一个在datadir已经存在的文件，会报错失败<br></code></pre></td></tr></table></figure>
+
+<h3 id="使用新版本完全备份和增量备份并还原"><a href="#使用新版本完全备份和增量备份并还原" class="headerlink" title="使用新版本完全备份和增量备份并还原"></a>使用新版本完全备份和增量备份并还原</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#新建数据库和表<br>mysql&gt; creat database hellodb2；<br>mysql&gt; create table class(classid int,name varchar(20),age tinyint);<br>mysql&gt; insert class values(1,&#x27;n67024&#x27;,67);<br>mysql&gt; insert class values(2,&#x27;root&#x27;,24);<br>mysql&gt; select * from class；<br>+---------+--------+------+<br>| classid | name   | age  |<br>+---------+--------+------+<br>|       1 | n67024 |   67 |<br>|       2 | root   |   24 |<br>+---------+--------+------+<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">完全备份，测试环境没有设置密码，实际使用时需要-p选项加上数据库用户密码。</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">默认显示备份过程</span><br>[root@centos8 ~]mkdir /backup<br>[root@centos8 ~]$xtrabackup -uroot --backup --target-dir=/backup/base<br>2022-07-20T21:12:55.000209+08:00 0 [Note] [MY-011825] [Xtrabackup] completed OK!<br><br>[root@centos8 ~]$ls /backup/base<br>backup-my.cnf  hellodb         ibdata1    performance_schema  undo_002                xtrabackup_info<br>binlog.000004  hellodb2        mysql      sys                 xtrabackup_binlog_info  xtrabackup_logfile<br>binlog.index   ib_buffer_pool  mysql.ibd  undo_001            xtrabackup_checkpoints  xtrabackup_tablespaces<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#修改数据<br>mysql&gt; insert class values(3,&#x27;admin&#x27;,33);<br>mysql&gt; update class set age=42 where classid=2;<br>mysql&gt; select * from class;<br>+---------+--------+------+<br>| classid | name   | age  |<br>+---------+--------+------+<br>|       1 | n67024 |   67 |<br>|       2 | root   |   42 |<br>|       3 | admin  |   33 |<br>+---------+--------+------+<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">增量备份</span><br>[root@centos8 ~]$xtrabackup -uroot --backup --target-dir=/backup/inc1 --incremental-basedir=/backup/base<br>2022-07-20T21:25:48.902750+08:00 0 [Note] [MY-011825] [Xtrabackup] completed OK!<br>[root@centos8 ~]$ls /backup/inc1<br>backup-my.cnf  hellodb2        mysql               sys             undo_002.meta           xtrabackup_logfile<br>binlog.000005  ib_buffer_pool  mysql.ibd.delta     undo_001.delta  xtrabackup_binlog_info  xtrabackup_tablespaces<br>binlog.index   ibdata1.delta   mysql.ibd.meta      undo_001.meta   xtrabackup_checkpoints<br>hellodb        ibdata1.meta    performance_schema  undo_002.delta  xtrabackup_info<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">备份完毕将文件放到远程主机</span><br>[root@centos8 ~]$scp -r /backup/* 10.0.0.151:/backup/<br><span class="hljs-meta prompt_">#</span><span class="language-bash">模拟mysql服务器主机故障，丢失全部数据库文件</span><br>[root@centos8 ~]$ls /var/lib/mysql<br>ls: cannot access &#x27;/var/lib/mysql&#x27;: No such file or directory<br>[root@centos8 ~]$service mysqld stop<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">还原数据，重新安装mysql，从远程主机获取备份文件</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">预准备，加上--apply-log-only可阻止未完成事务回滚</span><br>[root@centos8 ~]$xtrabackup --prepare --apply-log-only --target-dir=/backup/base<br><span class="hljs-meta prompt_">#</span><span class="language-bash">合并增量备份到完全备份</span><br>[root@centos8 ~]$xtrabackup --prepare --apply-log-only --target-dir=/backup/base --incremental-dir=/backup/inc1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">还原文件</span><br>[root@centos8 ~]$xtrabackup --copy-back --target-dir=/backup/base<br><span class="hljs-meta prompt_">#</span><span class="language-bash">若还原时报错，显示未完成预准备，则不加--apply-log-only参数再次预准备，然后再进行还原</span><br>[root@centos8 ~]$xtrabackup --prepare --target-dir=/backup/base<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">还原后所属者不是mysql，若不还原属性将导致mysqld不能启动</span><br>[root@centos8 ~]$ll -d /var/lib/mysql<br>drwxr-xr-x 7 root root 321 Jul 20 22:07 /var/lib/mysql<br>[root@centos8 ~]$chown -R mysql:mysql /var/lib/mysql<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">启动mysql，查看数据是否还原</span><br>[root@centos8 ~]$service mysqld start<br><span class="hljs-meta prompt_">mysql&gt; </span><span class="language-bash">use hellodb2</span><br><span class="hljs-meta prompt_">mysql&gt; </span><span class="language-bash">select * from class;</span><br>+---------+--------+------+<br>| classid | name   | age  |<br>+---------+--------+------+<br>|       1 | n67024 |   67 |<br>|       2 | root   |   42 |<br>|       3 | admin  |   33 |<br>+---------+--------+------+<br><br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Xtrabackup/">Xtrabackup</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/20/Mysql%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Mysql集群架构</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/19/SQL%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/">
+                        <span class="hidden-mobile">SQL语言基础</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

@@ -1,0 +1,493 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​	分别使用自制光盘引导，PXE, Cobbler完成自动安装系统。 光盘引导">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自动化系统部署">
+<meta property="og:url" content="http://example.com/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​	分别使用自制光盘引导，PXE, Cobbler完成自动安装系统。 光盘引导">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/image-20220708200142417.png">
+<meta property="og:image" content="http://example.com/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/image-20220708211735225.png">
+<meta property="og:image" content="http://example.com/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/image-20220708221907150.png">
+<meta property="og:image" content="http://example.com/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/image-20220708222022713.png">
+<meta property="og:image" content="http://example.com/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/image-20220709142339093.png">
+<meta property="og:image" content="http://example.com/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/image-20220709142456196.png">
+<meta property="article:published_time" content="2022-07-08T16:40:24.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.313Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="自动安装系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/07/08/%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E9%83%A8%E7%BD%B2/image-20220708200142417.png">
+  
+  
+  <title>自动化系统部署 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="自动化系统部署">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-08 16:40" pubdate>
+        July 8, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.6k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      39 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">自动化系统部署</h1>
+            
+            <div class="markdown-body">
+              <p>​	分别使用自制光盘引导，PXE, Cobbler完成自动安装系统。</p>
+<h1 id="光盘引导"><a href="#光盘引导" class="headerlink" title="光盘引导"></a>光盘引导</h1><span id="more"></span>
+
+<p>​		使用自制光盘安装，其中的ks应答文件会自动选择安装选项。</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></div></td><td class="code"><pre><code class="hljs awk"><span class="hljs-comment">#可使用当前光盘文件/mnt/isolinux/ 基础上修改   制作光盘myiso</span><br>cp -r <span class="hljs-regexp">/mnt/i</span>solinux<span class="hljs-regexp">/ /</span>data<span class="hljs-regexp">/myiso/</span><br><span class="hljs-comment">#修改光盘启动选项，应答文件将会放在之后生成的光盘内</span><br>[root@centos8 <span class="hljs-regexp">/data/myi</span>so]<span class="hljs-variable">$vim</span> myks.cfg<br>vim <span class="hljs-regexp">/data/myi</span>so<span class="hljs-regexp">/isolinux/i</span>solinux.cfg<br><br>label linux<br>  menu label ^Auto Install CentOS Linux <span class="hljs-number">8</span><br>  kernel vmlinuz<br>  initrd=initrd.img text ks=cdrom:/myks.cfg<br><br><span class="hljs-comment">#使用mkisofs命令生成自制光盘</span><br>mkisofs -R -J -T -v --no-emul-boot --boot-load-size <span class="hljs-number">4</span> --boot-info-table -V <span class="hljs-string">&quot;CentOS 8.3 x86_64 boot&quot;</span> -b isolinux<span class="hljs-regexp">/isolinux.bin -c isolinux/</span>boot.cat -o <span class="hljs-regexp">/root/myi</span>so.iso <span class="hljs-regexp">/data/myi</span>so/<br><br><span class="hljs-comment">#最终得到自制光盘</span><br>-rw-r--r--  <span class="hljs-number">1</span> root root  <span class="hljs-number">81</span>M Jul  <span class="hljs-number">9</span> <span class="hljs-number">03</span>:<span class="hljs-number">51</span>  myiso.iso<br></code></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">应答文件myks.cfg</span><br>ignoredisk --only-use=sda<br>zerombr<br>text<br>reboot<br>clearpart --all --initlabel<br>selinux --disabled<br>firewall --disabled<br>url --url=http://10.0.0.150/centos/8/os/x86_64/     #安装文件路径<br>keyboard --vckeymap=us --xlayouts=&#x27;us&#x27;<br>lang en_US.UTF-8<br>bootloader --append=&quot;net.ifnames=0&quot; --location=mbr --boot-drive=sda  #此行必须指定<br>network  --bootproto=dhcp --device=eth0 --ipv6=auto --activate<br>network  --hostname=centos8.magedu.org<br>rootpw --iscrypted<br><span class="hljs-meta prompt_">$</span><span class="language-bash">6$j9YhzDUnQVnxaAk8<span class="hljs-variable">$qv7rkMcPAEbV5yvwsP666DXWYadd3jYjkA9fpxAo9qYotjGGBUclCGoP1TRv</span></span><br>gHBpqgc5n0RypMsPTQnVDcpO01<br>firstboot --enable<br>skipx<br>services --disabled=&quot;chronyd&quot;<br>timezone Asia/Shanghai --isUtc --nontp<br>user --name=wang --<br>password=6oUfb/02CWfLb5l8f$sgEZeR7c7DpqfpmFDH6huSmDbW1XQNR4qKl2EPns.gOXqlnAIgv9p<br>TogtFVaDtEpMOC.SWXKYqxfVtd9MCwxb1 --iscrypted --gecos=&quot;wang&quot;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">autopart --<span class="hljs-built_in">type</span>=lvm</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">part / --fstype xfs --size 1 --grow --ondisk sda 可以实现根自动使用所有剩余空间</span><br>part / --fstype=&quot;xfs&quot; --ondisk=sda --size=102400<br>part /data --fstype=&quot;xfs&quot; --ondisk=sda --size=51200<br>part swap --fstype=&quot;swap&quot; --ondisk=sda --size=2048<br>part /boot --fstype=&quot;ext4&quot; --ondisk=sda --size=1024<br><span class="hljs-meta prompt_">%</span><span class="language-bash">packages</span><br>@^minimal-environment<br>kexec-tools<br><span class="hljs-meta prompt_">%</span><span class="language-bash">end</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">addon com_redhat_kdump --<span class="hljs-built_in">enable</span> --reserve-mb=<span class="hljs-string">&#x27;auto&#x27;</span></span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">end</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">anaconda</span><br>pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty<br>pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok<br>pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty<br><span class="hljs-meta prompt_">%</span><span class="language-bash">end</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">post</span><br>useradd mage<br>echo magedu | passwd --stdin mage &amp;&gt; /dev/null<br><span class="hljs-meta prompt_">%</span><span class="language-bash">end</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>在新建虚拟时选择自制光盘，启动后效果如图</p>
+<p><img src="image-20220708200142417.png" srcset="/img/loading.gif" lazyload alt="image-20220708200142417"></p>
+<h1 id="PXE"><a href="#PXE" class="headerlink" title="PXE"></a>PXE</h1><p>​		需要的软件包有：dhcp-server tftp-server httpd syslinux-nonlinux</p>
+<h3 id="配置DHCP"><a href="#配置DHCP" class="headerlink" title="配置DHCP"></a>配置DHCP</h3><p>​		使安装新主机获得ip地址和pxe文件位置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">配置文件可在复制示例/usr/share/doc/dhcp-4.1.1/dhcpd.conf.sample 并修改</span><br>vim /etc/dhcp/dhcpd.conf<br><span class="hljs-meta prompt_">#</span><span class="language-bash">添加</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">next-server：提供引导文件的服务器IP地址  filename: 指明引导文件名称</span><br><br>default-lease-time 600;<br>max-lease-time 7200;<br>log-facility local7;<br>subnet 10.0.0.0 netmask 255.255.255.0 &#123;<br> range 10.0.0.1 10.0.0.200;<br> option routers 10.0.0.1;<br> next-server 10.0.0.150;<br> filename &quot;pxelinux.0&quot;; &#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="准备yum源和应答文件"><a href="#准备yum源和应答文件" class="headerlink" title="准备yum源和应答文件"></a>准备yum源和应答文件</h3><p>​		可使用一台主机安装httpd服务，挂载光盘到网页目录下。</p>
+<p>​		使用yum源同光盘引导部分。将上文光盘引导所用引导文件放到网页目录下。</p>
+<h3 id="准备PXE相关文件"><a href="#准备PXE相关文件" class="headerlink" title="准备PXE相关文件"></a>准备PXE相关文件</h3><p>​		将相关启动文件存放到tftp服务文件夹（&#x2F;var&#x2F;lib&#x2F;tftpboot&#x2F;）下。</p>
+<p>​		需要的文件有：系统光盘下&#x2F;isolinux&#x2F;下的vmlinuz和initrd.img   </p>
+<p>​								（centos8还需要ldlinux.c32,libcom32.c32,libutil.c32）</p>
+<p>​									&#x2F;usr&#x2F;share&#x2F;syslinux&#x2F;下的 pxelinux.0和menu.c32文件</p>
+<p><img src="image-20220708211735225.png" srcset="/img/loading.gif" lazyload alt="image-20220708211735225"></p>
+<h3 id="准备启动菜单文件"><a href="#准备启动菜单文件" class="headerlink" title="准备启动菜单文件"></a>准备启动菜单文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs shell">cp /var/www/html/centos/8/os/x86_64/isolinux/isolinux.cfg /var/lib/tftpboot/pxelinux.cfg/default <br><br>vim /var/lib/tftpboot/pxelinux.cfg/default<br><br>default menu.c32<br>timeout 600<br>menu title Install CentOS Linux <br>label linux8<br> menu label Auto Install CentOS Linux ^8<br> kernel centos8/vmlinuz<br> append initrd=centos8/initrd.img ks=http://10.0.0.150/ks/myks.cfg<br> <br>label manual<br> menu label ^Manual Install CentOS Linux 8.0 <br> kernel centos8/vmlinuz<br> append initrd=centos8/initrd.img <br> inst.repo=http://10.0.0.150/centos/8/os/x86_64/<br><br>label rescue<br> menu label ^Rescue a CentOS Linux system 8<br> kernel centos8/vmlinuz<br> append initrd=centos8/initrd.img <br> inst.repo=http://10.0.0.150/centos/8/os/x86_64/ rescue <br>  <br>label local<br> menu default<br> menu label Boot from ^local drive<br> localboot 0xffff<br></code></pre></td></tr></table></figure>
+
+<p>​		</p>
+<p>新建虚拟机，在加载完成前按esc打开boot menu  选择网卡引导</p>
+<p><img src="image-20220708221907150.png" srcset="/img/loading.gif" lazyload alt="image-20220708221907150"></p>
+<p>等待自动安装</p>
+<p><img src="image-20220708222022713.png" srcset="/img/loading.gif" lazyload alt="image-20220708222022713"></p>
+<h1 id="Cobbler"><a href="#Cobbler" class="headerlink" title="Cobbler"></a>Cobbler</h1><p>​		Cobbler实质是PXE的二次封装，将多种安装参数封装到一起，并提供统一的管理方法。</p>
+<p>​		CentOS8没有提供cobbler包，使用CentOS7进行。</p>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig"><span class="hljs-comment">#安装需要的软件包，确保相关服务启动</span><br><span class="hljs-string">yum</span> -<span class="hljs-string">y</span> <span class="hljs-string">install</span>  <span class="hljs-string">cobbler</span><br><span class="hljs-string">systemctl</span> <span class="hljs-string">enable</span> <span class="hljs-built_in">--now</span> <span class="hljs-string">cobblerd</span> <span class="hljs-string">httpd</span> <span class="hljs-string">tftp</span> <span class="hljs-string">dhcpd</span><br><span class="hljs-comment">#dhcpd服务未配置不能启动可不理会，后续由cobbler接管</span><br><br><span class="hljs-comment">#修改cobbler配置</span><br><span class="hljs-string">vim</span> /<span class="hljs-string">etc</span>/<span class="hljs-string">cobbler</span>/<span class="hljs-string">settings</span> <br><span class="hljs-string">default_password_crypted</span>: <span class="hljs-string">&quot;$1$1spuisnh$j34LNmyTQWs3l6xKxCZY60&quot;</span><br><span class="hljs-string">next_server</span>：&lt; <span class="hljs-string">tftp</span>服务器的 <span class="hljs-string">IP</span> 地址&gt;<br><span class="hljs-string">server</span>：&lt;<span class="hljs-string">cobbler</span>服务器的 <span class="hljs-string">IP</span> 地址&gt;<br><span class="hljs-string">manage_dhcp</span>：<span class="hljs-string">1</span>  <span class="hljs-comment">#设置为1，表示通过cobbler生成dhcpd.conf配置文件</span><br><span class="hljs-string">pxe_just_once</span>: <span class="hljs-string">1</span> <span class="hljs-comment">#设置为1,防止重复安装系统</span><br><span class="hljs-comment">#重启服务生效</span><br><span class="hljs-string">systemctl</span> <span class="hljs-string">restart</span> <span class="hljs-string">cobblerd</span><br><br><span class="hljs-comment">#由cobbler生成dhcpd配置，修改为cobbler服务主机</span><br><span class="hljs-string">vim</span> /<span class="hljs-string">etc</span>/<span class="hljs-string">cobbler</span>/<span class="hljs-string">dhcp</span>.<span class="hljs-string">template</span><br><span class="hljs-string">subnet</span> <span class="hljs-string">10</span>.<span class="hljs-string">0</span>.<span class="hljs-string">0</span>.<span class="hljs-string">0</span> <span class="hljs-string">netmask</span> <span class="hljs-string">255</span>.<span class="hljs-string">255</span>.<span class="hljs-string">255</span>.<span class="hljs-string">0</span> &#123;<br>     <span class="hljs-string">option</span> <span class="hljs-string">routers</span>             <span class="hljs-string">10</span>.<span class="hljs-string">0</span>.<span class="hljs-string">0</span>.<span class="hljs-string">2</span>;<br>     <span class="hljs-string">option</span> <span class="hljs-string">domain-name-servers</span> <span class="hljs-string">223</span>.<span class="hljs-string">5</span>.<span class="hljs-string">5</span>.<span class="hljs-string">5</span>;<br>     <span class="hljs-string">option</span> <span class="hljs-string">subnet-mask</span>         <span class="hljs-string">255</span>.<span class="hljs-string">255</span>.<span class="hljs-string">255</span>.<span class="hljs-string">0</span>;<br>     <span class="hljs-string">range</span> <span class="hljs-string">dynamic-bootp</span>        <span class="hljs-string">10</span>.<span class="hljs-string">0</span>.<span class="hljs-string">0</span>.<span class="hljs-string">200</span> <span class="hljs-string">10</span>.<span class="hljs-string">0</span>.<span class="hljs-string">0</span>.<span class="hljs-string">250</span>;<br>     <span class="hljs-string">default-lease-time</span>         <span class="hljs-string">21600</span>;<br>     <span class="hljs-string">max-lease-time</span>             <span class="hljs-string">43200</span>;<br>     <span class="hljs-string">next-server</span>                $<span class="hljs-string">next_server</span>;<br><br><span class="hljs-string">cobbler</span> <span class="hljs-string">sync</span><br><br><span class="hljs-comment">#下载启动相关文件</span><br><span class="hljs-string">cobbler</span> <span class="hljs-built_in">get-loaders</span><br><br><span class="hljs-comment">#导入系统安装文件</span><br><span class="hljs-string">mount</span> /<span class="hljs-string">dev</span>/<span class="hljs-string">sr0</span>  /<span class="hljs-string">mnt</span><br><span class="hljs-string">cobbler</span> <span class="hljs-string">import</span> <span class="hljs-built_in">--name=centos-7.7-x86_64</span> <span class="hljs-built_in">--path=/mnt</span> <span class="hljs-built_in">--arch=x86_64</span> <br></code></pre></td></tr></table></figure>
+
+<p>最终效果如图</p>
+<p><img src="image-20220709142339093.png" srcset="/img/loading.gif" lazyload alt="image-20220709142339093"></p>
+<p><img src="image-20220709142456196.png" srcset="/img/loading.gif" lazyload alt="image-20220709142456196"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%87%AA%E5%8A%A8%E5%8C%96/">自动化</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F/">自动安装系统</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/09/%E6%90%AD%E5%BB%BA%E4%B8%BB%E4%BB%8EDNS%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BDDNS/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">搭建主从DNS服务器并实现智能DNS</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/08/%E6%90%AD%E5%BB%BAchrony%E6%9C%8D%E5%8A%A1%E5%AE%8C%E6%88%90%E5%A4%9A%E4%B8%AA%E4%B8%BB%E6%9C%BA%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5/">
+                        <span class="hidden-mobile">搭建chrony服务完成多个主机时间同步</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

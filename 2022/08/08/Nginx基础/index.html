@@ -1,0 +1,499 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要介绍了Nginx基础原理和编译安装。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx基础">
+<meta property="og:url" content="http://example.com/2022/08/08/Nginx%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要介绍了Nginx基础原理和编译安装。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/08/08/Nginx%E5%9F%BA%E7%A1%80/image-20220808171634822.png">
+<meta property="og:image" content="http://example.com/2022/08/08/Nginx%E5%9F%BA%E7%A1%80/image-20220808171614416.png">
+<meta property="og:image" content="http://example.com/2022/08/08/Nginx%E5%9F%BA%E7%A1%80/image-20220808171519627.png">
+<meta property="article:published_time" content="2022-08-08T15:53:19.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.255Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Nginx">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/08/08/Nginx%E5%9F%BA%E7%A1%80/image-20220808171634822.png">
+  
+  
+  <title>Nginx基础 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Nginx基础">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-08 15:53" pubdate>
+        August 8, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.9k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      33 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Nginx基础</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要介绍了Nginx基础原理和编译安装。</p>
+<span id="more"></span>
+
+
+
+<h1 id="Nginx基础原理"><a href="#Nginx基础原理" class="headerlink" title="Nginx基础原理"></a>Nginx基础原理</h1><h3 id="Nginx进程结构"><a href="#Nginx进程结构" class="headerlink" title="Nginx进程结构"></a>Nginx进程结构</h3><p>​		Nginx是多进程组织模型，而且是一个由Master主进程和Worker工作进程组成。</p>
+<p>​		master进程的功能包括：接收外部的操作并对内转发，通过信号管理 Worker进程。监控 worker 进程的运行状态，worker 进程异常终止后，自动重启 worker 进程。读取Nginx 配置文件并验证其有效性和正确性。建立、绑定和关闭socket连接，按照配置生成、管理和结束工作进程。编译和处理perl脚本。</p>
+<p>​		worker进程的功能包括：实际负责处理网络请求，接受处理客户端请求并依次送入各个功能模块进行处理</p>
+<p>I&#x2F;O调用，获取响应数据。与后端服务器通信，接收后端服务器的处理结果。缓存数据，访问缓存索引，查询和调用缓存数据。发送请求结果，响应客户的请求。接收主程序指令，比如重启、升级和退出等。</p>
+<p><img src="image-20220808171634822.png" srcset="/img/loading.gif" lazyload alt="image-20220808171634822"></p>
+<h3 id=""><a href="#" class="headerlink" title=""></a><img src="image-20220808171614416.png" srcset="/img/loading.gif" lazyload alt="image-20220808171614416"></h3><h3 id="Nginx高性能原理"><a href="#Nginx高性能原理" class="headerlink" title="Nginx高性能原理"></a>Nginx高性能原理</h3><p>​		 <strong>Nginx采用高性能事件驱动模型epoll：</strong></p>
+<p>​		epoll的处理方式是创建一个待处理的事件列表，然后把这个列表发给内核，返回的时候在去轮询检查这个表，以判断事件是否发生，epoll支持一个进程打开的最大事件描述符的上限是系统可以打开的文件的最大数，同时epoll库的I&#x2F;O效率不随描述符数目增加而线性下降，因为它只会对内核上报的“活跃”的描述符进行操作。</p>
+<p><img src="image-20220808171519627.png" srcset="/img/loading.gif" lazyload alt="image-20220808171519627"></p>
+<p>​		<strong>Nginx采用零拷贝技术：</strong></p>
+<p>​		传统的 Linux 系统的标准 I&#x2F;O 接口（read、write）是基于数据拷贝的，这样做的好处是，通过中间缓存的机制，减少磁盘 I&#x2F;O 的操作，但是坏处也很明显，大量数据的拷贝，用户态和内核态的频繁切换，会消耗大量的 CPU 资源，严重影响数据传输的性能。</p>
+<p>​		零拷贝就是上述问题的一个解决方案，通过尽量避免拷贝操作来缓解 CPU 的压力。零拷贝并没有真正做</p>
+<p>到“0”拷贝，它更多是一种思想，很多的零拷贝技术都是基于这个思想去做的优化。</p>
+<h3 id="Nginx特性"><a href="#Nginx特性" class="headerlink" title="Nginx特性"></a>Nginx特性</h3><ul>
+<li>模块化设计，较好的扩展性</li>
+<li>高可靠性</li>
+<li>支持热部署：不停机更新配置文件，平滑升级版本，更换日志文件</li>
+<li>低内存消耗：10000个keep-alive连接模式下的非活动连接，仅需2.5M内存</li>
+<li>既可提供web服务又能实现四层或七层代理</li>
+</ul>
+<h1 id="使用nginx官方yum源安装"><a href="#使用nginx官方yum源安装" class="headerlink" title="使用nginx官方yum源安装"></a>使用nginx官方yum源安装</h1><p>​		系统自带的nginx版本较旧，可先配置nginx官方提供的yum源。</p>
+<p>​		以下链接中详细描述了几个主要linux发行版系统的仓库配置方法。	</p>
+<p>​		<a target="_blank" rel="noopener" href="http://nginx.org/en/linux_packages.html">http://nginx.org/en/linux_packages.html</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">官网关于RHEL/CentOS部分介绍</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">Install the prerequisites:</span><br><br>sudo yum install yum-utils<br><span class="hljs-meta prompt_">#</span><span class="language-bash">To <span class="hljs-built_in">set</span> up the yum repository, create the file named /etc/yum.repos.d/nginx.repo with the following contents:</span><br><br>[nginx-stable]<br>name=nginx stable repo<br>baseurl=http://nginx.org/packages/centos/$releasever/$basearch/<br>gpgcheck=1<br>enabled=1<br>gpgkey=https://nginx.org/keys/nginx_signing.key<br>module_hotfixes=true<br><br>[nginx-mainline]<br>name=nginx mainline repo<br>baseurl=http://nginx.org/packages/mainline/centos/$releasever/$basearch/<br>gpgcheck=1<br>enabled=0<br>gpgkey=https://nginx.org/keys/nginx_signing.key<br>module_hotfixes=true<br><span class="hljs-meta prompt_">#</span><span class="language-bash">By default, the repository <span class="hljs-keyword">for</span> stable nginx packages is used. If you would like to use mainline nginx packages, run the following <span class="hljs-built_in">command</span>:</span><br><br>sudo yum-config-manager --enable nginx-mainline<br><span class="hljs-meta prompt_">#</span><span class="language-bash">To install nginx, run the following <span class="hljs-built_in">command</span>:</span><br><br>sudo yum install nginx<br><span class="hljs-meta prompt_">#</span><span class="language-bash">When prompted to accept the GPG key, verify that the fingerprint matches 573B FD6B 3D8F BC64 1079 A6AB ABF5 BD82 7BD9 BF62, and <span class="hljs-keyword">if</span> so, accept it.</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="选择特定旧版本安装"><a href="#选择特定旧版本安装" class="headerlink" title="选择特定旧版本安装"></a>选择特定旧版本安装</h3><p>​		yum list只列出了最新稳定版本的nginx相关包，但也可直接安装旧版本</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">yum</span> list *nginx*<br><br><span class="hljs-attribute">Available</span> Packages<br><span class="hljs-attribute">nginx</span>-module-image-filter.x86_64                                    <span class="hljs-number">1</span>:<span class="hljs-number">1</span>.<span class="hljs-number">22</span>.<span class="hljs-number">0</span>-<span class="hljs-number">1</span>.el8.ngx                                               nginx-stable<br><span class="hljs-attribute">nginx</span>-module-image-filter-debuginfo.x86_64                          <span class="hljs-number">1</span>:<span class="hljs-number">1</span>.<span class="hljs-number">22</span>.<span class="hljs-number">0</span>-<span class="hljs-number">1</span>.el8.ngx                                               nginx-stable<br><span class="hljs-attribute">nginx</span>-module-njs.x86_64                                             <span class="hljs-number">1</span>:<span class="hljs-number">1</span>.<span class="hljs-number">22</span>.<span class="hljs-number">0</span>+<span class="hljs-number">0</span>.<span class="hljs-number">7</span>.<span class="hljs-number">6</span>-<span class="hljs-number">1</span>.el8.ngx                                         nginx-stable<br><span class="hljs-attribute">nginx</span>-module-njs-debuginfo.x86_64                                   <span class="hljs-number">1</span>:<span class="hljs-number">1</span>.<span class="hljs-number">22</span>.<span class="hljs-number">0</span>+<span class="hljs-number">0</span>.<span class="hljs-number">7</span>.<span class="hljs-number">6</span>-<span class="hljs-number">1</span>.el8.ngx                                         nginx-stable<br><span class="hljs-attribute">nginx</span>-module-perl.x86_64                                            <span class="hljs-number">1</span>:<span class="hljs-number">1</span>.<span class="hljs-number">22</span>.<span class="hljs-number">0</span>-<span class="hljs-number">1</span>.el8.ngx                                               nginx-stable<br><span class="hljs-attribute">nginx</span>-module-perl-debuginfo.x86_64                                  <span class="hljs-number">1</span>:<span class="hljs-number">1</span>.<span class="hljs-number">22</span>.<span class="hljs-number">0</span>-<span class="hljs-number">1</span>.el8.ngx                                               nginx-stable<br><span class="hljs-attribute">nginx</span>-module-xslt.x86_64                                            <span class="hljs-number">1</span>:<span class="hljs-number">1</span>.<span class="hljs-number">22</span>.<span class="hljs-number">0</span>-<span class="hljs-number">1</span>.el8.ngx                                               nginx-stable<br><span class="hljs-attribute">nginx</span>-module-xslt-debuginfo.x86_64                                  <span class="hljs-number">1</span>:<span class="hljs-number">1</span>.<span class="hljs-number">22</span>.<span class="hljs-number">0</span>-<span class="hljs-number">1</span>.el8.ngx                                               nginx-stable<br></code></pre></td></tr></table></figure>
+
+<p>​	如选择nginx1.18.0</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">yum</span> -y install nginx-<span class="hljs-number">1</span>.<span class="hljs-number">18</span>.<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="Nginx编译安装"><a href="#Nginx编译安装" class="headerlink" title="Nginx编译安装"></a>Nginx编译安装</h1><h3 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h3><p>​		需要预先安装的软件： gcc     pcre-devel 	openssl-devel 	zlib-devel</p>
+<p>​		源码包官方地址：<a target="_blank" rel="noopener" href="https://nginx.org/en/download.html">https://nginx.org/en/download.html</a>      </p>
+<h3 id="选择模块"><a href="#选择模块" class="headerlink" title="选择模块"></a>选择模块</h3><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli"><span class="hljs-comment">#进入源码包目录，执行.configue</span><br><span class="hljs-string">./configure</span> <span class="hljs-params">--prefix=</span>安装路径 \ <br><span class="hljs-params">--with-</span>模块名<br><span class="hljs-params">--with-http_v2_module</span> \ <br><span class="hljs-params">--with-http_ssl_module</span> \<br><span class="hljs-string">...</span><br><span class="hljs-comment">#添加第三方模块</span><br><span class="hljs-params">--add-module=</span>模块源码路径<br><span class="hljs-params">--add-module=/usr/local/src/echo-nginx-module</span><br><span class="hljs-string">...</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>​		执行make &amp;&amp; make install</p>
+<p>​		修改安装目录文件夹所属者为nginx</p>
+<p>​		安装目录中有四个主要文件夹：conf保存nginx所有的配置文件，其中nginx.conf是nginx服务器的最核心最主要的配置文件，其中有后缀.default的样板配置文件。html目录中保存了nginx服务器的web文件，但是可以更改为其他目录保存web文件,另外还有一个50x的web文件是默认的错误页面提示页面。logs用来保存nginx服务器的访问日志错误日志等日志。sbin保存nginx二进制启动脚本，可以接受不同的参数以实现不同的功能。</p>
+<p>​		nginx -V可查看当前nginx版本和带有的模块，日后想添加新模块可在编译安装时直接复制当前模块再加上新模块。</p>
+<h3 id="创建service文件"><a href="#创建service文件" class="headerlink" title="创建service文件"></a>创建service文件</h3><p>​		便于开机启动和使用systemd管理</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">可复制同一版本的nginx的yum安装生成的service文件，较新版本的yum安装需要先配置官方源，官网同上。</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">service文件如下</span><br>[Unit]<br>Description=nginx - high performance web server<br>Documentation=http://nginx.org/en/docs/<br>After=network-online.target remote-fs.target nss-lookup.target<br>Wants=network-online.target<br>[Service]<br>Type=forking<br>PIDFile=/apps/nginx/run/nginx.pid<br>ExecStart=/apps/nginx/sbin/nginx -c /apps/nginx/conf/nginx.conf<br>ExecReload=/bin/kill -s HUP $MAINPID<br>ExecStop=/bin/kill -s TERM $MAINPID<br>LimitNOFILE=100000<br>[Install]<br>WantedBy=multi-user.target<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">修改配置文件，方便查看nginx进程编号</span><br>mkdir /apps/nginx/run/<br>vim /apps/nginx/conf/nginx.conf<br>pid   /apps/nginx/run/nginx.pid;<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/web/">web</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Nginx/">Nginx</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/08/Nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%92%8Cweb%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Nginx反向代理和web服务配置</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/27/Ansible%E7%AE%A1%E7%90%86LAMP%E6%9E%B6%E6%9E%84/">
+                        <span class="hidden-mobile">Ansible管理LAMP架构</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

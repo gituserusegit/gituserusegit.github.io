@@ -1,0 +1,638 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要描述了搭建一个web架构的主要过程，含有包括提供静态资源的nginx服务器、处理php应用的php-fpm服务器、处理Java应用程序的Tomcat服务器、haproxy和nginx负载均衡与代理等详细配置。、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建web架构">
+<meta property="og:url" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要描述了搭建一个web架构的主要过程，含有包括提供静态资源的nginx服务器、处理php应用的php-fpm服务器、处理Java应用程序的Tomcat服务器、haproxy和nginx负载均衡与代理等详细配置。、">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220826194017276.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825193722734.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825193742494.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825193958604.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825194009942.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825201333696.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825201404161.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825201507380.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825201517182.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220826161020612.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220826174643234.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220826180411943.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220826180645902.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220826181309647.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825210513309.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825212732986.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825213214972.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220825213225121.png">
+<meta property="og:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/web%E6%9E%B6%E6%9E%842(1).jpg">
+<meta property="article:published_time" content="2022-08-25T15:49:00.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.298Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/08/25/%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%95%B4web%E6%9E%B6%E6%9E%84/image-20220826194017276.png">
+  
+  
+  <title>搭建web架构 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="搭建web架构">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-25 15:49" pubdate>
+        August 25, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      19k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      162 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">搭建web架构</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要描述了搭建一个web架构的主要过程，含有包括提供静态资源的nginx服务器、处理php应用的php-fpm服务器、处理Java应用程序的Tomcat服务器、haproxy和nginx负载均衡与代理等详细配置。、</p>
+<span id="more"></span>
+
+<p>​		该架构目标是上线3个网站，<a target="_blank" rel="noopener" href="http://www.9527.com、jsp.9527.com和blog.9527.com.www.9527.com具有html、js、图片等静态资源;jsp.9527.com网站提供jsp文件动态资源;blog.9527.com是基于wordpress的博客网站,需要php服务器,php服务器同时还处理www.9527.com的php请求./">www.9527.com、jsp.9527.com和blog.9527.com。www.9527.com具有html、js、图片等静态资源；jsp.9527.com网站提供jsp文件动态资源；blog.9527.com是基于WordPress的博客网站，需要php服务器，php服务器同时还处理www.9527.com的php请求。</a></p>
+<p>​		为承担较高的并发访问和方便后续扩容，架构设计先由haproxy四层负载均衡调度到两台nginx代理服务器；nginx监听8080端口对tomcat作负载均衡，监听80端口对后端nginx服务器和php服务器作七层代理；数据库采用PXC集群并为nginx和php服务器创建账号并授权；tomcat使用msm管理memcache实现session共享；nginx和php服务器上的文件可设计为分布式存放（需要代理对用户请求uri作哈希），也可使用nfs共享文件；使用Keepalived实现haproxy高可用。</p>
+<p>​		使用主机为一物理机上的13台虚拟机，受限于单机性能主机数量较少，每个集群精简至2台主机。</p>
+<p>​		架构拓扑图如下</p>
+<p><img src="image-20220826194017276.png" srcset="/img/loading.gif" lazyload alt="image-20220826194017276"></p>
+<h1 id="主机规划"><a href="#主机规划" class="headerlink" title="主机规划"></a>主机规划</h1><p>以下采用CentOS8系统	</p>
+<p>​		<strong>haproxy主机两台：</strong></p>
+<p>​		10.0.0.87  主机名haproxy1		Keepalived节点1优先级100多播地址224.0.100.100</p>
+<p>​		10.0.0.88  主机名haproxy2		Keepalived节点2优先级80多播地址224.0.100.100</p>
+<p>​		<strong>nginx（代理）主机两台：</strong></p>
+<p>​		10.0.0.157 主机名nginxproxy1	</p>
+<p>​		10.0.0.150 主机名nginxproxy2</p>
+<p>​		<strong>nginx（静态资源）主机两台：</strong></p>
+<p>​		10.0.0.83 主机名nginx-server1</p>
+<p>​		10.0.0.84 主机名nginx-server2</p>
+<p>​		<strong>php+nginx主机两台：</strong></p>
+<p>​		10.0.0.85 主机名php-server1</p>
+<p>​		10.0.0.86 主机名php-server2</p>
+<p>​		<strong>tomcat主机两台：</strong></p>
+<p>​		10.0.0.108 主机名tomcat1</p>
+<p>​		10.0.0.118 主机名tomcat2</p>
+<p>​		<strong>nfs主机1台：</strong></p>
+<p>​		10.0.0.89 主机名nfs-server</p>
+<p>以下采用CentOS7系统</p>
+<p>​		<strong>PXC集群数据库主机两台：</strong></p>
+<p>​		10.0.0.154 主机名mysql1		</p>
+<p>​		10.0.0.155 主机名mysql2</p>
+<h1 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h1><h3 id="nginx安装"><a href="#nginx安装" class="headerlink" title="nginx安装"></a>nginx安装</h3><p>​		nginx代理和后端所用版本相同。未来若后端需要额外模块可编译安装再平滑升级。</p>
+<p>​		配置nginx官方yum源，配置后默认安装最新稳定版1.22。本次选择版本为nginx-1.18.0</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><pre><code class="hljs shell">[nginx-stable]<br>name=nginx stable repo<br>baseurl=http://nginx.org/packages/centos/$releasever/$basearch/<br>gpgcheck=1<br>enabled=1<br>gpgkey=https://nginx.org/keys/nginx_signing.key<br>module_hotfixes=true<br><br>[nginx-mainline]<br>name=nginx mainline repo<br>baseurl=http://nginx.org/packages/mainline/centos/$releasever/$basearch/<br>gpgcheck=1<br>enabled=0<br>gpgkey=https://nginx.org/keys/nginx_signing.key<br>module_hotfixes=true<br><br>[root@nginx-server1 ~]# yum info nginx-1.18.0<br>Last metadata expiration check: 1:13:17 ago on Thu 25 Aug 2022 03:59:18 PM CST.<br>Installed Packages<br>Name         : nginx<br>Epoch        : 1<br>Version      : 1.18.0<br></code></pre></td></tr></table></figure>
+
+<h3 id="php安装"><a href="#php安装" class="headerlink" title="php安装"></a>php安装</h3><p>​		架构中nginx异构代理，使用fastcgi协议。</p>
+<p>​		使用阿里云appstream源</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">直接使用yum安装php-fpm及相关包</span><br>yum -y install php-fpm php-mysqlnd php-json<br>[root@php-server1 ~]#yum info php-fpm<br>Last metadata expiration check: 2:09:02 ago on Thu 25 Aug 2022 03:48:17 PM CST.<br>Installed Packages<br>Name         : php-fpm<br>Version      : 7.2.24<br>Release      : 1.module_el8.2.0+313+b04d0a66<br></code></pre></td></tr></table></figure>
+
+<h3 id="haproxy安装"><a href="#haproxy安装" class="headerlink" title="haproxy安装"></a>haproxy安装</h3><p>​		使用阿里云appstream源中的版本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@haproxy1 ~]#yum info haproxy<br>Last metadata expiration check: 1:56:55 ago on Thu 25 Aug 2022 03:58:38 PM CST.<br>Installed Packages<br>Name         : haproxy<br>Version      : 1.8.23<br></code></pre></td></tr></table></figure>
+
+<h3 id="Keepalived安装"><a href="#Keepalived安装" class="headerlink" title="Keepalived安装"></a>Keepalived安装</h3><p>​		使用阿里云appstream源安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@haproxy2 ~]#yum info keepalived<br>Last metadata expiration check: 2:25:31 ago on Thu 25 Aug 2022 03:58:55 PM CST.<br>Installed Packages<br>Name         : keepalived<br>Version      : 2.0.10<br>Release      : 11.el8_3.1<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="tomcat安装"><a href="#tomcat安装" class="headerlink" title="tomcat安装"></a>tomcat安装</h3><p>​		注意tomcat需要java环境，采用openjdk1.8</p>
+<p>​		选择tomcat版本为tomcat-8&#x2F;v8.5.82。从清华tomcat镜像站点下载</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">安装java环境相关包</span><br>yum -y install java-1.8.0-openjdk.x86_64 java-1.8.0-openjdk-devel<br><span class="hljs-meta prompt_">#</span><span class="language-bash">下载tomcat</span><br>[root@tomcat1 /usr/local]#wget https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-8/v8.5.82/bin/apache-tomcat-8.5.82.tar.gz<br>[root@tomcat1 /usr/local]#tar xf apache-tomcat-8.5.82.tar.gz<br>[root@tomcat1 /usr/local]#ln -s apache-tomcat-8.5.82 tomcat<br><span class="hljs-meta prompt_">#</span><span class="language-bash">指明java路径（新建tomcat.conf文件）</span><br>[root@tomcat1 /usr/local]#cat /usr/local/tomcat/conf/tomcat.conf <br>JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.292.b10-0.el8_3.x86_64/jre<br><span class="hljs-meta prompt_">#</span><span class="language-bash">添加PATH变量</span><br>[root@tomcat1 /usr/local]#echo &#x27;PATH=/usr/local/tomcat/bin:$PATH&#x27; &gt; /etc/profile.d/tomcat.sh<br>[root@tomcat1 /usr/local]#. /etc/profile.d/tomcat.sh<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">添加service文件</span><br>[root@tomcat1 /usr/local]#cat /usr/lib/systemd/system/tomcat.service <br>[Unit]<br>Description=Tomcat<br>After=syslog.target network.target <br>[Service]<br>Type=forking<br>EnvironmentFile=/usr/local/tomcat/conf/tomcat.conf<br>ExecStart=/usr/local/tomcat/bin/startup.sh<br>ExecStop=/usr/local/tomcat/bin/shutdown.sh<br>PrivateTmp=true<br>[Install]<br>WantedBy=multi-user.target<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">加载后可通过systemd管理tomcat</span><br>[root@tomcat1 /usr/local]#systemctl daemon-reload<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">tomcat进程将以root身份运行，未来考虑安全因素可专门为tomcat进程创建专属账号，修改service文件和tomcat相关文件所属者即可。</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Percona-XtraDB-Cluster安装"><a href="#Percona-XtraDB-Cluster安装" class="headerlink" title="Percona XtraDB Cluster安装"></a><strong>Percona XtraDB Cluster</strong>安装</h3><p>​		需要先配置yum仓库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">[percona]<br>name=percona_repo<br>baseurl =<br>https://mirrors.tuna.tsinghua.edu.cn/percona/release/$releasever/RPMS/$basearch<br>enabled = 1<br>gpgcheck = 0<br></code></pre></td></tr></table></figure>
+
+<p>​		然后直接安装即可</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">yum</span> -y install Percona-XtraDB-Cluster-<span class="hljs-number">57</span> <br></code></pre></td></tr></table></figure>
+
+<h3 id="nfs服务器安装"><a href="#nfs服务器安装" class="headerlink" title="nfs服务器安装"></a>nfs服务器安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">使用yum安装，版本如下</span><br>[root@nfs-server ~]#yum info nfs-utils<br>Last metadata expiration check: 3:01:53 ago on Thu 25 Aug 2022 06:32:54 PM CST.<br>Installed Packages<br>Name         : nfs-utils<br>Epoch        : 1<br>Version      : 2.3.3<br><span class="hljs-meta prompt_">#</span><span class="language-bash">进程名为nfs-server.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="memcache及msm（memcached-session-manager）安装"><a href="#memcache及msm（memcached-session-manager）安装" class="headerlink" title="memcache及msm（memcached session manager）安装"></a>memcache及msm（memcached session manager）安装</h3><p>​		参考github上的指引下载msm所需jar包，网址如下</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/magro/memcached-session-manager/wiki/SetupAndConfiguration">https://github.com/magro/memcached-session-manager/wiki/SetupAndConfiguration</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">memcached直接安装阿里云appstream源中版本</span><br>[root@tomcat1 /usr/local]#yum info memcached<br>Last metadata expiration check: 2:47:05 ago on Thu 25 Aug 2022 03:48:48 PM CST.<br>Installed Packages<br>Name         : memcached<br>Version      : 1.5.22<br>Release      : 2.el8<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">msm网页中提及所需jar包如下，下载后放入 /安装目录/tomcat/lib/下即可</span><br>kryo-3.0.3.jar<br>asm-5.2.jar<br>objenesis-2.6.jar<br>reflectasm-1.11.9.jar<br>minlog-1.3.1.jar<br>kryo-serializers-0.45.jar<br>msm-kryo-serializer-2.3.2.jar<br>memcached-session-manager-tc8-2.3.2.jar<br>spymemcached-2.12.3.jar<br>memcached-session-manager-2.3.2.jar<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="nginx静态资源服务器配置"><a href="#nginx静态资源服务器配置" class="headerlink" title="nginx静态资源服务器配置"></a>nginx静态资源服务器配置</h1><p>​		涉及主机：代理10.0.0.150和10.0.0.157、后端10.0.0.83和10.0.0.84</p>
+<h3 id="nginx后端配置"><a href="#nginx后端配置" class="headerlink" title="nginx后端配置"></a>nginx后端配置</h3><p>​		nginx性能优化相关配置省略，未改动配置省略</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">两主机以下配置相同</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">主配置文件</span><br>http &#123;<br>	....<br>	include /etc/nginx/conf.d/*.conf;	#只配置文件放在最后，保证前面的配置生效<br>&#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment">#子配置文件</span></span><br>[root@nginx-server1 ~]# cat /etc/nginx/conf.d/9527.conf <br>server &#123;<br>	listen 80;<br>	server_name	www.9527.com;<br>	root /usr/share/nginx/html/;<br>	location = / &#123;<br>		root /usr/share/nginx/html/;<br>	&#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">图片和网页源码存放在不同目录</span><br>	location ~ \.(jpe?g|png|gif)$ &#123;<br>		root /data/images/;<br>	&#125;<br>	location ~ \.(html|js)$ &#123;<br>		root /usr/share/nginx/html/static/;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="nginx代理配置"><a href="#nginx代理配置" class="headerlink" title="nginx代理配置"></a>nginx代理配置</h3><p>​		两主机配置相同，为测试方便，调度使用默认的轮询算法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">主配置文件</span><br>[root@nginxproxy2 ~]$cat /etc/nginx/nginx.conf<br>http &#123;<br>	...<br>	include /etc/nginx/conf.d/*.conf;<br>&#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">子配置文件</span><br>[root@nginxproxy2 ~]$cat /etc/nginx/conf.d/static.conf <br>upstream static &#123;	<br> server 10.0.0.83:80 weight=1 fail_timeout=5s max_fails=3; <br> server 10.0.0.84:80 weight=1 fail_timeout=5s max_fails=3;<br> &#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">定义虚拟主机，将静态资源请求调度到后端nginx集群</span><br>server&#123;<br>	listen 80;<br> 	server_name www.9527.com;<br>	location ~ \.(jpe?g|png|bmp|gif|html|js)$  &#123;<br>		root /usr/share/nginx/html;<br>		proxy_pass http://static;<br>		proxy_next_upstream error;<br>	&#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="准备测试文件"><a href="#准备测试文件" class="headerlink" title="准备测试文件"></a>准备测试文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">两台主机在相同文件夹下准备文件名相同内容不同的文件</span><br>[root@nginx-server2 ~]#ls /data/images/<br>1.jpg<br>[root@nginx-server2 ~]#ls /usr/share/nginx/html/static/<br>1.html  2.html  index.html<br>[root@nginx-server2 ~]#cat /usr/share/nginx/html/static/1.html <br>nginx server2 on 10.0.0.84<br>[root@nginx-server2 ~]#cat /usr/share/nginx/html/static/index.html <br>index page on 10.0.0.84<br>nginx server2<br>[root@nginx-server1 ~]# cat /usr/share/nginx/html/static/index.html<br>index page on 10.0.0.83<br>nginx server1<br>[root@nginx-server1 ~]# cat /usr/share/nginx/html/static/1.html <br>nginx server1 on 10.0.0.83<br></code></pre></td></tr></table></figure>
+
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>​		Linux或windows上作测试均可，均可修改域名解析文件通过域名访问，以下为示例。</p>
+<p>​		测试10.0.0.157无误后改为10.0.0.150测试另一代理是否配置正确。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">linux</span> <br>[root@8 ~]$cat /etc/hosts<br>127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4<br>::1         localhost localhost.localdomain localhost6 localhost6.localdomain6<br>10.0.0.157 www.9527.com blog.9527.com<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">windows修改C:\Windows\System32\drivers\etc\hosts,添加一行</span><br>10.0.0.157 www.9527.com blog.9527.com<br></code></pre></td></tr></table></figure>
+
+<p><strong>linux</strong></p>
+<p><img src="image-20220825193722734.png" srcset="/img/loading.gif" lazyload alt="image-20220825193722734"></p>
+<p><img src="image-20220825193742494.png" srcset="/img/loading.gif" lazyload alt="image-20220825193742494"></p>
+<p><strong>Windows</strong></p>
+<p><img src="image-20220825193958604.png" srcset="/img/loading.gif" lazyload alt="image-20220825193958604"></p>
+<p><img src="image-20220825194009942.png" srcset="/img/loading.gif" lazyload alt="image-20220825194009942"></p>
+<h1 id="PHP服务器配置"><a href="#PHP服务器配置" class="headerlink" title="PHP服务器配置"></a>PHP服务器配置</h1><p>​		涉及主机：代理10.0.0.150和10.0.0.157、后端10.0.0.85和10.0.0.86</p>
+<p>​		后端两主机安装nginx、php负责blog.9527.com的访问，nginx接收http请求转发到本机的php来处理。同时，还处理<a target="_blank" rel="noopener" href="http://www.9527.com的php请求,由nginx代理直接代理到9000端口,不经过本机nginx代理./">www.9527.com的php请求，由nginx代理直接代理到9000端口，不经过本机nginx代理。</a></p>
+<h3 id="php配置"><a href="#php配置" class="headerlink" title="php配置"></a>php配置</h3><p>​		修改监听配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">仅修改以下行</span><br>;listen = /run/php-fpm/www.sock		#注释该行，该行在php与fastcgi请求端在同一主机上时使用，某应用与php通过socket文件方式通讯<br>listen 9000		#添加该行<br>;listen.allowed_clients = 127.0.0.1  #注释此行，允许所有IP访问<br></code></pre></td></tr></table></figure>
+
+<h3 id="本机nginx配置"><a href="#本机nginx配置" class="headerlink" title="本机nginx配置"></a>本机nginx配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell">http<br>	server &#123;<br>        listen       80;<br>        server_name  blog.9527.com;<br>        location ~ \.html$ &#123;<br>		root /data/php/wordpress;		#测试时可用其他文件夹，安装好wordpress后可以用该文件夹<br>		index index.html;<br>        &#125;<br>	location ~ \.php$ &#123;<br>		root /data/php/wordpress;<br>		fastcgi_pass	127.0.0.1:9000;<br>		fastcgi_index	index.php;<br>		fastcgi_param 	SCRIPT_FILENAME		$document_root$fastcgi_script_name;<br>		include		fastcgi_params;<br>	&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="nginx代理配置-1"><a href="#nginx代理配置-1" class="headerlink" title="nginx代理配置"></a>nginx代理配置</h3><p>​		Nginx基于模块ngx_http_fastcgi_module实现fastcgi协议转发，yum安装已有。</p>
+<p>​		测试时发现有时一些php网页依然会按照上文static.conf中规则调度，为了解决该问题，主配置文件中添加以下配置。两主机配置相同。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">主配置文件/etc/nginx/nginx.conf</span><br>http&#123;<br>	...<br>	...<br>	server &#123;				#将访问php网页的请求转到本机81端口<br>		listen 80;<br>		server_name blog.9527.com;<br>		location / &#123;<br>			proxy_pass http://localhost:81;<br>			&#125;<br>		&#125;<br>    include /etc/nginx/conf.d/*.conf; <br></code></pre></td></tr></table></figure>
+
+<p>​		之前的static.conf也要配置fastcgi转发，博客网站的php请求转发在本机上已配置。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">子配置文件/etc/nginx/conf.d/php.conf</span><br>upstream blog &#123;<br>	server 10.0.0.85:80 max_fails=3 fail_timeout=10s;	<br>	server 10.0.0.86:80 max_fails=3 fail_timeout=10s; <br>&#125;<br>server &#123;<br>	listen 81;		<br>	server_name blog.9527.com;		<br>	location / &#123;<br>		root /data/php/wordpress;	#测试时可用其他文件夹，安装好wordpress后可以用该文件夹<br>		proxy_pass http://blog;<br>		proxy_next_upstream error;<br>	&#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">子配置文件/etc/nginx/conf.d/static.conf</span> <br>upstream static &#123;	<br> server 10.0.0.83:80 weight=1 fail_timeout=5s max_fails=3; <br> server 10.0.0.84:80 weight=1 fail_timeout=5s max_fails=3;<br> &#125;<br>upstream phpservers &#123;<br>	server 10.0.0.85:9000 max_fails=3 fail_timeout=10s;	<br>	server 10.0.0.86:9000 max_fails=3 fail_timeout=10s; <br>&#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">定义虚拟主机，将静态资源请求调度到后端nginx集群</span><br>server&#123;<br>	listen 80;<br> 	server_name www.9527.com;<br>	location ~ \.(jpe?g|png|bmp|gif|html|js)$  &#123;<br>		root /usr/share/nginx/html;<br>		proxy_pass http://static;<br>		proxy_next_upstream error;<br>	&#125;<br>	location ~ \.php$ &#123;<br>		root /data/php/www;			<br>		fastcgi_pass phpservers;<br>		fastcgi_index index.php;<br>		fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;<br>		include fastcgi_params;<br>	&#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="准备测试文件-1"><a href="#准备测试文件-1" class="headerlink" title="准备测试文件"></a>准备测试文件</h3><p>​		注意路径需要与nginx配置中指定的路径一致</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@php-server2 ~]#cat /data/php/www/index.php <br>&lt;?php<br>	echo (&quot;10.0.0.86&quot;);<br>	phpinfo();<br>?&gt;<br>[root@php-server1 ~]#cat /data/php/www/index.php <br>&lt;?php<br>	echo (&quot;10.0.0.85&quot;);<br>	phpinfo();<br>?&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h3><p>​		Linux或windows上作测试均可，均可修改域名解析文件通过域名访问。</p>
+<p>​		测试10.0.0.157无误后改为10.0.0.150测试另一代理是否配置正确。</p>
+<p><strong>linux</strong></p>
+<p><img src="image-20220825201333696.png" srcset="/img/loading.gif" lazyload alt="image-20220825201333696"></p>
+<p><img src="image-20220825201404161.png" srcset="/img/loading.gif" lazyload alt="image-20220825201404161"></p>
+<p>Windows</p>
+<p><img src="image-20220825201507380.png" srcset="/img/loading.gif" lazyload alt="image-20220825201507380"></p>
+<p><img src="image-20220825201517182.png" srcset="/img/loading.gif" lazyload alt="image-20220825201517182"></p>
+<p>此时可在该文件夹下部署WordPress</p>
+<h1 id="安装WordPress"><a href="#安装WordPress" class="headerlink" title="安装WordPress"></a>安装WordPress</h1><p>​			可直接去wordpress官网下载，将wordpress包解压到php目录下。浏览器访问wordpress文件夹将开始初始化安装。<img src="image-20220826161020612.png" srcset="/img/loading.gif" lazyload alt="image-20220826161020612"></p>
+<p><img src="image-20220826174643234.png" srcset="/img/loading.gif" lazyload alt="image-20220826174643234"></p>
+<p>选择任意数据库，如果数据库做了负载均衡，可填写代理主机地址。</p>
+<p><img src="image-20220826180411943.png" srcset="/img/loading.gif" lazyload alt="image-20220826180411943"></p>
+<p>出现该提示，到wordpress文件夹下创建配置文件即可，复制网页中的内容。</p>
+<p><img src="image-20220826180645902.png" srcset="/img/loading.gif" lazyload alt="image-20220826180645902"></p>
+<p><img src="image-20220826181309647.png" srcset="/img/loading.gif" lazyload alt="image-20220826181309647"></p>
+<h1 id="Tomcat服务器配置"><a href="#Tomcat服务器配置" class="headerlink" title="Tomcat服务器配置"></a>Tomcat服务器配置</h1><p>​		涉及主机：后端Tomcat10.0.0.108、10.0.0.118和代理nginx10.0.0.150和10.0.0.157</p>
+<p>​		后端Tomcat服务器监听8080端口，nginx代理将http请求转到本机8080端口再由tcp协议转发Tomcat处理。</p>
+<h3 id="Tomcat配置"><a href="#Tomcat配置" class="headerlink" title="Tomcat配置"></a>Tomcat配置</h3><p>​		主配置文件	&#x2F;安装路径&#x2F;tomcat&#x2F;conf&#x2F;server.xml</p>
+<p>​		其中绝大多数采用默认配置，监听默认的8080端口</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml">在结尾hostq前添加两行<br>...<br> <span class="hljs-tag">&lt;/<span class="hljs-name">Host</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">Host</span>  <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;jsp.9527.com&quot;</span>  <span class="hljs-attr">appBase</span>=<span class="hljs-string">&quot;/data/webapps1&quot;</span>&gt;</span><br> <span class="hljs-tag">&lt;/<span class="hljs-name">Host</span>&gt;</span><br>...<br>修改默认虚拟主机<br><span class="hljs-tag">&lt;<span class="hljs-name">Engine</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;Catalina&quot;</span> <span class="hljs-attr">defaultHost</span>=<span class="hljs-string">&quot;jsp.9527.com&quot;</span> <span class="hljs-attr">jvmRoute</span>=<span class="hljs-string">&quot;Tomcat1&quot;</span> &gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="msm配置（session共享）"><a href="#msm配置（session共享）" class="headerlink" title="msm配置（session共享）"></a>msm配置（session共享）</h3><p>​		配置文件位置	&#x2F;安装路径&#x2F;tomcat&#x2F;conf&#x2F;context.xml</p>
+<p>​		参考指引网页配置<a target="_blank" rel="noopener" href="https://github.com/magro/memcached-session-manager/wiki/SetupAndConfiguration#configure-memcached-session-manager-as--context-manager">https://github.com/magro/memcached-session-manager/wiki/SetupAndConfiguration#configure-memcached-session-manager-as--context-manager</a></p>
+<p><img src="image-20220825210513309.png" srcset="/img/loading.gif" lazyload alt="image-20220825210513309"></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs xml">Tomcat1配置，添加以下行。session默认存在另一主机memcached上，损坏后才存在本机的memcached<br><br><span class="hljs-tag">&lt;<span class="hljs-name">Manager</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;de.javakaffee.web.msm.MemcachedBackupSessionManager&quot;</span></span><br><span class="hljs-tag">	    <span class="hljs-attr">memcachedNodes</span>=<span class="hljs-string">&quot;n1:10.0.0.108:11211,n2:10.0.0.118:11211&quot;</span></span><br><span class="hljs-tag">	    <span class="hljs-attr">failoverNodes</span>=<span class="hljs-string">&quot;n1&quot;</span></span><br><span class="hljs-tag">	    <span class="hljs-attr">requestUriIgnorePattern</span>=<span class="hljs-string">&quot;.*\.(ico|png|gif|jpg|css|js)$&quot;</span>	   		 				         		<span class="hljs-attr">transcoderFactoryClass</span>=<span class="hljs-string">&quot;de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory&quot;</span></span><br><span class="hljs-tag">	    /&gt;</span><br><br>Tomcat2配置类似<br><span class="hljs-tag">&lt;<span class="hljs-name">Manager</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;de.javakaffee.web.msm.MemcachedBackupSessionManager&quot;</span></span><br><span class="hljs-tag">	    <span class="hljs-attr">memcachedNodes</span>=<span class="hljs-string">&quot;n1:10.0.0.108:11211,n2:10.0.0.118:11211&quot;</span></span><br><span class="hljs-tag">	    <span class="hljs-attr">failoverNodes</span>=<span class="hljs-string">&quot;n2&quot;</span></span><br><span class="hljs-tag">	    <span class="hljs-attr">requestUriIgnorePattern</span>=<span class="hljs-string">&quot;.*\.(ico|png|gif|jpg|css|js)$&quot;</span>	   		 				         		<span class="hljs-attr">transcoderFactoryClass</span>=<span class="hljs-string">&quot;de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory&quot;</span></span><br><span class="hljs-tag">	    /&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="memcached配置"><a href="#memcached配置" class="headerlink" title="memcached配置"></a>memcached配置</h3><p>​		两主机相同修改&#x2F;etc&#x2F;sysconfig&#x2F;memcached</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">注释该行</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">OPTIONS=<span class="hljs-string">&quot;-l 127.0.0.1,::1&quot;</span></span><br></code></pre></td></tr></table></figure>
+
+<h3 id="nginx代理配置-2"><a href="#nginx代理配置-2" class="headerlink" title="nginx代理配置"></a>nginx代理配置</h3><p>​		主配置文件与php部分配置类似，添加端口转发</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">/etc/nginx/nginx.conf</span><br>http &#123;<br>	...<br>	...<br>	server &#123;<br>        listen 80;<br>        server_name jsp.9527.com;<br>        location / &#123;<br>                proxy_pass http://localhost:8080;<br>                &#125;<br>        &#125;<br>    include /etc/nginx/conf.d/*.conf;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​		子配置文件如下，对Tomcat作四层负载均衡</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">/etc/nginx/conf.d/tom1.conf</span>  <br>  upstream tomcat &#123;<br>     server 10.0.0.108:8080 max_fails=3 fail_timeout=30s;<br>     server 10.0.0.118:8080 max_fails=3 fail_timeout=30s;<br>   &#125;<br>   server &#123;<br>   	 listen 8080; 			#默认tcp<br>	 location ~* \.jsp$ &#123;<br>   	 proxy_pass tomcat;<br>		  &#125;<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="准备测试文件-2"><a href="#准备测试文件-2" class="headerlink" title="准备测试文件"></a>准备测试文件</h3><p>​		两主机文件一致</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@tomcat1 /usr/local]#cat tomcat/webapps/app1/2.jsp <br>&lt;%@ page import=&quot;java.util.*&quot; %&gt;<br>&lt;!DOCTYPE html&gt;<br>&lt;html lang=&quot;en&quot;&gt;<br>	&lt;head&gt;<br>		   &lt;meta charset=&quot;UTF-8&quot;&gt;<br>		    &lt;title&gt;tomcat test&lt;/title&gt;<br>	&lt;/head&gt;<br>	&lt;body&gt;<br>		&lt;h1&gt; tomcat website &lt;/h1&gt;<br>		&lt;div&gt;On &lt;%=request.getServerName() %&gt;&lt;/div&gt;<br>		&lt;div&gt;&lt;%=request.getLocalAddr() + &quot;:&quot; + request.getLocalPort() %&gt;&lt;/div&gt;<br>		&lt;div&gt;SessionID = &lt;span style=&quot;color:blue&quot;&gt;&lt;%=session.getId() %&gt;&lt;/span&gt;&lt;/div&gt;<br>		&lt;%=new Date()%&gt;<br>	&lt;/body&gt;<br>&lt;/html&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="测试-2"><a href="#测试-2" class="headerlink" title="测试"></a>测试</h3><p>​		Linux或windows上作测试均可，均可修改域名解析文件通过域名访问。</p>
+<p>​		测试10.0.0.157无误后改为10.0.0.150测试另一代理是否配置正确。</p>
+<p>​		<strong>linux</strong></p>
+<p>​		curl毕竟不是真正的浏览器，可以看到sessionid不一致，会话丢失</p>
+<p><img src="image-20220825212732986.png" srcset="/img/loading.gif" lazyload alt="image-20220825212732986"></p>
+<p>​		<strong>Windows</strong></p>
+<p>​		实现会话保持（sessionid一致）</p>
+<p><img src="image-20220825213214972.png" srcset="/img/loading.gif" lazyload alt="image-20220825213214972"></p>
+<p><img src="image-20220825213225121.png" srcset="/img/loading.gif" lazyload alt="image-20220825213225121"></p>
+<h1 id="NFS配置"><a href="#NFS配置" class="headerlink" title="NFS配置"></a>NFS配置</h1><p>​		nfs服务器为10.0.0.89，仅需设置共享目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">建立共享目录</span><br>[root@nfs-server ~]#mkdir -p /data/nginx/9527<br><span class="hljs-meta prompt_">#</span><span class="language-bash">写入配置文件，no_root_squash可以保证其他主机的root可以修改，可以指定网段或某IP</span><br>[root@nfs-server ~]#cat /etc/exports<br>/data/nginx/9527	10.0.0.0/24(rw,no_root_squash)<br></code></pre></td></tr></table></figure>
+
+<p>​		使用共享文件夹</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">挂载该文件夹即可，可以写入/etc/fstab持久自动挂载</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">以该服务器为例,加上_netdev参数在开机后网络通畅后挂载</span><br>[root@nginx-server2 ~]#cat /etc/fstab<br>...<br>...<br>10.0.0.89:/data/nginx/9527	/data/nginx	nfs	defaults,_netdev	0	0<br><span class="hljs-meta prompt_">#</span><span class="language-bash">可用mount -a立即生效</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="测试-3"><a href="#测试-3" class="headerlink" title="测试"></a>测试</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@nfs-server ~]#touch /data/nginx/9527/9527<br>[root@nginx-server2 ~]#ls /data/nginx/<br>9527<br><br>[root@nginx-server2 ~]#touch /data/nginx/666<br>[root@nfs-server ~]#ls /data/nginx/9527/<br>666  9527<br></code></pre></td></tr></table></figure>
+
+<h1 id="PXC集群"><a href="#PXC集群" class="headerlink" title="PXC集群"></a>PXC集群</h1><p>​		涉及主机：数据库集群10.0.0.154、10.0.0.155。</p>
+<p>​		直接使用过去文章中搭建的PXC多主架构，该文章已详细展示配置过程，此处不再赘述。</p>
+<p><a target="_blank" rel="noopener" href="https://gituserusegit.github.io/2022/07/26/PXC%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/">https://gituserusegit.github.io/2022/07/26/PXC%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/</a></p>
+<p>​		完成PXC集群搭建后，为后端服务器创建数据库和账号，然后授权。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; create user &#x27;nginxadm&#x27;@&#x27;10.0.0.%&#x27; identified by &#x27;123456&#x27;;<br>mysql&gt; create database nginxdb;<br>mysql&gt; grant all on nginxdb.* to nginxadm@&#x27;10.0.0.%&#x27;;<br>mysql&gt; create user &#x27;phpadm&#x27;@&#x27;10.0.0.%&#x27; identified by &#x27;666666&#x27;;<br>mysql&gt; create database wordpress;<br>mysql&gt; grant all on wordpress.* to phpadm@&#x27;10.0.0.%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<h1 id="haproxy配置"><a href="#haproxy配置" class="headerlink" title="haproxy配置"></a>haproxy配置</h1><p>​		haproxy主机：10.0.0.87和10.0.0.88。Keepalived设置VIP为10.0.0.100&#x2F;24</p>
+<p>​		haproxy1：10.0.0.87工作   haproxy2：10.0.0.88备用</p>
+<p>​		两主机配置一致 </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">在最后添加以下几行</span><br>[root@haproxy1 ~]#cat /etc/haproxy/haproxy.cfg<br>...<br>...<br><span class="hljs-meta prompt_">#</span><span class="language-bash">考虑客户端访问网站采用http协议，监听80端口</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">nginx接收到的php请求会从80转到自己的81端口，从而使用php.conf子配置文件规则调度；jsp请求则从80转到自己的8080端口并使用tom1.conf子配置文件规则调度</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">使用static-rr是为了测试方便</span><br>listen nginxproxy<br>    bind 10.0.0.100:80<br>    mode tcp<br>    balance static-rr<br>    server nginx1 10.0.0.150:80<br>    server nginx2 10.0.0.157:80<br></code></pre></td></tr></table></figure>
+
+<h3 id="测试-4"><a href="#测试-4" class="headerlink" title="测试"></a>测试</h3><p>​		Linux或windows上作测试均可，均可修改域名解析文件通过域名访问。</p>
+<p>​		测试10.0.0.87无误后改为10.0.0.88测试另一代理是否配置正确。</p>
+<p>​		应实现<a target="_blank" rel="noopener" href="http://www.9527.com/">www.9527.com</a>  blog.9527.com jsp.9527.com的资源均可访问，且正确的结果应该如上文的测试结果一致。</p>
+<h1 id="Keepalived配置"><a href="#Keepalived配置" class="headerlink" title="Keepalived配置"></a>Keepalived配置</h1><p>​		解决haproxy单点失败问题，10.0.0.87为主（优先级100）,10.0.0.88为从（优先级80）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">首先启用内核参数并立即生效</span><br>[root@haproxy1 ~]#cat /etc/sysctl.conf <br>net.ipv4.ip_nonlocal_bind = 1<br>[root@haproxy1 ~]#sysctl -p <br>[root@haproxy2 ~]#cat /etc/sysctl.conf <br>net.ipv4.ip_nonlocal_bind = 1<br>[root@haproxy2 ~]#sysctl -p<br><br>[root@haproxy1 ~]#cat /etc/keepalived/keepalived.conf<br> global_defs &#123;<br> 	notification_email &#123;<br> 		root@localhost<br> 	&#125;<br> 	notification_email_from kaadmin@localhost<br> 	smtp_server 127.0.0.1<br> 	smtp_connect_timeout 30<br> 	router_id ka1.9527.com 				#每个Keepalived主机唯一标识（其实重名也没影响）<br> 	vrrp_mcast_group4 224.0.100.100		#多播地址，同一Keepalived集群中一致<br>&#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">以上为报警邮件的设置</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">健康性检查脚本设置，脚本名为check_haproxy，间隔1s执行/etc/keepalived/check_haproxy.sh检测，判定haproxy不能提供服务后本节点优先度-30</span><br>vrrp_script check_haproxy &#123;<br>	script &quot;/etc/keepalived/check_haproxy.sh&quot;<br>	interval 1<br>	weight -30<br>	fall 3<br>	rise 2<br>	timeout 2 <br>&#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">虚拟路由配置</span><br>vrrp_instance VI_1 &#123;<br> state MASTER 				#其实没有影响，只是标记<br> interface ens160			#VIP绑定哪个网卡<br> virtual_router_id 66		#同一集群中虚拟ID一致<br> priority 100 				#保证优先度最高，并且检测有问题后需要降低至比某其它节点低，从而VIP转移<br> advert_int 1<br> authentication &#123;			#仅验证在同一Keepalived集群中用，没有加密，可以抓包看到<br>	 auth_type PASS<br> 	 auth_pass 123456<br> &#125;<br><span class="hljs-meta prompt_"> #</span><span class="language-bash">虚拟IP</span><br> virtual_ipaddress &#123;<br> 	10.0.0.100/24 dev ens160 label ens160:1<br> &#125;<br> track_interface &#123;			#检查网卡是否有问题，如果该网卡故障也会转移<br> 	ens160	<br> &#125;<br><span class="hljs-meta prompt_"> #</span><span class="language-bash">调用脚本进行通知（发邮件）</span><br> notify_master &quot;/etc/keepalived/notify.sh master&quot;<br> notify_backup &quot;/etc/keepalived/notify.sh backup&quot;<br> notify_fault &quot;/etc/keepalived/notify.sh fault&quot;<br><span class="hljs-meta prompt_"> #</span><span class="language-bash">调用上方定义的健康性检查脚本</span><br> track_script &#123;<br> 	check_haproxy <br> &#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">另一节点配置绝大多数相同，以下为不同的行</span><br>[root@haproxy2 ~]#cat /etc/keepalived/keepalived.conf<br>global_defs &#123;<br>	...<br>	...<br>	router_id ka2.9527.com<br>	<br>vrrp_instance VI_1 &#123;<br>	state BACKUP<br>	...<br>	...<br>	priority 80<br></code></pre></td></tr></table></figure>
+
+<h3 id="上述配置中提及的脚本"><a href="#上述配置中提及的脚本" class="headerlink" title="上述配置中提及的脚本"></a>上述配置中提及的脚本</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@haproxy2 ~]#cat /etc/keepalived/notify.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"></span><br><span class="language-bash">contact=<span class="hljs-string">&#x27;9527@163.com&#x27;</span></span><br>notify() &#123;<br>	 mailsubject=&quot;$(hostname) to be $1, vip floating&quot;<br>	 mailbody=&quot;$(date +&#x27;%F %T&#x27;): vrrp transition, $(hostname) changed to be $1&quot;<br>	   echo &quot;$mailbody&quot; | mail -s &quot;$mailsubject&quot; $contact<br>   &#125;<br>   case $1 in<br>	   master)<br>		    notify master<br>		     ;;<br>	   backup)<br>		    notify backup <br>		     ;;<br>	   fault)<br>		    notify fault<br>		     ;;<br>	   *)<br>	 	<br>		    echo &quot;Usage: $(basename $0) &#123;master|backup|fault&#125;&quot;<br>	        exit 1<br>	         ;;<br>     esac<br>     <br>[root@haproxy2 ~]#cat /etc/keepalived/check_haproxy.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br>/usr/bin/killall -0 haproxy 			#kill的0信号专门用来检测进程情况<br></code></pre></td></tr></table></figure>
+
+<h3 id="测试-5"><a href="#测试-5" class="headerlink" title="测试"></a>测试</h3><p>​		Linux或windows上作测试均可，均可修改域名解析文件通过域名访问。</p>
+<p>​		修改域名对应IP为VIP，即10.0.0.100。</p>
+<p>​		应实现<a target="_blank" rel="noopener" href="http://www.9527.com/">www.9527.com</a>  blog.9527.com jsp.9527.com的资源均可访问，且正确的结果应该如上文的测试结果一致。</p>
+<p>​		以下为测试haproxy高可用，一节点故障后是否影响访问</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">目前节点1工作，VIP在该主机上</span><br>[root@haproxy1 ~]#ip a<br>2: ens160: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP group default qlen 1000<br>    link/ether 00:0c:29:f0:5a:9f brd ff:ff:ff:ff:ff:ff<br>    inet 10.0.0.87/24 brd 10.0.0.255 scope global noprefixroute ens160<br>       valid_lft forever preferred_lft forever<br>    inet 10.0.0.100/24 scope global secondary ens160:1<br>       valid_lft forever preferred_lft forever<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">抓包分析</span><br>[root@8 ~]$tcpdump -i eth0 -nn host 224.0.100.100<br>dropped privs to tcpdump<br>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode<br>listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes<br>07:23:56.322916 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 100, authtype simple, intvl 1s, length 20<br>07:23:57.322746 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 100, authtype simple, intvl 1s, length 20<br>07:23:58.323721 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 100, authtype simple, intvl 1s, length 20<br>07:23:59.324692 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 100, authtype simple, intvl 1s, length 20<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">模拟haproxy进程故障</span><br>[root@haproxy1 ~]#systemctl stop haproxy<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">可以看到该Keepalived节点优先级下降，另一节点发现自己优先级更高后上线</span><br>07:25:35.394666 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 100, authtype simple, intvl 1s, length 20<br>07:25:36.395260 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 100, authtype simple, intvl 1s, length 20<br>07:25:37.396454 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 70, authtype simple, intvl 1s, length 20<br>07:25:38.396978 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 70, authtype simple, intvl 1s, length 20<br>07:25:39.398006 IP 10.0.0.87 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 70, authtype simple, intvl 1s, length 20<br>07:25:40.084624 IP 10.0.0.88 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 80, authtype simple, intvl 1s, length 20<br>07:25:41.085025 IP 10.0.0.88 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 80, authtype simple, intvl 1s, length 20<br>07:25:42.085387 IP 10.0.0.88 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 80, authtype simple, intvl 1s, length 20<br>07:25:43.086345 IP 10.0.0.88 &gt; 224.0.100.100: VRRPv2, Advertisement, vrid 66, prio 80, authtype simple, intvl 1s, length 20<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">VIP漂到了另一节点</span><br>[root@haproxy1 ~]#ip a<br>2: ens160: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP group default qlen 1000<br>    link/ether 00:0c:29:f0:5a:9f brd ff:ff:ff:ff:ff:ff<br>    inet 10.0.0.87/24 brd 10.0.0.255 scope global noprefixroute ens160<br>       valid_lft forever preferred_lft forever<br>[root@haproxy2 ~]#ip a<br>2: ens160: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc mq state UP group default qlen 1000<br>    link/ether 00:0c:29:d3:7b:2b brd ff:ff:ff:ff:ff:ff<br>    inet 10.0.0.88/24 brd 10.0.0.255 scope global noprefixroute ens160<br>       valid_lft forever preferred_lft forever<br>    inet 10.0.0.100/24 scope global secondary ens160:1<br>       valid_lft forever preferred_lft forever<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">完成切换后客户端访问不受影响则配置无误</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>​		完成以上配置并测试无误后，已成功搭建了一个完整的web架构。</p>
+<p>​		本架构比较简单，适合整体学习以上涉及的服务如何互相配合，未来可进一步优化和拓展。未来可拓展为以下更贴近真实的架构，也是本人学习的方向。</p>
+<p><img src="web%E6%9E%B6%E6%9E%842(1).jpg" srcset="/img/loading.gif" lazyload alt="web架构2(1)"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Zabbix部署</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/12/Tomcat%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">
+                        <span class="hidden-mobile">Tomcat性能优化</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

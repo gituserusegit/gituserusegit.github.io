@@ -1,0 +1,549 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要总结了查看Linux网络、磁盘、CPU和内存、进程资源占用情况的命令">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux查看系统性能指标的命令">
+<meta property="og:url" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要总结了查看Linux网络、磁盘、CPU和内存、进程资源占用情况的命令">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921133849175.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921134311322.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921134916500.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921150242425.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921140404119.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921150523007.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921152436071.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921153551884.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921153657766.png">
+<meta property="og:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921153419372.png">
+<meta property="article:published_time" content="2022-09-21T13:14:46.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.245Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/image-20220921133849175.png">
+  
+  
+  <title>Linux查看系统性能指标的命令 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Linux查看系统性能指标的命令">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-09-21 13:14" pubdate>
+        September 21, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.6k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      31 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux查看系统性能指标的命令</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要总结了查看Linux网络、磁盘、CPU和内存、进程资源占用情况的命令</p>
+<span id="more"></span>
+
+<h1 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h1><h3 id="iperf"><a href="#iperf" class="headerlink" title="iperf"></a>iperf</h3><p>​		基于ICMP协议 </p>
+<p>​		服务器端-s  以server模式启动  -D后台进程运行</p>
+<p>​		客户端-c	IP  作为客户端连接后面的服务器端地址</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><pre><code class="hljs excel">测试TCP吞吐（客户端）：<span class="hljs-number">10</span>s内每隔<span class="hljs-number">1</span>s传输数据<br>iperf3 -c <span class="hljs-number">10.0</span>.<span class="hljs-number">0.150</span> -<span class="hljs-built_in">t</span> <span class="hljs-number">10</span> -i <span class="hljs-number">1</span> <br>-<span class="hljs-built_in">n</span>传输数据量（字节）  会使-i无效  也可-F指定传输文件<br>iperf3 -c <span class="hljs-number">10.0</span>.<span class="hljs-number">0.150</span> -<span class="hljs-built_in">t</span> <span class="hljs-number">10</span> -<span class="hljs-built_in">n</span> <span class="hljs-number">100000</span> <br>测试UDP：数据包<span class="hljs-number">100</span>M<br>iperf3 -c <span class="hljs-number">10.0</span>.<span class="hljs-number">0.150</span> -u -b <span class="hljs-number">100</span>M<br></code></pre></td></tr></table></figure>
+
+<h3 id="ifstat"><a href="#ifstat" class="headerlink" title="ifstat"></a>ifstat</h3><p>​		统计网络接口状态</p>
+<ul>
+<li>RX Pkts&#x2F;Rate  数据包接收流量</li>
+<li>RX Errs&#x2F;Drop  丢包</li>
+<li>TX Pkts&#x2F;Rate  数据包发送流量</li>
+<li>RX Data&#x2F;Rate 数据接收流量</li>
+<li>TX Data&#x2F;Rate 数据发送流量</li>
+</ul>
+<p><img src="image-20220921133849175.png" srcset="/img/loading.gif" lazyload alt="image-20220921133849175"></p>
+<h3 id="iftop"><a href="#iftop" class="headerlink" title="iftop"></a>iftop</h3><p>​		用于查找哪个IP占用了大量流量</p>
+<p>​		是一款实时流量监控工具，监控TCP&#x2F;IP连接等，缺点就是无报表功能，必须以root身份才能运行。 </p>
+<p>​		第一行为带宽。 中间为连接列表，最后三列分别是2秒，10秒和40秒的平均流量 </p>
+<p>​		&#x3D;&gt; 代表发送 	&lt;&#x3D; 代表接收 </p>
+<p>​		最后三行表示发送，接收和全部的流量， 第二列为你运行iftop到目前流量，第三列为高峰值，第四列为平均值。 </p>
+<p><img src="image-20220921134311322.png" srcset="/img/loading.gif" lazyload alt="image-20220921134311322"></p>
+<h3 id="iptraf"><a href="#iptraf" class="headerlink" title="iptraf"></a>iptraf</h3><p>​		<strong>iptraf</strong>命令 可以实时地监视网卡流量，可以生成网络协议数据包信息、以太网信息、网络节点状态和 ip校验和错误等信息。 </p>
+<p>-i网络接口：立即在指定网络接口上开启IP流量监视； </p>
+<p> -g：立即开始生成网络接口的概要状态信息； </p>
+<p>-d网络接口：在指定网络接口上立即开始监视明细的网络流量信息； </p>
+<p> -s网络接口：在指定网络接口上立即开始监视TCP和UDP网络流量信息； </p>
+<p> -z网络接口：在指定网络接口上显示包计数； </p>
+<p> -l网络接口：在指定网络接口上立即开始监视局域网工作站信息； </p>
+<p> -t时间：指定iptraf指令监视的时间； </p>
+<p>-B；将标注输出重新定向到“&#x2F;dev&#x2F;null”，关闭标注输入，将程序作为后台进程运行； </p>
+<h1 id="磁盘"><a href="#磁盘" class="headerlink" title="磁盘"></a>磁盘</h1><h3 id="df"><a href="#df" class="headerlink" title="df"></a>df</h3><p>​		直观显示各磁盘及分区使用情况，显示结果也方便df -h | awk  -F’[ ]+|%’ ‘NR!&#x3D;1{print $5}’ | sort -nr 取出Use%</p>
+<p><img src="image-20220921134916500.png" srcset="/img/loading.gif" lazyload alt="image-20220921134916500"></p>
+<h3 id="du"><a href="#du" class="headerlink" title="du"></a>du</h3><p>​		du命令是对文件和目录磁盘使用的空间的查看，和df命令有明显区别。 </p>
+<p>​		用于查看当前目录下子目录大小，文件占用空间</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs awk">子目录大小	du -sh .<span class="hljs-regexp">/*/</span><br><span class="hljs-number">480</span>K	.<span class="hljs-regexp">/config/</span><br><span class="hljs-number">16</span>K	.<span class="hljs-regexp">/contrib/</span><br><span class="hljs-number">220</span>K	.<span class="hljs-regexp">/docs/</span><br><span class="hljs-number">164</span>K	.<span class="hljs-regexp">/examples/</span><br><span class="hljs-number">5.9</span>M	.<span class="hljs-regexp">/src/</span><br><br>文件从大到小排序	du -sh * |sort -rh<br><span class="hljs-number">5.9</span>M	src<br><span class="hljs-number">480</span>K	config<br><span class="hljs-number">452</span>K	configure<br><span class="hljs-number">368</span>K	aclocal.m4<br><span class="hljs-number">332</span>K	libtool<br><span class="hljs-number">220</span>K	docs<br><span class="hljs-number">164</span>K	examples<br></code></pre></td></tr></table></figure>
+
+<h3 id="iostat"><a href="#iostat" class="headerlink" title="iostat"></a>iostat</h3><p>​		监视系统输入输出设备和CPU的使用情况</p>
+<p>​		它的特点是汇报磁盘活动统计情况，同 时也会汇报出CPU使用情况。同vmstat一样，iostat也有一个弱点，就是它不能对某个进程进行深入分析，仅对系统的整体情况进行分析。 </p>
+<p><img src="image-20220921150242425.png" srcset="/img/loading.gif" lazyload alt="image-20220921150242425"></p>
+<h3 id="iotop"><a href="#iotop" class="headerlink" title="iotop"></a>iotop</h3><p>​		是一个用来监视磁盘I&#x2F;O使用状况的top类工具。iotop具有与top相似的UI，其中包括 PID、用户、I&#x2F;O、进程等相关信息。Linux下的IO统计工具如iostat，nmon等大多数是只能统计到 每个设备的读写情况，iotop命令可以很方便的查看每个进程是如何使用IO的</p>
+<p>​		-b：批量显示，无交互，主要用作记录到文件。 </p>
+<p>​		-n NUM：显示NUM次，主要用于非交互式模式。 </p>
+<p>​		-d SEC：间隔SEC秒显示一次。 </p>
+<p>​		 -p PID：监控的进程pid。 </p>
+<p>​		-u USER：监控的进程用户。 </p>
+<p><img src="image-20220921140404119.png" srcset="/img/loading.gif" lazyload alt="image-20220921140404119"></p>
+<h1 id="CPU和内存"><a href="#CPU和内存" class="headerlink" title="CPU和内存"></a>CPU和内存</h1><h3 id="vmstat"><a href="#vmstat" class="headerlink" title="vmstat"></a>vmstat</h3><p>​		含义为显示虚拟内存状态（“Viryual Memor Statics”），但是它可以报告关于进 程、内存、I&#x2F;O等系统整体运行状态。 以下为选项</p>
+<ul>
+<li>-a：显示活动内页； </li>
+<li>-f：显示启动后创建的进程总数； </li>
+<li>-m：显示slab信息； </li>
+<li>-n：头信息仅显示一次； </li>
+<li>-s：以表格方式显示事件计数器和内存状态； </li>
+<li>-d：报告磁盘状态； </li>
+<li>-p：显示指定的硬盘分区状态； </li>
+<li>-S：输出信息的单位。</li>
+</ul>
+<p>procs： <strong>r</strong>是等待CPU的进程数，<strong>b</strong>是等待IO的进程数</p>
+<p>memory：<strong>swapd</strong>使用虚拟内存大小，<strong>cache</strong>缓存文件大小</p>
+<p>swap：<strong>si</strong>每秒从磁盘交换分区写入内存的大小，<strong>so</strong>每秒从内存<strong>（内存达到使用swap分区的阈值后才不为0）</strong></p>
+<p>system：<strong>in</strong>每秒中断数   cs每秒上下文切换书</p>
+<p>cpu：<strong>us</strong>用户进程执行时间百分比(user time)    <strong>sy</strong>内核系统进程执行时间百分比(system time)   <strong>wa</strong>是IO等待时间百分比  <strong>id</strong>是空闲时间百分比</p>
+<p><img src="image-20220921150523007.png" srcset="/img/loading.gif" lazyload alt="image-20220921150523007"></p>
+<h3 id="uptime"><a href="#uptime" class="headerlink" title="uptime"></a>uptime</h3><p>​		查看系统负载。<strong>系统平均负载是指在特定时间间隔内运行队列中的平均进程数。</strong></p>
+<p>​		能够打印系统总共运行了多长时间和系统的平均负载。uptime命令可以显示的信息显示 依次为：现在时间、系统已经运行了多长时间、目前有多少登陆用户、系统在过去的1分钟、5分钟和15 分钟内的平均负载。 </p>
+<p>​		如果每个CPU内核的当前活动进程数不大于3的话，那么系统的性能是良好的。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">1. 11:45:14 # 系统当前时间<br>2. up 1919810 days, 3:00 # 主机已运行时间,时间越大，说明你的机器越稳定。 <br>3. 1 user # 用户连接数，是总连接数而不是用户数 <br>4. load average: 0.00, 0.00, 0.00 # 系统平均负载，统计最近1，5，15分钟的系统平均负载<br></code></pre></td></tr></table></figure>
+
+<h3 id="free"><a href="#free" class="headerlink" title="free"></a>free</h3><p>​		查看内存。 -s  #   间隔#秒持续观察</p>
+<ul>
+<li>total：内存总数； </li>
+<li>used：已经使用的内存数； </li>
+<li>free：空闲的内存数； </li>
+<li>shared：当前已经废弃不用； </li>
+<li>buffers Buffer：缓存内存数； </li>
+<li>cached Page：缓存内存数。</li>
+</ul>
+<p><img src="image-20220921152436071.png" srcset="/img/loading.gif" lazyload alt="image-20220921152436071"></p>
+<h1 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h1><h3 id="pstree"><a href="#pstree" class="headerlink" title="pstree"></a>pstree</h3><p>​		以树状图的方式展现进程之间的派生关系，显示效果比较直观。</p>
+<p>​		</p>
+<p><img src="image-20220921153551884.png" srcset="/img/loading.gif" lazyload alt="image-20220921153551884"></p>
+<p><img src="image-20220921153657766.png" srcset="/img/loading.gif" lazyload alt="image-20220921153657766"></p>
+<h3 id="ps"><a href="#ps" class="headerlink" title="ps"></a>ps</h3><p>​		用于报告当前系统的进程状态。可以搭配kill指令随时中断、删除不必要的程序。ps命令是最 基本同时也是非常强大的进程查看命令，使用该命令可以确定有哪些进程正在运行和运行的状态、进程 是否结束、进程有没有僵死、哪些进程占用了过多的资源等等，总之大部分信息都是可以通过执行该命令得到的</p>
+<p><img src="image-20220921153419372.png" srcset="/img/loading.gif" lazyload alt="image-20220921153419372"></p>
+<ul>
+<li>USER：该 process 属于那个使用者账号的 </li>
+<li>PID ：该 process 的号码 </li>
+<li>%CPU：该 process 使用掉的 CPU 资源百分比 </li>
+<li>%MEM：该 process 所占用的物理内存百分比 </li>
+<li>VSZ ：该 process 使用掉的虚拟内存量 (Kbytes) </li>
+<li>RSS ：该 process 占用的固定的内存量 (Kbytes) </li>
+<li>TTY ：该 process 是在那个终端机上面运作，若与终端机无关，则显示 ?，另外， tty1- </li>
+<li>tty6 是本机上面的登入者程序，若为 pts&#x2F;0 等等的，则表示为由网络连接进主机的程序。 </li>
+<li>STAT：该程序目前的状态，主要的状态有 </li>
+<li>R ：该程序目前正在运作，或者是可被运作 </li>
+<li>S ：该程序目前正在睡眠当中 (可说是 idle 状态)，但可被某些讯号 (signal) 唤醒。 </li>
+<li>T ：该程序目前正在侦测或者是停止了 </li>
+<li>Z ：该程序应该已经终止，但是其父程序却无法正常的终止他，造成 zombie (疆尸) 程序的状 </li>
+<li>态</li>
+<li>START：该 process 被触发启动的时间 </li>
+<li>TIME ：该 process 实际使用 CPU 运作的时间</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell">1. ps axo pid,comm,pcpu # 查看进程的PID、名称以及CPU 占用率 <br>2. ps aux | sort -rnk 4 # 按内存资源的使用量对进程进行排序 <br>3. ps aux | sort -nk 3 # 按 CPU 资源的使用量对进程进行排序 <br>4. ps -A # 显示所有进程信息 <br>5. ps -u root # 显示指定用户信息 <br>6. ps -efL # 查看线程数 <br>7. ps -e -o &quot;%C : %p :%z : %a&quot;|sort -k5 -nr # 查看进程并按内存使用大小排列 <br>8. ps -ef # 显示所有进程信息，连同命令行 <br>9. ps -ef | grep ssh # ps 与grep 常用组合用法，查找特定进程 <br>10. ps -C nginx # 通过名字或命令搜索进程 <br>11. ps aux --sort=-pcpu,+pmem # CPU或者内存进行排序,-降序，+升序 <br>12. ps -f --forest -C nginx # 用树的风格显示进程的层次关系 <br>13. ps -o pid,uname,comm -C nginx # 显示一个父进程的子进程 <br>14. ps -e -o pid,uname=USERNAME,pcpu=CPU_USAGE,pmem,comm # 重定义标签 <br>15. ps -e -o pid,comm,etime # 显示进程运行的时间 <br>16. ps -aux | grep named # 查看named进程详细信息 <br>17. ps -o command -p 91730 | sed -n 2p # 通过进程id获取服务名称<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/23/Kubernetes%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8Cyaml%E6%96%87%E4%BB%B6%E8%A7%84%E8%8C%83%E6%80%BB%E7%BB%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kubernetes对象的创建和yaml文件规范总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/13/Jenkins-gitlab%E6%8C%81%E7%BB%AD%E9%83%A8%E7%BD%B2%E6%80%BB%E7%BB%93/">
+                        <span class="hidden-mobile">Jenkins+gitlab持续部署总结</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

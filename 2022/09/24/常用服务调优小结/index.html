@@ -1,0 +1,549 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		主要收集了一些常用服务的调优参数和改进思路。 ​">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常用服务调优小结（持续更新）">
+<meta property="og:url" content="http://example.com/2022/09/24/%E5%B8%B8%E7%94%A8%E6%9C%8D%E5%8A%A1%E8%B0%83%E4%BC%98%E5%B0%8F%E7%BB%93/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		主要收集了一些常用服务的调优参数和改进思路。 ​">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-09-24T13:42:04.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.297Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="总结">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>常用服务调优小结（持续更新） - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="常用服务调优小结（持续更新）">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-09-24 13:42" pubdate>
+        September 24, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.7k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      39 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">常用服务调优小结（持续更新）</h1>
+            
+            <div class="markdown-body">
+              <p>​		主要收集了一些常用服务的调优参数和改进思路。</p>
+<p>​		<span id="more"></span></p>
+<h1 id="nginx"><a href="#nginx" class="headerlink" title="nginx"></a>nginx</h1><p>​		服务部署和配置修改时可进行以下设置。</p>
+<h3 id="1-错误页面"><a href="#1-错误页面" class="headerlink" title="1.错误页面"></a>1.错误页面</h3><p>​		返回自制的错误页面而不是显示默认错误页面，或者用户访问不存在的资源时跳转到首页</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">在http配置块中添加</span><br>fastcgi_intercept_errors on<br><span class="hljs-meta prompt_">#</span><span class="language-bash">server配置块中添加</span><br>	error_page   404  /404.html;<br>    location = /404.html &#123;<br>        #使用绝对地址， 跳转服务器/usr/local/nginx/html/404.html<br>        root   /usr/local/nginx/html;<br>    &#125;<br>    # 采用另一种写法<br>    error_page   500 502 503 504  /sorry.html;<br>    location = /sorry.html &#123;<br>        # 使用相对地址, 跳转nginx安装目录下的html/sorry.html<br>        root   html;<br>        &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-开启状态页（方便配合zabbix采集）"><a href="#2-开启状态页（方便配合zabbix采集）" class="headerlink" title="2.开启状态页（方便配合zabbix采集）"></a>2.开启状态页（方便配合zabbix采集）</h3><p>​		添加模块–with-http_stub_status_module。通过curl该页面查看，以下为参数含义。</p>
+<ul>
+<li><p>Active connections  当前活动连接数</p>
+</li>
+<li><p>Accepts   客户端连接总数</p>
+</li>
+<li><p>Handled  已处理连接</p>
+</li>
+<li><p>Requests  客户端发送的请求数</p>
+</li>
+<li><p>Reading 正在读取请求报文头的数量</p>
+</li>
+<li><p>Writing 正在构建的响应报文的数量</p>
+</li>
+<li><p>Waiting 当前等待响应客户端数</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">http或server部分添加</span><br>location /status&#123;<br>         stub_status on;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-防止too-many-open-files错误"><a href="#3-防止too-many-open-files错误" class="headerlink" title="3.防止too many  open files错误"></a>3.防止too many  open files错误</h3><p>​		修改events部分配置</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs 1c">events&#123;<br>	worker_connections <span class="hljs-number">10000</span>;	<span class="hljs-meta">#根据服务器性能适当调大worker进程最大并发连接</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​		同时修改系统内核参数（最大打开文件数）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">vim  /etc/security/limits.conf<br>* soft nofile 114514		#适当调大即可<br>* hard nofile 114514<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-设置缓存"><a href="#4-设置缓存" class="headerlink" title="4.设置缓存"></a>4.设置缓存</h3><p>​		客户端请求报文缓存</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs nginx">http&#123;<br><br>	<span class="hljs-attribute">keepalive_timeout</span> <span class="hljs-number">10</span>;  <span class="hljs-comment">#保持连接的超时时间</span><br><br>	<span class="hljs-attribute">gzip</span> <span class="hljs-literal">on</span>;		<span class="hljs-comment">#开启压缩</span><br><br>	<span class="hljs-attribute">gzip_min_length</span> <span class="hljs-number">1000</span>;<br><br>	<span class="hljs-attribute">client_header_buffer_size</span> <span class="hljs-number">1k</span>; <span class="hljs-comment">#默认请求包头信息的缓存</span><br><br>	<span class="hljs-attribute">large_client_header_buffers</span> <span class="hljs-number">44k</span>; <span class="hljs-comment">#大请求包头部信息的缓存个数与容量</span><br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​		如果有大量静态资源读请求，可缓存文件句柄</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs nginx">http&#123;<br>	<span class="hljs-attribute">open_file_cache</span>   max=<span class="hljs-number">2000</span> inactive=<span class="hljs-number">20s</span>;	<span class="hljs-comment">#最大缓存2000文件句柄（可理解为路径），20s内无请求则关闭</span><br>	<span class="hljs-attribute">open_file_cache_valid</span> <span class="hljs-number">60s</span>;		<span class="hljs-comment">#缓存有效时间</span><br>	<span class="hljs-attribute">open_file_cache_min_uses</span> <span class="hljs-number">5</span>;		<span class="hljs-comment">#访问超过5次缓存</span><br>	<span class="hljs-attribute">open_file_cache_errors</span> <span class="hljs-literal">off</span>;		<span class="hljs-comment">#缓存无效的文件句柄</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​		将一些静态资源缓存到客户端</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-section">location</span> ~*\.(jpg|jpeg|git|png|css|js|ico|xml)$ &#123;<br>           <span class="hljs-attribute">access_log</span> <span class="hljs-literal">off</span>;<br>           <span class="hljs-attribute">Expires</span> <span class="hljs-number">30d</span>;		<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-对每个IP限流"><a href="#5-对每个IP限流" class="headerlink" title="5.对每个IP限流"></a>5.对每个IP限流</h3><p>​		编译时需要添加ngx_http_limit_req_module</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-comment">#http配置块中添加</span><br><span class="hljs-attribute">limit_req_zone</span> <span class="hljs-variable">$binary_remote_addr</span> zone=one:<span class="hljs-number">10m</span> rate=1r/s;		<span class="hljs-comment">#zone，可理解为标签，给后面使用匹配。rate为每IP每秒最大处理请求数</span><br><span class="hljs-comment">#server块中添加</span><br><span class="hljs-section">location</span> <span class="hljs-regexp">~* .htm$</span> &#123;<br>	<span class="hljs-attribute">limit_req</span> zone=one burst=<span class="hljs-number">5</span>  nodelay;	<span class="hljs-comment">#burst可理解为缓冲队列的长度，并发过大队列中超过5个则不会再接受请求</span><br>	<span class="hljs-attribute">proxy_pass</span> http://backend_tomcat;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​		如果客户端与服务器端还有代理层如CDN，需要获取真实客户端IP。CDN一般有设置X-Forward-for</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ruby">map <span class="hljs-variable">$http_x_forwarded_for</span>  <span class="hljs-variable">$clientRealIp</span> &#123;<br>       <span class="hljs-string">&quot;&quot;</span>      <span class="hljs-variable">$remote_addr</span>;<br>       ~^(<span class="hljs-string">?P</span>&lt;firstAddr&gt;[<span class="hljs-number">0</span>-<span class="hljs-number">9</span>\.]+),<span class="hljs-string">?.</span>*<span class="hljs-variable">$ </span> <span class="hljs-variable">$firstAddr</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​		以下为给后端的IP透传</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-comment">#任选一种记录</span><br><span class="hljs-attribute">proxy_set_header</span>  X-Real-IP <span class="hljs-variable">$clientRealIp</span>;<br><span class="hljs-attribute">proxy_set_header</span>  REMOTE-HOST <span class="hljs-variable">$clientRealIp</span>;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="Mysql"><a href="#Mysql" class="headerlink" title="Mysql"></a>Mysql</h1><h3 id="1-更换存储引擎为innodb"><a href="#1-更换存储引擎为innodb" class="headerlink" title="1.更换存储引擎为innodb"></a>1.更换存储引擎为innodb</h3><p>​		旧版本的mysql默认采用myisam引擎，可更换新的引擎，分为以下几步</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">1导出数据库的表结构，不导出数据</span><br>mysqldump -d -uxxx -p shop &gt; shop_table.sql<br><span class="hljs-meta prompt_">#</span><span class="language-bash">2替换shop_table.sql里的MyISAM为INNODB</span><br>sed -i &#x27;s/MyISAM/INNODB/g&#x27; shop_table.sql<br><span class="hljs-meta prompt_">#</span><span class="language-bash">3新建数据库导入表结构</span><br>mysql &gt; create database shop_new;<br>mysql -uroot -p shop_new &lt; shop_table.sql<br><span class="hljs-meta prompt_">#</span><span class="language-bash">4导入数据</span><br>mysqldump -t -uroot -p shop &gt; shop_data.sql<br>mysql -uroot -p shop_new &lt; shop_data.sql<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-开启慢查询，建立或优化索引"><a href="#2-开启慢查询，建立或优化索引" class="headerlink" title="2.开启慢查询，建立或优化索引"></a>2.开启慢查询，建立或优化索引</h3><p>​		mysql数据查询速度慢是导致服务响应速度慢的一大原因。因此需要开启慢查询日志，根据日志中记录的操作，分析是哪些数据表的问题，可能是没有建立索引或设置不当。</p>
+<p>​		对于一些查询语句可使用profile工具详细查看</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">/etc/my.cnf可进行以下设置</span><br>slow_query_log=ON|OFF #开启或关闭慢查询，支持全局和会话，只有全局设置才会生成慢查询文件<br>long_query_time=N #慢查询的阀值，单位秒,默认为10s<br>slow_query_log_file=HOSTNAME-slow.log  #慢查询日志文件<br>log_queries_not_using_indexes=ON  #不使用索引或使用全索引扫描，不论是否达到慢查询阀值的语句是否记录日志，默认OFF，即不记录<br>log_slow_rate_limit = 1 #多少次查询才记录，mariadb特有<br>log_slow_verbosity= Query_plan,explain #记录内容<br></code></pre></td></tr></table></figure>
+
+<p>​		《Java开发手册》中索引优化可以参考</p>
+<ul>
+<li>独立地使用列</li>
+<li>左前缀索引：构建指定索引字段的左侧的字符数，要通过索引选择性（不重复的索引值和数据表的记录总数的比值）来评估，尽量使用短索引，如果可以，应该制定一个前缀长度</li>
+<li>多列索引：AND操作时更适合使用多列索引，而非为每个列创建单独的索引</li>
+<li>选择合适的索引列顺序：无排序和分组时，将选择性最高放左侧</li>
+<li>只要列中含有NULL值，就最好不要在此列设置索引，复合索引如果有NULL值，此列在使用时也不会使用索引</li>
+<li>对于经常在where子句使用的列，最好设置索引</li>
+<li>对于有多个列where或者order by子句，应该建立复合索引</li>
+<li>对于like语句，以 % 或者 _ 开头的不会使用索引，以 % 结尾会使用索引</li>
+<li>尽量不要使用not in和&lt;&gt;操作,虽然可能使用索引,但性能不高</li>
+<li>不要使用RLIKE正则表达式会导致索引失效</li>
+<li>查询时，能不要<em>就不用</em>，尽量写全字段名，比如:select id,name,age from students;</li>
+<li>大部分情况连接效率远大于子查询</li>
+<li>在有大量记录的表分页时使用limit</li>
+<li>对于经常使用的查询，可以开启查询缓存</li>
+<li>多使用explain和profile分析查询语句</li>
+<li>查看慢查询日志，找出执行时间长的sql语句优化</li>
+</ul>
+<h3 id="3-一些优化参数"><a href="#3-一些优化参数" class="headerlink" title="3.一些优化参数"></a>3.一些优化参数</h3><ul>
+<li>​		key_buffer_size		myisam键缓冲区，可适当调大缓存值</li>
+<li>​		thread_concurrency				myisam多线程参数</li>
+<li>​		default-storage-engine&#x3D;InnoDB		设置创建数据库默认使用innodb</li>
+<li>​		innodb_read_io_threads &#x3D; 8				innodb可以设置为与cpu核数一致</li>
+<li>​		innodb_write_io_threads &#x3D; 8</li>
+<li>​		sync_binlog&#x3D;1			综合考虑安全性和性能需求来选择</li>
+<li>​		innodb_flush_log_at_trx_commit&#x3D;0		综合考虑安全性和性能需求来选择</li>
+<li>​		max_connections   		根据服务器性能选择，不能过大</li>
+<li>​		back_log				超过max_connections 后请求放入堆栈，该值为最大堆栈数，超过则拒绝访问</li>
+<li>​		wait_timeout			当MySQL连接闲置超过一定时间后将会被强行关闭，减少空闲连接占用资源</li>
+</ul>
+<p>		</p>
+<h1 id="haproxy"><a href="#haproxy" class="headerlink" title="haproxy"></a>haproxy</h1><h3 id="日志配置"><a href="#日志配置" class="headerlink" title="日志配置"></a>日志配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">将haproxy的info及notice日志分别记录到不同的日志文件中。</span><br><br>vim /etc/haproxy/haproxy.cfg<br>global<br>	log /dev/log local0 info<br>	log /dev/log local0 notice<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">修改 rsyslog 配置，将haproxy相关的配置独立定义到 haproxy.conf，并放到/etc/rsyslog.d/ 下，rsyslog启动时会自动加载此目录下的所有配置文件。“&amp;~”表示当日志写入到日志文件后，rsyslog停止处理这个信息。</span><br><br>vim /etc/rsyslog.d/haproxy.conf<br>if ($programname == &#x27;haproxy&#x27; and $syslogseverity-text == &#x27;info&#x27;)<br>then -/var/log/haproxy/haproxy-info.log<br>&amp;~<br>if ($programname == &#x27;haproxy&#x27; and $syslogseverity-text == &#x27;notice&#x27;)<br>then -/var/log/haproxy/haproxy-notice.log<br>&amp;~<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">重启haproxy和rsyslog生效</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="优化相关参数"><a href="#优化相关参数" class="headerlink" title="优化相关参数"></a>优化相关参数</h3><ul>
+<li><strong>maxconn：</strong>最大连接数，根据应用实际情况进行调整</li>
+<li><strong>daemon：</strong>守护进程模式，Haproxy可以使用非守护进程模式启动，建议使用守护进程模式启动</li>
+<li><strong>nbproc</strong>：负载均衡的并发进程数，建议与当前服务器CPU核数相等或为其2倍</li>
+<li><strong>retries:</strong> 重试次数，主要用于对集群节点的检查，如果节点多，且并发量大，设置为2次或3次</li>
+<li><strong>option http-server-close：</strong>主动关闭http请求选项，建议在生产环境中使用此选项</li>
+<li><strong>timeout http-keep-alive：</strong>长连接超时时间，设置长连接超时时间，可以设置为10s</li>
+<li><strong>timeout http-request：</strong>http请求超时时间，建议将此时间设置为5 ~ 10s，增加http连接释放速度</li>
+<li><strong>timeout client：</strong>客户端超时时间，如果访问量过大，节点响应慢，可以将此时间设置短一些，建议设置为1min左右</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%80%BB%E7%BB%93/">总结</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%80%BB%E7%BB%93/">总结</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/24/Linux%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0%E4%BC%98%E5%8C%96%E5%B0%8F%E7%BB%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux内核参数优化小结（持续更新）</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/23/Kubernetes%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8Cyaml%E6%96%87%E4%BB%B6%E8%A7%84%E8%8C%83%E6%80%BB%E7%BB%93/">
+                        <span class="hidden-mobile">Kubernetes对象的创建和yaml文件规范总结</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

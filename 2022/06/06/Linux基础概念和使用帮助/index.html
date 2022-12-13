@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="初步了解Linux和查看linux命令帮助的方法 Linux基础概念">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux基础概念和使用帮助">
+<meta property="og:url" content="http://example.com/2022/06/06/Linux%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="初步了解Linux和查看linux命令帮助的方法 Linux基础概念">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/06/06/Linux%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9/image-20220606193507236.png">
+<meta property="og:image" content="http://example.com/2022/06/06/Linux%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9/image-20220606194100301.png">
+<meta property="og:image" content="http://example.com/2022/06/06/Linux%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9/image-20220606200622714.png">
+<meta property="og:image" content="http://example.com/2022/06/06/Linux%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9/image-20220606201834643.png">
+<meta property="og:image" content="http://example.com/2022/06/06/Linux%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9/image-20220606202220484.png">
+<meta property="article:published_time" content="2022-06-06T17:56:23.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.244Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Linux基础知识">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/06/06/Linux%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9/image-20220606193507236.png">
+  
+  
+  <title>Linux基础概念和使用帮助 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Linux基础概念和使用帮助">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-06-06 17:56" pubdate>
+        June 6, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.5k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      13 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux基础概念和使用帮助</h1>
+            
+            <div class="markdown-body">
+              <p>初步了解Linux和查看linux命令帮助的方法</p>
+<h1 id="Linux基础概念"><a href="#Linux基础概念" class="headerlink" title="Linux基础概念"></a>Linux基础概念</h1><span id="more"></span>
+
+<h3 id="什么是Linux"><a href="#什么是Linux" class="headerlink" title="什么是Linux"></a>什么是Linux</h3><p>​	Linux操作系统一般指Linux发行套件系统，包含Linux内核和GNU工具，是一种免费使用和自由传播的类UNIX操作系统，使用GPL开源协议。目前已有数百款Linux发行版，其中最主流的有：debian和基于debian的Ubuntu、红帽公司的CentOS、RHEL。</p>
+<h3 id="基于UNIX的哲学思想"><a href="#基于UNIX的哲学思想" class="headerlink" title="基于UNIX的哲学思想"></a>基于UNIX的哲学思想</h3><ul>
+<li>一切都是文件（包括硬件）</li>
+<li>程序小型，单一用途</li>
+<li>链接程序，共同完成复杂任务</li>
+<li>避免令人困惑的用户界面</li>
+<li>配置数据存储在文本中</li>
+</ul>
+<h3 id="Linux版本"><a href="#Linux版本" class="headerlink" title="Linux版本"></a>Linux版本</h3><p>​	Linux内核版本由主版本号、次版本号、末版本号组成、打包版本号、厂商版本组成。在上述几个Linux发行版中输入uname -r命令可查看内核版本，如下图。从左到右以点为分隔分别是主版本号，次版本号，末版本号-打包版本号，厂商版本。内核下载官网<a target="_blank" rel="noopener" href="http://www.kernel.org/">www.kernel.org</a>  。linux允许安装多个内核，在开机时可选择使用内核。</p>
+<p>​	<img src="image-20220606193507236.png" srcset="/img/loading.gif" lazyload alt="image-20220606193507236"><img src="image-20220606194100301.png" srcset="/img/loading.gif" lazyload alt="image-20220606194100301"></p>
+<p>​	主流Linux发行版本获取：可前往官网下载（速度较慢）或在国内镜像站点下载，如阿里云<a target="_blank" rel="noopener" href="http://mirrors.aliyun.com/">http://mirrors.aliyun.com</a> ，搜狐 <a target="_blank" rel="noopener" href="http://mirrors.sohu.com/">http://mirrors.sohu.com</a> 163 <a target="_blank" rel="noopener" href="http://mirrors.163.com/">http://mirrors.163.com</a> 。在索引中选择相应版本下载.iso文件。</p>
+<p>​	各版本的详细介绍可参考维基百科页面</p>
+<h3 id="Linux内核"><a href="#Linux内核" class="headerlink" title="Linux内核"></a>Linux内核</h3><p>​	Linux内核的设计理念为宏内核（又称单内核和强内核），该设计流派把所有系统服务都放到内核里，所有功能集成于同一个程序，分层实现不同功能，系统庞大复杂。</p>
+<p>​	Linux内核虽是但内核，但充分借鉴了微内核设计优点，引入了模块化机制。分模块实现进程管理、内存管理、网络管理、驱动程序、文件系统、安全功能等功能。</p>
+<p>​	编译安装内核<a target="_blank" rel="noopener" href="https://gituserusegit.github.io/2022/07/02/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85/">https://gituserusegit.github.io/2022/07/02/Linux%E5%86%85%E6%A0%B8%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85/</a></p>
+<h3 id="Linux启动流程"><a href="#Linux启动流程" class="headerlink" title="Linux启动流程"></a>Linux启动流程</h3><p>详见</p>
+<p><a target="_blank" rel="noopener" href="https://gituserusegit.github.io/2022/07/02/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">https://gituserusegit.github.io/2022/07/02/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</a></p>
+<h3 id="Linux进程和内存概念"><a href="#Linux进程和内存概念" class="headerlink" title="Linux进程和内存概念"></a>Linux进程和内存概念</h3><p>详见</p>
+<p><a target="_blank" rel="noopener" href="https://gituserusegit.github.io/2022/07/02/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">https://gituserusegit.github.io/2022/07/02/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/</a></p>
+<h1 id="获取使用帮助"><a href="#获取使用帮助" class="headerlink" title="获取使用帮助"></a>获取使用帮助</h1><p>​	在Linux实际使用中，面对繁杂的命令和选项、模块或配置文件的用途，难以完全记住。因此可以使用多种方法获取相关使用帮助。</p>
+<h3 id="whatis-查看命令帮助"><a href="#whatis-查看命令帮助" class="headerlink" title="whatis  查看命令帮助"></a>whatis  查看命令帮助</h3><p>​	whatis  COMMAND  使用数据库显示命令的简短描述。下图中（1）（1p）对应man帮助中的章节</p>
+<p>​	<img src="image-20220606200622714.png" srcset="/img/loading.gif" lazyload alt="image-20220606200622714"></p>
+<h3 id="–help或-h选项查看命令帮助"><a href="#–help或-h选项查看命令帮助" class="headerlink" title="–help或-h选项查看命令帮助"></a>–help或-h选项查看命令帮助</h3><p>​	COMMAND  –help  显示用法总结和参数列表，绝大多数命令支持。如果是内部命令还可使用help COMMAND的形式。</p>
+<h3 id="info"><a href="#info" class="headerlink" title="info"></a>info</h3><p>​	info COMMAND  命令信息页，适合通用文档参考，没有参数，列出所有页面。</p>
+<h3 id="man查看命令、配置文件、模块的详细介绍"><a href="#man查看命令、配置文件、模块的详细介绍" class="headerlink" title="man查看命令、配置文件、模块的详细介绍"></a>man查看命令、配置文件、模块的详细介绍</h3><p>​	man  COMMAND  提供非常详细的命令描述和使用方法 。可添加用whatis看到的章节参数进入对应man帮助页面。</p>
+<p>​	man  file.conf 和man  module.so 同理，显示配置文件和模块的详细描述。</p>
+<p><img src="image-20220606201834643.png" srcset="/img/loading.gif" lazyload alt="image-20220606201834643"></p>
+<p><img src="image-20220606202220484.png" srcset="/img/loading.gif" lazyload alt="image-20220606202220484"></p>
+<p>​	除了使用以上命令获取帮助，还可以尝试在安装软件包的子目录查找帮助文档，如README、INSTALL、Changelog等字样的文件，HTML、PDF、PS 等格式的文档。最后，还可以通过系统及第三方应用官方文档和知识库等网站获取所需信息。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux%E7%B3%BB%E7%BB%9F/">Linux系统</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">Linux基础知识</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/14/Shell%E8%84%9A%E6%9C%AC%E7%BB%83%E4%B9%A0/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Shell脚本练习</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/02/%E8%BD%AF%E4%BB%B6%E5%BC%80%E6%BA%90%E5%8D%8F%E5%AE%9A%E5%92%8Clinux%E5%AE%89%E8%A3%85/">
+                        <span class="hidden-mobile">软件开源协定和linux安装</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

@@ -1,0 +1,576 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要参考k8s官方文档总结了kubernetes的部署过程、基础概念与命令。详细部分见官方对应章节。 ​		https:&#x2F;&#x2F;kubernetes.io&#x2F;zh-cn&#x2F;docs&#x2F;home&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kubernetes基础总结">
+<meta property="og:url" content="http://example.com/2022/09/10/kubernetes%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要参考k8s官方文档总结了kubernetes的部署过程、基础概念与命令。详细部分见官方对应章节。 ​		https:&#x2F;&#x2F;kubernetes.io&#x2F;zh-cn&#x2F;docs&#x2F;home&#x2F;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/09/10/kubernetes%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93/image-20220910143737059.png">
+<meta property="article:published_time" content="2022-09-10T13:45:16.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.280Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/09/10/kubernetes%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93/image-20220910143737059.png">
+  
+  
+  <title>kubernetes基础总结 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="kubernetes基础总结">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-09-10 13:45" pubdate>
+        September 10, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      70 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">kubernetes基础总结</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要参考k8s官方文档总结了kubernetes的部署过程、基础概念与命令。详细部分见官方对应章节。</p>
+<p>​		<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/home/">https://kubernetes.io/zh-cn/docs/home/</a></p>
+<span id="more"></span>
+
+<h1 id="Kubernetes基础概念"><a href="#Kubernetes基础概念" class="headerlink" title="Kubernetes基础概念"></a>Kubernetes基础概念</h1><p>​		Kubernetes 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。Kubernetes具有<strong>服务发现和负载均衡、存储编排、自动部署和回滚、自动调度容器、自我修复、密钥与配置管理</strong>等强大功能。</p>
+<p>​		以上功能在官网中都有详细解释。</p>
+<h3 id="kubernetes组件概览"><a href="#kubernetes组件概览" class="headerlink" title="kubernetes组件概览"></a>kubernetes组件概览</h3><p>​		k8s集群是由一组被称作node的主机组成， 这些节点上会运行由 Kubernetes 所管理的容器化应用。 工作节点会托管所谓的 Pods，而 Pod 就是作为应用负载的组件。 控制平面（control plane）管理集群中的工作节点和 Pods，为集群提供故障转移和高可用性， 这些控制平面一般跨多主机运行，而集群也会跨多个节点运行。</p>
+<p><img src="image-20220910143737059.png" srcset="/img/loading.gif" lazyload alt="image-20220910143737059"></p>
+<h3 id="控制平面control-plane主要组件"><a href="#控制平面control-plane主要组件" class="headerlink" title="控制平面control plane主要组件"></a><strong>控制平面control plane</strong>主要组件</h3><p>​		控制平面组件会为集群做出全局决策，负责资源的调度、检测和响应集群事件，例如当不满足部署的 <code>replicas</code> 字段时， 要启动新的pod。</p>
+<p><strong>kube-apiserver</strong></p>
+<p>​		负责公开了 Kubernetes API，负责处理接受请求的工作。 API 服务器是 Kubernetes 控制平面的前端。也支持部署多实例来平衡流量。</p>
+<p>​		提供认证、授权、访问控制、API注册和发现机制。</p>
+<p><strong>etcd</strong></p>
+<p>​		kubernetes集群存储所有数据的后台数据库。</p>
+<p><strong>kube-scheduler</strong></p>
+<p>​		 负责监视新创建的、未指定运行节点的pod， 并选择节点来让 Pod 在上面运行。</p>
+<p>​		调度决策考虑的因素包括Pod 的资源需求、软硬件及策略约束、 亲和性及反亲和性规范、数据位置、工作负载间的干扰及最后时限。</p>
+<p><strong>kube-controller-manager</strong></p>
+<p>​		负责运行控制器进程，包括节点（node）控制器、任务（job）控制器、端点（endpoint）控制器、服务账户和令牌（token）控制器。</p>
+<p>​		可理解为集群内的管理控制中心。</p>
+<h3 id="节点node主要组件"><a href="#节点node主要组件" class="headerlink" title="节点node主要组件"></a>节点node主要组件</h3><p><strong>kubelet</strong></p>
+<p>​		在集群中每个工作节点上运行。kubelet 接收一组通过各类机制提供给它的 PodSpecs， 确保这些 PodSpecs 描述的容器处于运行状态且健康。 <strong>kubelet 不会管理不是由 Kubernetes 创建的容器。</strong></p>
+<p>​		容器创建和健康性检查及状态汇报组件。</p>
+<p><strong>kube-proxy</strong></p>
+<p>​		集群中每个节点上运行的网络代理，维护节点上的网络规则， 允许从集群内部或外部的网络会话与 Pod 进行网络通信。</p>
+<p>​		维护网络规则进行转发确保k8s服务可访问，还可为service提供服务发现和负载均衡。</p>
+<h3 id="容器运行时（Container-Runtime）"><a href="#容器运行时（Container-Runtime）" class="headerlink" title="容器运行时（Container Runtime）"></a>容器运行时（Container Runtime）</h3><p>​		容器运行环境是负责运行容器的软件。k8s支持多种容器运行环境，最常见的是containerd。containerd也是被docker使用的容器运行时。</p>
+<h1 id="Kubernetes部署（kubeadm）"><a href="#Kubernetes部署（kubeadm）" class="headerlink" title="Kubernetes部署（kubeadm）"></a>Kubernetes部署（kubeadm）</h1><h3 id="主机环境准备"><a href="#主机环境准备" class="headerlink" title="主机环境准备"></a>主机环境准备</h3><p>​		一台或多台运行兼容 deb&#x2F;rpm 的 Linux 操作系统的计算机；例如：Ubuntu 或 CentOS。每台机器 2 GB 以上的内存，内存不足时应用会受限制。用作控制平面节点的计算机上至少有 2 个 CPU。</p>
+<p>​		所有主机安装容器运行时和kubeadm。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">安装docker，推荐使用国内源</span><br>sudo apt-get update  <br>apt -y install apt-transport-https ca-certificates curl software-propertiescommon<br><span class="hljs-meta prompt_">#</span><span class="language-bash">安装GPG证书</span><br>curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo aptkey add -<br><span class="hljs-meta prompt_">#</span><span class="language-bash">导入软件源</span><br>sudo add-apt-repository &quot;deb [arch=amd64] http://mirrors.aliyun.com/dockerce/linux/ubuntu $(lsb_release -cs) stable&quot; <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">根据kubernetes版本要求选择</span><br>apt-cache madison docker-ce docker-ce-cli apt-cache<br></code></pre></td></tr></table></figure>
+
+<p>​		所有主机最好禁用swap（旧版本不支持，新版本需要额外设置），关闭selinux，iptables（防止规则冲突）。进行以下内核参数设置，如果容器较多，必须进行其他内核优化，如最大打开文件数等。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">net.ipv4.ip_forward = 1<br>net.bridge.bridge-nf-call-ip6tables = 1 <br>net.bridge.bridge-nf-call-iptables = 1 		#⽹桥转发会被宿主机iptables的 FORWARD规则匹配<br></code></pre></td></tr></table></figure>
+
+<h3 id="所有节点必需组件"><a href="#所有节点必需组件" class="headerlink" title="所有节点必需组件"></a>所有节点必需组件</h3><p>​		控制平面节点：kubelet   kubeadm   kubectl</p>
+<p>​		工作节点： kubelet   kubeadm   （不需要kubectl命令）</p>
+<p>版本最好一致，安装可采用国内源</p>
+<h3 id="Debian-x2F-Ubuntu"><a href="#Debian-x2F-Ubuntu" class="headerlink" title="Debian &#x2F; Ubuntu"></a>Debian &#x2F; Ubuntu</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">apt-get update &amp;&amp; apt-get install -y apt-transport-https<br>curl https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | apt-key add - <br>cat &lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list<br>deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main<br>EOF<br>apt-get update<br>apt-get install -y kubelet kubeadm kubectl<br></code></pre></td></tr></table></figure>
+
+<h3 id="CentOS-x2F-RHEL-x2F-Fedora"><a href="#CentOS-x2F-RHEL-x2F-Fedora" class="headerlink" title="CentOS &#x2F; RHEL &#x2F; Fedora"></a>CentOS &#x2F; RHEL &#x2F; Fedora</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo<br>[kubernetes]<br>name=Kubernetes<br>baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/<br>enabled=1<br>gpgcheck=1<br>repo_gpgcheck=1<br>gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg<br>EOF<br>setenforce 0<br>yum install -y kubelet kubeadm kubectl<br>systemctl enable kubelet &amp;&amp; systemctl start kubelet<br></code></pre></td></tr></table></figure>
+
+<h3 id="准备镜像"><a href="#准备镜像" class="headerlink" title="准备镜像"></a>准备镜像</h3><p>​		提前在控制节点下载镜像节约安装过程，使用国内镜像源，可写成脚本批量安装。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kubeapiserver:v1.20.5 <br>docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kubecontroller-manager:v1.20.5 <br>docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kubescheduler:v1.20.5 <br>docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kubeproxy:v1.20.5 <br>docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.2 <br>docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/etcd:3.4.13-0 <br>docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.7.0<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="kubeadm-init集群初始化"><a href="#kubeadm-init集群初始化" class="headerlink" title="kubeadm init集群初始化"></a>kubeadm init集群初始化</h1><p>​		详细可看以下官方文档		</p>
+<p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/reference/setup-tools/kubeadm/kubeadm-init/#config-file">https://kubernetes.io/zh-cn/docs/reference/setup-tools/kubeadm/kubeadm-init/#config-file</a></p>
+<h3 id="主要参数"><a href="#主要参数" class="headerlink" title="主要参数"></a>主要参数</h3><p>–apiserver-advertise-address string<br>API 服务器所公布的其正在监听的 IP 地址。如果未设置，则使用默认网络接口。</p>
+<p>–apiserver-bind-port int32     默认值：6443<br>API 服务器绑定的端口。</p>
+<p>–cert-dir string     默认值：”&#x2F;etc&#x2F;kubernetes&#x2F;pki”<br>保存和存储证书的路径。</p>
+<p>–certificate-key string<br>用于加密 kubeadm-certs Secret 中的控制平面证书的密钥。</p>
+<p>–config string<br>kubeadm 配置文件的路径。</p>
+<p>–control-plane-endpoint string<br>为控制平面指定一个稳定的 IP 地址或 DNS 名称。</p>
+<p>–dry-run<br>不要应用任何更改；只是输出将要执行的操作。</p>
+<p>–ignore-preflight-errors strings<br>错误将显示为警告的检查列表；例如：’IsPrivilegedUser,Swap’。取值为 ‘all’ 时将忽略检查中的所有错误。</p>
+<p>–image-repository string     默认值：”k8s.gcr.io”<br>选择用于拉取控制平面镜像的容器仓库</p>
+<p>–kubernetes-version string     默认值：”stable-1”<br>为控制平面选择一个特定的 Kubernetes 版本。</p>
+<p>–node-name string<br>指定节点的名称。</p>
+<p>–pod-network-cidr string<br>指明 pod 网络可以使用的 IP 地址段。如果设置了这个参数，控制平面将会为每一个节点自动分配 CIDRs。</p>
+<p>–service-cidr string     默认值：”10.96.0.0&#x2F;12”<br>为服务的虚拟 IP 地址另外指定 IP 地址段</p>
+<p>–service-dns-domain string     默认值：”cluster.local”<br>为服务另外指定域名，例如：”myorg.internal”。</p>
+<p>参考示例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">kubeadm init --apiserver-advertise-address=10.0.0.1 --control-planeendpoint=10.0.0.2 --apiserver-bind-port=6443 --kubernetes-version=v1.20.5 --pod-network-cidr=10.100.0.0/16 --service-cidr=10.200.0.0/16 --service-dnsdomain=test.local --image-repository=registry.cnhangzhou.aliyuncs.com/google_containers --ignore-preflight-errors=swap<br></code></pre></td></tr></table></figure>
+
+<p>完成初始化后有以下提示：要使非 root 用户可以运行 kubectl，请运行以下命令， 它们也是 <code>kubeadm init</code> 输出的一部分：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> -p <span class="hljs-variable">$HOME</span>/.kube<br>sudo <span class="hljs-built_in">cp</span> -i /etc/kubernetes/admin.conf <span class="hljs-variable">$HOME</span>/.kube/config<br>sudo <span class="hljs-built_in">chown</span> $(<span class="hljs-built_in">id</span> -u):$(<span class="hljs-built_in">id</span> -g) <span class="hljs-variable">$HOME</span>/.kube/config<br></code></pre></td></tr></table></figure>
+
+<h1 id="添加节点"><a href="#添加节点" class="headerlink" title="添加节点"></a>添加节点</h1><h3 id="安装-Pod-网络附加组件"><a href="#安装-Pod-网络附加组件" class="headerlink" title="安装 Pod 网络附加组件"></a>安装 Pod 网络附加组件</h3><p>​		注意 Pod 网络不得与任何主机网络冲突。网络组件可使用<strong>kube-flannel</strong></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs csharp">kubectl apply -f &lt;<span class="hljs-keyword">add</span>-<span class="hljs-keyword">on</span>.yaml&gt;<br></code></pre></td></tr></table></figure>
+
+<p>​		Flannel实质上是一种“覆盖网络(overlay network)”，也就是将TCP数据包装在另一种网络包里面进行路由转发和通信。<br>​		Flannel通过Etcd服务维护了一张节点间的路由表，详细记录了各节点子网网段 。源主机的flanneld服务将原本的数据内容封装后根据自己的路由表投递给目的节点的flanneld服务，数据到达以后被解包，然后直接进入目的节点的flannel0虚拟网卡，然后被转发到目的主机的docker0虚拟网卡，最后就像本机容器通信一下的有docker0路由到达目标容器。</p>
+<h3 id="生成证书"><a href="#生成证书" class="headerlink" title="生成证书"></a>生成证书</h3><p>​		任一控制节点执行</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada">kubeadm init phase upload-certs <span class="hljs-comment">--upload-certs </span><br></code></pre></td></tr></table></figure>
+
+<h3 id="其他节点加入集群"><a href="#其他节点加入集群" class="headerlink" title="其他节点加入集群"></a>其他节点加入集群</h3><p>​		hash和token是执行完init后打印到屏幕上的，需要记录以供该步使用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">worker  node</span><br>kubeadm join --token &lt;token&gt; &lt;control-plane-host&gt;:&lt;control-plane-port&gt; --discovery-token-ca-cert-hash sha256:&lt;hash&gt;<br><span class="hljs-meta prompt_">#</span><span class="language-bash">control node要多加一个选项</span><br>kubeadm join --token &lt;token&gt; &lt;control-plane-host&gt;:&lt;control-plane-port&gt; --discovery-token-ca-cert-hash sha256:&lt;hash&gt; --control-plane<br></code></pre></td></tr></table></figure>
+
+<h3 id="删除节点"><a href="#删除节点" class="headerlink" title="删除节点"></a>删除节点</h3><p>使用适当的凭证与控制平面节点通信，运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">kubectl drain &lt;node name&gt; --delete-emptydir-data --force --ignore-daemonsets<br></code></pre></td></tr></table></figure>
+
+<p>在删除节点之前，请重置 <code>kubeadm</code> 安装的状态：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">kubeadm reset<br></code></pre></td></tr></table></figure>
+
+<p>重置过程不会重置或清除 iptables 规则或 IPVS 表。如果你希望重置 iptables，则必须手动进行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">iptables -F &amp;&amp; iptables -t nat -F &amp;&amp; iptables -t mangle -F &amp;&amp; iptables -X<br></code></pre></td></tr></table></figure>
+
+<p>如果要重置 IPVS 表，则必须运行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ipvsadm -C<br></code></pre></td></tr></table></figure>
+
+<p>现在删除节点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">kubectl delete node &lt;node name&gt;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="Kubernetes部分主要对象"><a href="#Kubernetes部分主要对象" class="headerlink" title="Kubernetes部分主要对象"></a>Kubernetes部分主要对象</h1><p>​		API对象是k8s的管理操作单元。每个API对象都有3大类属性：元数据metadata、规范spec和状态status。其中metadata是用来标识API对象的，status描述了系统实际当前达到的状态。</p>
+<p>​		K8s中所有的配置都是通过API对象的spec去设置的，也就是用户通过配置系统的理想状态来改变系统，这是k8s重要设计理念之一，即所有的操作都是声明式的而不是命令式的。</p>
+<h3 id="资源对象"><a href="#资源对象" class="headerlink" title="资源对象"></a>资源对象</h3><p><strong>Pod</strong></p>
+<p>​		K8s集群中运行部署应用或服务的最小单元，它是可以支持多容器的。Pod的设计理念是支持多个容器在一个Pod中共享网络地址和文件系统，可以通过进程间通信和文件共享这种简单高效的方式组合完成微服务。</p>
+<p><strong>ReplicaSet、ReplicationController、Deployment</strong></p>
+<p>​		副本控制器，由RC发展为RS，到Deployment调用RS。Deployment表示用户对K8s集群的一次更新操作。Deployment是一个比RS应用模式更广的API对象，可以是创建一个新的服务，更新一个新的服务，也可以是滚动升级一个服务。</p>
+<p><strong>Service</strong></p>
+<p>​		一个Pod只是一个运行服务的实例，随时可能在一个节点上停止，在另一个节点以一个新的IP启动一个新的Pod，因此不能以确定的IP和端口号提供服务。要稳定地提供服务需要服务发现和负载均衡能力。服务发现完成的工作，是针对客户端访问的服务，找到对应的的后端服务实例。在K8s集群中，客户端需要访问的服务就是Service对象。每个Service会对应一个集群内部有效的虚拟IP，集群内部通过虚拟IP访问一个服务。在K8s集群中微服务的负载均衡是由Kube-proxy实现的。</p>
+<p><strong>其它</strong></p>
+<p>​		<strong>Node、Namespace、Ingress、Labbel、Job</strong>等</p>
+<h3 id="存储对象"><a href="#存储对象" class="headerlink" title="存储对象"></a>存储对象</h3><p><strong>Volume</strong></p>
+<p>​		实现数据和镜像解耦，与docker -v挂载目录类似，可多容器挂载同一目录实现数据共享。有与容器共同创建销毁的emptyDir、只持久保存在一个node上的hostPath、共享卷nfs</p>
+<p><strong>ConfigMap</strong></p>
+<p>​		实现配置信息和镜像解耦，可在yaml中编写configmap对象，然后调用。</p>
+<h3 id="策略对象"><a href="#策略对象" class="headerlink" title="策略对象"></a>策略对象</h3><p>​		<strong>Securitycontext、ResourceQuota、LimitRange</strong></p>
+<h3 id="身份对象"><a href="#身份对象" class="headerlink" title="身份对象"></a>身份对象</h3><p>​		<strong>ServiceAccount、Role、ClusterRole</strong></p>
+<h1 id="kubectl命令"><a href="#kubectl命令" class="headerlink" title="kubectl命令"></a>kubectl命令</h1><p>​	<strong>语法	kubectl [command] [TYPE] [NAME] [flags]</strong></p>
+<p>其中 <code>command</code>、<code>TYPE</code>、<code>NAME</code> 和 <code>flags</code> 分别是：</p>
+<ul>
+<li><p><code>command</code>：指定要对一个或多个资源执行的操作，例如 <code>create</code>、<code>get</code>、<code>describe</code>、<code>delete</code>。</p>
+</li>
+<li><p><code>TYPE</code>：指定<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/reference/kubectl/#resource-types">资源类型</a>。资源类型不区分大小写， 可以指定单数、复数或缩写形式。</p>
+</li>
+<li><p><code>NAME</code>：指定资源的名称。名称区分大小写。 如果省略名称，则显示所有资源的详细信息。例如：<code>kubectl get pods</code>。在对多个资源执行操作时，你可以按类型和名称指定每个资源，或指定一个或多个文件。</p>
+</li>
+<li><p><code>flags</code>： 指定可选的参数。例如，可以使用 <code>-s</code> 或 <code>--server</code> 参数指定 Kubernetes API 服务器的地址和端口。</p>
+</li>
+</ul>
+<h3 id="常用command"><a href="#常用command" class="headerlink" title="常用command"></a>常用command</h3><p>创建、删除、查看信息、缩放<strong>create&#x2F;delete&#x2F;get&#x2F;describe&#x2F;scale</strong></p>
+<p>贴实现pod与node亲和性  <strong>label</strong>    反亲和性<strong>taint</strong>  标记node不被调度 <strong>condon</strong>    驱逐node上的pod   <strong>drain</strong></p>
+<p>以文件或标准输入为准应用或更新资源   <strong>apply</strong></p>
+<p>以下为示例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">kubectl apply - 以文件或标准输入为准应用或更新资源。</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">使用 &lt;directory&gt; 路径下的任意 .yaml、.yml 或 .json 文件 创建对象。</span><br>kubectl apply -f &lt;directory&gt;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">kubectl get - 列出一个或多个资源。</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">以纯文本输出格式列出所有 Pod，-o wide包含附加信息(如节点名)。</span><br>kubectl get pods -o wide<br><span class="hljs-meta prompt_"># </span><span class="language-bash">列出在节点 server01 上运行的所有 Pod</span><br>kubectl get pods --field-selector=spec.nodeName=server01<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">kubectl describe - 显示一个或多个资源的详细状态，默认情况下包括未初始化的资源。</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">显示名为 &lt;pod-name&gt; 的 Pod 的详细信息。</span><br>kubectl describe nodes &lt;node-name&gt;<br><span class="hljs-meta prompt_"># </span><span class="language-bash">描述所有的 Pod</span><br>kubectl describe pods<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">kubectl delete - 基于文件、标准输入或通过指定标签选择器、名称、资源选择器或资源来删除资源。</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">使用 pod.yaml 文件中指定的类型和名称删除 Pod。</span><br>kubectl delete -f pod.yaml<br><span class="hljs-meta prompt_"># </span><span class="language-bash">删除所有带有 <span class="hljs-string">&#x27;&lt;label-key&gt;=&lt;label-value&gt;&#x27;</span> 标签的 Pod 和服务。</span><br>kubectl delete pods,services -l &lt;label-key&gt;=&lt;label-value&gt;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">kubectl <span class="hljs-built_in">exec</span> - 对 Pod 中的容器执行命令。</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">运行输出 <span class="hljs-string">&#x27;date&#x27;</span> 获取在 Pod &lt;pod-name&gt; 中容器 &lt;container-name&gt; 的输出。</span><br>kubectl exec &lt;pod-name&gt; -c &lt;container-name&gt; -- date<br><span class="hljs-meta prompt_"># </span><span class="language-bash">获取一个交互 TTY 并在 Pod  &lt;pod-name&gt; 中运行 /bin/bash。默认情况下，输出来自第一个容器。</span><br>kubectl exec -ti &lt;pod-name&gt; -- /bin/bash<br></code></pre></td></tr></table></figure>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/k8s/">k8s</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/k8s/">k8s</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/13/Jenkins-gitlab%E6%8C%81%E7%BB%AD%E9%83%A8%E7%BD%B2%E6%80%BB%E7%BB%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Jenkins+gitlab持续部署总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/">
+                        <span class="hidden-mobile">docker镜像存储与分发</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

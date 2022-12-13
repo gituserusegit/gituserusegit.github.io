@@ -1,0 +1,546 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文简要介绍了Ansible基础使用方法，常用模块，编写简单的playbook">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ansible基础">
+<meta property="og:url" content="http://example.com/2022/07/26/Ansible%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文简要介绍了Ansible基础使用方法，常用模块，编写简单的playbook">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-07-26T16:59:14.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.199Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Ansible">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>Ansible基础 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Ansible基础">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-26 16:59" pubdate>
+        July 26, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.5k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      54 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Ansible基础</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文简要介绍了Ansible基础使用方法，常用模块，编写简单的playbook</p>
+<span id="more"></span>
+
+
+
+
+
+<h1 id="Ansible介绍"><a href="#Ansible介绍" class="headerlink" title="Ansible介绍"></a>Ansible介绍</h1><p>​		Ansible是基于Python开发的自动化运维工具，与自动化部署系统工具Cobbler为同一作者。调用特定的模块完成特定任务，支持自定义模块，可使用任何编程语言写模块。部署简单，基于python和SSH(默认已安装)，agentless，无需代理不依赖PKI（无需ssl）。playbook具有幂等性：任务重复执行效果一致，无需像shell脚本一样通过复杂条件判断实现幂等性。</p>
+<p>​		具有以下功能：</p>
+<ul>
+<li>批量执行远程命令,对远程多台主机进行批量安装和配置软件服务，以自动化的方式配置和管理各种服务。</li>
+<li>编排高级的企业级复杂的IT架构任务, Ansible的Playbook和role可以轻松实现大型的IT复杂架构。</li>
+<li>提供自动化运维工具的开发API,如Jumpserver。</li>
+</ul>
+<h1 id="Ansible基础"><a href="#Ansible基础" class="headerlink" title="Ansible基础"></a>Ansible基础</h1><h3 id="编写主机清单"><a href="#编写主机清单" class="headerlink" title="编写主机清单"></a>编写主机清单</h3><p>​		在主机清单中按格式填写需要控制的主机列表，需要保障SSH连接畅通。</p>
+<p>​		默认的主机清单位置&#x2F;etc&#x2F;ansible&#x2F;hosts  ，实际使用时推荐在项目文件夹下创建hosts文件，针对性控制某个项目的主机群。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">格式如下</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">指定连续的多个主机</span><br>[appservers]<br>10.0.0.[1:100]<br><span class="hljs-meta prompt_">#</span><span class="language-bash">可指定SSH端口</span><br>[webservers]<br>www1.magedu.com:2222<br>www2.magedu.com<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">可在主机后跟参数</span><br>ansible_ssh_host #将要连接的远程主机名.与你想要设定的主机的别名不同的话,可通过此变量设置.<br>ansible_ssh_port #ssh端口号.如果不是默认的端口号,通过此变量设置.这种可以使用 ip:端口<br>192.168.1.100:2222<br>ansible_ssh_user #默认的 ssh 用户名<br>ansible_ssh_pass #ssh 密码(这种方式并不安全,我们强烈建议使用 --ask-pass 或 SSH 密钥)<br>ansible_sudo_pass #sudo 密码(这种方式并不安全,我们强烈建议使用 --ask-sudo-pass)<br>ansible_sudo_exe (new in version 1.8) #sudo 命令路径(适用于1.8及以上版本)<br>ansible_connection #与主机的连接类型.比如:local, ssh 或者 paramiko. Ansible 1.2 以前默<br>认使用 paramiko.1.2 以后默认使用 &#x27;smart&#x27;,&#x27;smart&#x27; 方式会根据是否支持 ControlPersist, 来<br>判断&#x27;ssh&#x27; 方式是否可行.<br><span class="hljs-meta prompt_">#</span><span class="language-bash">执行ansible命令时显示别名,如web01</span><br>[websrvs]<br>web01 ansible_ssh_host=10.0.0.101<br>web02 ansible_ssh_host=10.0.0.102<br><span class="hljs-meta prompt_">#</span><span class="language-bash">对主机组设置变量</span><br>[websrvs:vars]<br>ansible_ssh_password=magedu<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">定义testsrvs组中包括两个其它分组,实现组嵌套</span><br>[testsrvs:children] <br>webservers<br>dbservers<br></code></pre></td></tr></table></figure>
+
+<h3 id="Ansible命令"><a href="#Ansible命令" class="headerlink" title="Ansible命令"></a>Ansible命令</h3><p>​		ansible格式：ansible <host-pattern> [-m module_name] [-a args]</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">--version #显示版本<br>-m module   #指定模块，默认为command<br>-v #详细过程 -vv -vvv更详细<br>--list-hosts #显示主机列表，可简写 --list<br>-C, --check   #检查，并不执行<br>-T, --timeout=TIMEOUT #执行命令的超时时间，默认10s<br>-k, --ask-pass     #提示输入ssh连接密码，默认Key验证 <br>-u, --user=REMOTE_USER #执行远程执行的用户,默认root<br>-b, --become    #代替旧版的sudo 切换<br>--become-user=USERNAME  #指定sudo的runas用户，默认为root<br>-K, --ask-become-pass  #提示输入sudo时的口令<br>-f FORKS, --forks FORKS #指定并发同时执行ansible任务的主机数<br></code></pre></td></tr></table></figure>
+
+<p>​		<strong>ansible-playbook</strong></p>
+<p>​		执行编写好的playbook。使用-C选项模拟执行，可以起到与语法检查类似的效果。</p>
+<p>​		<strong>ansible-vault</strong></p>
+<p>​		加密解密yml文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">ansible-vault [create|decrypt|edit|encrypt|rekey|view]<br>ansible-vault encrypt hello.yml #加密<br>ansible-vault decrypt hello.yml #解密<br>ansible-vault view hello.yml #查看<br>ansible-vault edit hello.yml #编辑加密文件<br>ansible-vault rekey hello.yml #修改口令<br>ansible-vault create new.yml #创建新文件<br></code></pre></td></tr></table></figure>
+
+<p>​		 <strong>ansible-galaxy</strong></p>
+<p>​		一般用于下载ansible角色</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#搜索项目</span><br>[root@ansible ~]<span class="hljs-comment">#ansible-galaxy search lamp</span><br><span class="hljs-comment">#列出所有已安装的galaxy</span><br>ansible-galaxy list<br><span class="hljs-comment">#安装galaxy,默认下载到~/.ansible/roles下</span><br>ansible-galaxy install geerlingguy.mysql<br>ansible-galaxy install geerlingguy.redis<br><span class="hljs-comment">#删除galaxy</span><br>ansible-galaxy remove geerlingguy.redis<br></code></pre></td></tr></table></figure>
+
+<p>​		<strong>ansible-doc</strong></p>
+<p>​		显示模块帮助，包括使用范例</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">ansible-doc [options] [module.<span class="hljs-string">..</span>]<br>-l, <span class="hljs-params">--list</span>       <span class="hljs-comment">#列出可用模块</span><br>-s, <span class="hljs-params">--snippet</span> <span class="hljs-comment">#显示指定模块的playbook片段</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Ansible常用模块"><a href="#Ansible常用模块" class="headerlink" title="Ansible常用模块"></a>Ansible常用模块</h3><p><strong>Ping模块： 测试受控主机SSH连接是否可行</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible all -m ping<br></code></pre></td></tr></table></figure>
+
+<p><strong>Shell模块 ：在远端主机用shell执行命令，不具有幂等性，绝大多数命令可由专门模块完成，使用较少。</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible websrvs -m shell -a <span class="hljs-string">&#x27;echo $HOSTNAME&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Copy模块 ：从ansible服务器主控端复制文件到远程主机，默认覆盖  注意: src&#x3D;file 如果是没指明路径,则为当前目录或当前目录下的files目录下的file文件</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#如目标存在，默认覆盖，此处指定先备份</span><br>ansible websrvs -m copy -a <span class="hljs-string">&quot;src=/root/test1.sh dest=/tmp/test2.sh   owner=wang </span><br><span class="hljs-string">mode=600 backup=yes&quot;</span><br><span class="hljs-comment">#复制/etc/下的文件，不包括/etc/目录自身,注意/etc/后面有/</span><br>ansible websrvs -m copy -a <span class="hljs-string">&quot;src=/etc/ dest=/backup</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Get_url模块 : 用于将文件从http、https或ftp下载到被管理机节点上</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible websrvs -m get_url -a <span class="hljs-string">&#x27;url=http://nginx.org/download/nginx-1.18.0.tar.gz dest=/usr/local/src/nginx.tar.gz&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>File 模块：相当于shell中文件管理命令，设置文件属性,创建软链接等</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#state可指定创建目录或文件、删除、软连接等操作</span><br>ansible all -m file  -a <span class="hljs-string">&#x27;path=/data/test.txt state=touch&#x27;</span><br><span class="hljs-comment">#创建软链接</span><br>ansible all -m file -a <span class="hljs-string">&#x27;src=/data/testfile path|dest|name=/data/testfile-link state=link&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>stat 模块：检查文件或文件系统的状态</strong></p>
+<p>#<strong>返回值exists： 判断是否存在  isuid： 调用用户的ID与所有者ID是否匹配</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible 127.0.0.1 -m <span class="hljs-built_in">stat</span> -a <span class="hljs-string">&#x27;path=/etc/passwd&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Unarchive模块 ：解包解压缩  将ansible主机上的压缩包传到远程主机后解压缩至特定目录</strong><br><strong>Archive模块：打包压缩</strong><br><strong>#选项remote_src：和copy功能一样且互斥，yes表示在远程主机，不在ansible主机，no表示文件在ansible主机上</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible websrvs -m unarchive -a<span class="hljs-string">&#x27;src=https://releases.ansible.com/ansible/ansible-2.1.6.0-0.1.rc1.tar.gz dest=/data/   owner=root remote_src=yes&#x27;</span><br>ansible websrvs -m archive  -a <span class="hljs-string">&#x27;path=/var/log/ dest=/data/log.tar.bz2 format=bz2 </span><br><span class="hljs-string">owner=wang mode=0600&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Cron模块 ：在远程主机创建定时任务</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#创建任务</span><br>ansible 10.0.0.8 -m cron -a <span class="hljs-string">&#x27;hour=2 minute=30 weekday=1-5 name=&quot;backup mysql&quot; job=/root/mysql_backup.sh&#x27;</span> <span class="hljs-comment">#删除任务</span><br>ansible websrvs -m cron -a <span class="hljs-string">&quot;name=&#x27;backup mysql&#x27; state=absent&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Yum&#x2F;Apt模块： 可以安装、更新软件</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible websrvs -m yum -a <span class="hljs-string">&#x27;name=httpd state=present&#x27;</span>  <span class="hljs-comment">#安装</span><br>ansible websrvs -m yum -a <span class="hljs-string">&#x27;name=* state=lastest exclude=kernel*,foo*&#x27;</span> <span class="hljs-comment">#升级除</span><br>kernel和foo开头以外的所有包<br></code></pre></td></tr></table></figure>
+
+<p><strong>yum_repository 模块： 生成yum仓库文件 ，将仓库文件中的关键信息用键值对的形式表示</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment">#playbook中写法</span><br><span class="hljs-string">范例：</span><br> <span class="hljs-attr">tasks:</span><br><br>   <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Add</span> <span class="hljs-string">multiple</span> <span class="hljs-string">repositories</span> <span class="hljs-string">into</span> <span class="hljs-string">the</span> <span class="hljs-string">same</span> <span class="hljs-string">file</span> <br>     <span class="hljs-attr">yum_repository:</span><br>      <span class="hljs-attr">name:</span> <span class="hljs-string">test</span><br>      <span class="hljs-attr">description:</span> <span class="hljs-string">EPEL</span> <span class="hljs-string">YUM</span> <span class="hljs-string">repo</span><br>      <span class="hljs-attr">file:</span> <span class="hljs-string">external_repos</span><br>      <span class="hljs-attr">baseurl:</span> <span class="hljs-string">https://download.fedoraproject.org/pub/epel/$releasever/$basearch/</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>service模块： 相当于systemctl</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible all -m service -a <span class="hljs-string">&#x27;name=httpd state=started enabled=yes&#x27;</span><br>ansible all -m service -a <span class="hljs-string">&#x27;name=httpd state=stopped&#x27;</span><br>ansible all -m service -a <span class="hljs-string">&#x27;name=httpd state=reloaded&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>User模块，Group模块 ： 进行用户和用户组管理，uid、gid、家目录、名字等使用键值对表示</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible all -m user -a <span class="hljs-string">&#x27;name=user1 comment=&quot;test user&quot; uid=2048 home=/app/user1 group=root&#x27;</span><br>ansible websrvs -m group  -a <span class="hljs-string">&#x27;name=nginx gid=88 system=yes&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Setup 模块 : 收集主机的系统信息，可使用filter过滤</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ansible all -m setup -a <span class="hljs-string">&#x27;filter=ansible_python_version&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>debug 模块 ：此模块可以用于输出信息,并且通过 msg 定制输出的信息内容</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment">#可输出变量</span><br><span class="hljs-attr">tasks:</span> <br><br>   <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">output</span> <span class="hljs-string">variables</span><br>     <span class="hljs-attr">debug:</span><br>     <span class="hljs-attr">msg:</span> <span class="hljs-string">Host</span> <span class="hljs-string">&quot;<span class="hljs-template-variable">&#123;&#123; ansible_nodename &#125;&#125;</span>&quot;</span> <span class="hljs-string">Ip</span>  <span class="hljs-string">&quot;<span class="hljs-template-variable">&#123;&#123; ansible_default_ipv4.address </span></span><br><span class="hljs-template-variable"><span class="hljs-string">     &#125;&#125;</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="playbook编写"><a href="#playbook编写" class="headerlink" title="playbook编写"></a>playbook编写</h1><p>​		一个playbook 中由多个组件组成,其中所用到的常见组件类型如下:</p>
+<ul>
+<li><p>Hosts 执行的远程主机列表</p>
+</li>
+<li><p>Tasks 任务集,由多个task的元素组成的列表实现,每个task是一个字典,一个完整的代码块功能需最少元素需包括 name 和 task,一个name只能包括一个task</p>
+</li>
+<li><p>Variables 内置变量或自定义变量在playbook中调用</p>
+</li>
+<li><p>Templates 模板，可替换模板文件中的变量并实现一些简单逻辑的文件</p>
+</li>
+<li><p>Handlers 和 notify 结合使用，由特定条件触发的操作，满足条件方才执行，否则不执行</p>
+</li>
+<li><p>tags 标签 指定某条任务执行，用于选择运行playbook中的部分代码。ansible具有幂等性，因此会自动跳过没有变化的部分，即便如此，有些代码为测试其确实没有发生变化的时间依然会非常地长。此时，如果确信其没有变化，就可以通过tags跳过此些代码片断。</p>
+</li>
+</ul>
+<p>​		playbook 剧本是由一个或多个”play”组成的列表。将预定义的一组主机，装扮成事先通过ansible中的task定义好的角色。Task实际是调用ansible的一个module，将多个play组织在一个playbook中，即可以让它们联合起来，按事先编排的机制执行预定义的动作。Playbook 文件是采用YAML语言编写的。</p>
+<h3 id="安装httpd服务"><a href="#安装httpd服务" class="headerlink" title="安装httpd服务"></a>安装httpd服务</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment">#在hosts文件加入受控主机，安装httpd服务，放置测试网页，启动服务</span><br><span class="hljs-meta">---</span><br><span class="hljs-meta">  </span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">hosts:</span> <span class="hljs-string">websrvs</span><br><br>  <span class="hljs-attr">tasks:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">install</span> <span class="hljs-string">httpd</span><br>      <span class="hljs-attr">yum:</span> <span class="hljs-string">name=httpd</span> <span class="hljs-string">state=present</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">copy</span> <span class="hljs-string">html</span><br>      <span class="hljs-attr">copy:</span> <span class="hljs-string">src=/data/index.html</span> <span class="hljs-string">/var/www/html/index.html</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">start</span> <span class="hljs-string">httpd</span><br>      <span class="hljs-attr">service:</span> <span class="hljs-string">name=httpd</span> <span class="hljs-string">state=started</span> <span class="hljs-string">enabled=yes</span><br><span class="hljs-comment">#测试语法，结果如下则没有问题</span><br>[<span class="hljs-string">root@centos8</span> <span class="hljs-string">/data/ansible/httpd</span>]<span class="hljs-string">$ansible-playbook</span> <span class="hljs-string">--syntax</span> <span class="hljs-string">httpd.yml</span><br><br><span class="hljs-attr">playbook:</span> <span class="hljs-string">httpd.yml</span><br><span class="hljs-comment">#运行</span><br>[<span class="hljs-string">root@centos8</span> <span class="hljs-string">/data/ansible/httpd</span>]<span class="hljs-string">$ansible-playbook</span>  <span class="hljs-string">httpd.yml</span><br><br><span class="hljs-string">PLAY</span> <span class="hljs-string">RECAP</span> <span class="hljs-string">**************************************************************************************************************************************</span><br><span class="hljs-attr">10.0.0.157                 :</span> <span class="hljs-string">ok=4</span>    <span class="hljs-string">changed=0</span>    <span class="hljs-string">unreachable=0</span>    <span class="hljs-string">failed=0</span>    <span class="hljs-string">skipped=0</span>    <span class="hljs-string">rescued=0</span>    <span class="hljs-string">ignored=0</span>   <br><br><br>[<span class="hljs-string">root@centos8</span> <span class="hljs-string">/data/ansible/httpd</span>]<span class="hljs-string">$curl</span> <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.157</span><br><span class="hljs-string">hello</span> <span class="hljs-string">!</span><br></code></pre></td></tr></table></figure>
+
+<p>​	</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%87%AA%E5%8A%A8%E5%8C%96/">自动化</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Ansible/">Ansible</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/27/Ansible%E7%AE%A1%E7%90%86LAMP%E6%9E%B6%E6%9E%84/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Ansible管理LAMP架构</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/26/HTTP%E5%8D%8F%E8%AE%AE%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B/">
+                        <span class="hidden-mobile">HTTP协议工作过程</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

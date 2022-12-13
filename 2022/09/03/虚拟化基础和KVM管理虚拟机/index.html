@@ -1,0 +1,502 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要总结了虚拟化的基础概念，使用KVM部署虚拟机的方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虚拟化基础和KVM管理虚拟机">
+<meta property="og:url" content="http://example.com/2022/09/03/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%9F%BA%E7%A1%80%E5%92%8CKVM%E7%AE%A1%E7%90%86%E8%99%9A%E6%8B%9F%E6%9C%BA/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要总结了虚拟化的基础概念，使用KVM部署虚拟机的方法。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/09/03/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%9F%BA%E7%A1%80%E5%92%8CKVM%E7%AE%A1%E7%90%86%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220903210439797.png">
+<meta property="og:image" content="http://example.com/2022/09/03/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%9F%BA%E7%A1%80%E5%92%8CKVM%E7%AE%A1%E7%90%86%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220903212152014.png">
+<meta property="og:image" content="http://example.com/2022/09/03/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%9F%BA%E7%A1%80%E5%92%8CKVM%E7%AE%A1%E7%90%86%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220903213943406.png">
+<meta property="og:image" content="http://example.com/2022/09/03/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%9F%BA%E7%A1%80%E5%92%8CKVM%E7%AE%A1%E7%90%86%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220903214309437.png">
+<meta property="article:published_time" content="2022-09-03T19:28:03.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.314Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="KVM">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/09/03/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%9F%BA%E7%A1%80%E5%92%8CKVM%E7%AE%A1%E7%90%86%E8%99%9A%E6%8B%9F%E6%9C%BA/image-20220903210439797.png">
+  
+  
+  <title>虚拟化基础和KVM管理虚拟机 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="虚拟化基础和KVM管理虚拟机">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-09-03 19:28" pubdate>
+        September 3, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.1k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      34 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">虚拟化基础和KVM管理虚拟机</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要总结了虚拟化的基础概念，使用KVM部署虚拟机的方法。</p>
+<span id="more"></span>
+
+<h1 id="虚拟化概念"><a href="#虚拟化概念" class="headerlink" title="虚拟化概念"></a>虚拟化概念</h1><p>​		虚拟化是一种资源管理技术，将物理机的CPU、内存、磁盘、网络适配器等实体资源予以重新分割、组合，从而最大化合理利用物理资源。物理机可叫做宿主机，虚拟机叫做客户机，虚拟操作系统也称为guest os。在宿主机上可看到虚拟机以进程的形式运行。</p>
+<p>​		通过虚拟化技术可在一台物理机上运行多个操作系统和应用，互相严密隔离，在虚拟操作系统与物理机内核间工作着hypervisor，管理虚拟机资源的分配和操作系统加载。根据hypervisor类型可分为裸机型和主机托管型，即可直接运行在物理机上（如VMware EXSI   KVM）和必须运行在有虚拟化功能的操作系统上（如VMware workstation）</p>
+<p><img src="image-20220903210439797.png" srcset="/img/loading.gif" lazyload alt="image-20220903210439797"></p>
+<p>​		虚拟化还有以下分类：服务器虚拟化、网络虚拟化（k8s和OpenStack中需要使用）、桌面虚拟化、应用虚拟化、存储虚拟化（NAS、ceph、samba）。</p>
+<p>​		而容器技术被称为下一代虚拟化技术，容器可粗略理解为更轻量级、更高效、更方便批量部署的虚拟机。</p>
+<h1 id="云计算概念"><a href="#云计算概念" class="headerlink" title="云计算概念"></a>云计算概念</h1><p>​		云计算（cload computing）是google前首席执行官在搜索引擎大会上提出的构想，即通过网络为客户提供网络计算服务，包括硬件、平台、软件资源均由网络提供，该网络则被称为“云”。</p>
+<p>​		云计算分层：iaas（Infrastructure as a Service），基础设施服务，如阿里云ecs云服务器，购买云服务器无需管理硬件和hypervisor。paas（Platform as a Service），通过网络提供某种服务，如购买阿里云的redis服务，购买该服务无需管理服务器的运行环境、中间件、操作系统，仅需管理该应用。saas（Software-as-a-Service），软件服务，如云盘、企业邮箱等，可直接使用，无需管理该服务，仅需管理用户数据。</p>
+<h1 id="KVM创建虚拟机"><a href="#KVM创建虚拟机" class="headerlink" title="KVM创建虚拟机"></a>KVM创建虚拟机</h1><p>​		如果宿主机是虚拟机，需要确认勾选了cpu的虚拟化功能。目前一般物理机的CPU均已支持虚拟化。</p>
+<h3 id="KVM工具包"><a href="#KVM工具包" class="headerlink" title="KVM工具包"></a>KVM工具包</h3><p>​		<strong>centOS：</strong>qemu-kvm  qemu-kvm-tools  libvirt  libvirt-client libvirt-manager  virt-install</p>
+<p>​		<strong>ubuntu：</strong>qemu-kvm  virt-manager  libvirt-daemon-system</p>
+<h3 id="管理工具"><a href="#管理工具" class="headerlink" title="管理工具"></a>管理工具</h3><p>​		libvirt		虚拟化管理工具和应用程序接口</p>
+<p>​		virsh		KVM命令行工具</p>
+<p>​		virt-manager	图形化管理工具</p>
+<p>​		OpenStack	开源虚拟化编排工具，用于大规模虚拟机管理</p>
+<h3 id="准备网络"><a href="#准备网络" class="headerlink" title="准备网络"></a>准备网络</h3><p>​		使虚拟机能访问外网。</p>
+<p>​		宿主机配置NAT网络，则虚拟机连接外网，但不可从外部访问。宿主机配置网桥网络，则虚拟机既可连接外网，也可从外部访问。</p>
+<h3 id="创建磁盘"><a href="#创建磁盘" class="headerlink" title="创建磁盘"></a>创建磁盘</h3><p>​		默认保存路径 &#x2F;var&#x2F;lib&#x2F;libvirt&#x2F;images</p>
+<p>​		示例：创建一个10G  raw格式磁盘</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><pre><code class="hljs shell">qemu-img create -f raw /var/lib/libvirt/images/test1.raw 10G<br></code></pre></td></tr></table></figure>
+
+<p>​		命令用法，具体参数用法省略</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs inform7"><span class="hljs-comment">[root@localhost ~]</span>$qemu-img -h<br><br>Command syntax:<br>  check <span class="hljs-comment">[-q]</span> <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[--output=ofmt]</span> <span class="hljs-comment">[-r <span class="hljs-comment">[leaks | all]</span>]</span> <span class="hljs-comment">[-T src_cache]</span> filename<br>  create <span class="hljs-comment">[-q]</span> <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[-o options]</span> filename <span class="hljs-comment">[size]</span><br>  commit <span class="hljs-comment">[-q]</span> <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[-t cache]</span> filename<br>  compare <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[-F fmt]</span> <span class="hljs-comment">[-T src_cache]</span> <span class="hljs-comment">[-p]</span> <span class="hljs-comment">[-q]</span> <span class="hljs-comment">[-s]</span> filename1 filename2<br>  convert <span class="hljs-comment">[-c]</span> <span class="hljs-comment">[-p]</span> <span class="hljs-comment">[-q]</span> <span class="hljs-comment">[-n]</span> <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[-t cache]</span> <span class="hljs-comment">[-T src_cache]</span> <span class="hljs-comment">[-O output_fmt]</span> <span class="hljs-comment">[-o options]</span> <span class="hljs-comment">[-s snapshot_name]</span> <span class="hljs-comment">[-S sparse_size]</span> filename <span class="hljs-comment">[filename2 <span class="hljs-comment">[...]</span>]</span> output_filename<br>  info <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[--output=ofmt]</span> <span class="hljs-comment">[--backing-chain]</span> filename<br>  map <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[--output=ofmt]</span> filename<br>  snapshot <span class="hljs-comment">[-q]</span> <span class="hljs-comment">[-l | -a snapshot | -c snapshot | -d snapshot]</span> filename<br>  rebase <span class="hljs-comment">[-q]</span> <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[-t cache]</span> <span class="hljs-comment">[-T src_cache]</span> <span class="hljs-comment">[-p]</span> <span class="hljs-comment">[-u]</span> -b backing_file <span class="hljs-comment">[-F backing_fmt]</span> filename<br>  resize <span class="hljs-comment">[-q]</span> filename <span class="hljs-comment">[+ | -]</span>size<br>  amend <span class="hljs-comment">[-q]</span> <span class="hljs-comment">[-f fmt]</span> <span class="hljs-comment">[-t cache]</span> -o options filename<br></code></pre></td></tr></table></figure>
+
+<h3 id="安装方法虚拟设备配置"><a href="#安装方法虚拟设备配置" class="headerlink" title="安装方法虚拟设备配置"></a>安装方法虚拟设备配置</h3><p>​		示例，使用hypervisor为kvm，虚拟机名为centos7  内存1024m  虚拟cpu2颗   安装光盘路径&#x2F;usr&#x2F;local&#x2F;src&#x2F;CentOS-7-x86_64-Minimal- 1908.iso</p>
+<p>磁盘路径为上文创建的磁盘， 不自动连接客户端控制台</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs brainfuck"><span class="hljs-comment">virt</span><span class="hljs-literal">-</span><span class="hljs-comment">install</span> <span class="hljs-literal">--</span><span class="hljs-comment">virt</span><span class="hljs-literal">-</span><span class="hljs-comment">type kvm</span> <span class="hljs-literal">--</span><span class="hljs-comment">name centos7</span> <span class="hljs-literal">--</span><span class="hljs-comment">ram 1024</span> <span class="hljs-literal">--</span><span class="hljs-comment">vcpus 2</span> <span class="hljs-literal">--</span><span class="hljs-comment">cdrom=/usr/local/src/CentOS</span><span class="hljs-literal">-</span><span class="hljs-comment">7</span><span class="hljs-literal">-</span><span class="hljs-comment">x86_64</span><span class="hljs-literal">-</span><span class="hljs-comment">Minimal</span><span class="hljs-literal">-</span> <span class="hljs-comment">1908</span><span class="hljs-string">.</span><span class="hljs-comment">iso</span> <span class="hljs-literal">--</span><span class="hljs-comment">disk path=/var/lib/libvirt/images/test1</span><span class="hljs-string">.</span><span class="hljs-comment">raw</span> <span class="hljs-literal">--</span><span class="hljs-comment">network network=default</span> <span class="hljs-literal">--</span><span class="hljs-comment">graphics vnc</span><span class="hljs-string">,</span><span class="hljs-comment">listen=0</span><span class="hljs-string">.</span><span class="hljs-comment">0</span><span class="hljs-string">.</span><span class="hljs-comment">0</span><span class="hljs-string">.</span><span class="hljs-comment">0</span> <span class="hljs-literal">--</span> <span class="hljs-comment">noautoconsole</span><br></code></pre></td></tr></table></figure>
+
+<p>​		主要选项如下，其他省略</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs sql">[root<span class="hljs-variable">@localhost</span> <span class="hljs-operator">~</span>]$virt<span class="hljs-operator">-</span>install <span class="hljs-comment">--help</span><br>usage: virt<span class="hljs-operator">-</span>install <span class="hljs-comment">--name NAME --memory MB STORAGE INSTALL [options]</span><br><br><span class="hljs-keyword">Create</span> a <span class="hljs-keyword">new</span> virtual machine <span class="hljs-keyword">from</span> specified install media.<br><br>optional arguments:<br>  <span class="hljs-operator">-</span>h, <span class="hljs-comment">--help            show this help message and exit</span><br>  <span class="hljs-comment">--version             show program&#x27;s version number and exit</span><br>  <span class="hljs-comment">--connect URI         Connect to hypervisor with libvirt URI</span><br><br>General Options:<br>  <span class="hljs-operator">-</span>n NAME, <span class="hljs-comment">--name NAME  Name of the guest instance</span><br>  <span class="hljs-comment">--memory MEMORY       Configure guest memory allocation. Ex:</span><br>                        <span class="hljs-comment">--memory 1024 (in MiB)</span><br>                        <span class="hljs-comment">--memory 512,maxmemory=1024</span><br>                        <span class="hljs-comment">--memory 512,maxmemory=1024,hotplugmemorymax=2048,hotplugmemoryslots=2</span><br>  <span class="hljs-comment">--vcpus VCPUS         Number of vcpus to configure for your guest. Ex:</span><br>                        <span class="hljs-comment">--vcpus 5</span><br>                        <span class="hljs-comment">--vcpus 5,maxvcpus=10,cpuset=1-4,6,8</span><br>                        <span class="hljs-comment">--vcpus sockets=2,cores=4,threads=2</span><br>  <span class="hljs-comment">--cpu CPU             CPU model and features. Ex:</span><br>                        <span class="hljs-comment">--cpu coreduo,+x2apic</span><br>                        <span class="hljs-comment">--cpu host-passthrough</span><br>                        <span class="hljs-comment">--cpu host</span><br>  <span class="hljs-comment">--metadata METADATA   Configure guest metadata. Ex:</span><br>                        <span class="hljs-comment">--metadata name=foo,title=&quot;My pretty title&quot;,uuid=...</span><br>                        <span class="hljs-comment">--metadata description=&quot;My nice long description&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+<h3 id="开始安装"><a href="#开始安装" class="headerlink" title="开始安装"></a>开始安装</h3><p>​		可使用vnc viewer远程连接宿主机的相应端口，从而连接到虚拟机，初始化安装。</p>
+<p>​		或者使用virt-manager图形化界面初始化安装。</p>
+<p>​		virt-manager上可进行虚拟机的配置修改、迁移、克隆，操作类似VMware workstation，可使用远程控制终端来显示图形界面。</p>
+<h3 id="将VMware虚拟机迁移到kvm中"><a href="#将VMware虚拟机迁移到kvm中" class="headerlink" title="将VMware虚拟机迁移到kvm中"></a>将VMware虚拟机迁移到kvm中</h3><p>​		将虚拟机文件拷贝到kvm宿主机中，使用qemu-img转换VMware磁盘文件格式vmdk为kvm的格式即可。</p>
+<h1 id="虚拟化环境案例"><a href="#虚拟化环境案例" class="headerlink" title="虚拟化环境案例"></a>虚拟化环境案例</h1><p>​		在内部网络中有部分服务需要允许外部访问，可进行如下配置。实际配置中还可配置数据网络，即添加第三个网桥。保证网卡高可用可先多配置网卡进行网卡绑定再配置网桥。</p>
+<p><img src="image-20220903212152014.png" srcset="/img/loading.gif" lazyload alt="image-20220903212152014"></p>
+<h1 id="KVM热迁移"><a href="#KVM热迁移" class="headerlink" title="KVM热迁移"></a>KVM热迁移</h1><p>​		需要将宿主机1的虚拟机迁移至宿主机2</p>
+<p>​		宿主机1安装openssh-askpass ，然后可在virt-manager界面连接宿主机2，管理宿主机2的虚拟机。填写迁移目标，选择迁移虚拟机即可。另一主机ping该虚拟机可发现，甚至没有丢包。</p>
+<p>​		推荐使用共享存储，不需拷贝磁盘文件，而仅需拷贝操作系统和虚拟机配置，可大幅提升迁移速度</p>
+<p><img src="image-20220903213943406.png" srcset="/img/loading.gif" lazyload alt="image-20220903213943406"></p>
+<p>需要做有对方域名解析，勾选允许不安全</p>
+<p><img src="image-20220903214309437.png" srcset="/img/loading.gif" lazyload alt="image-20220903214309437"></p>
+<h1 id="商业虚拟机管理工具VMware-vsphere"><a href="#商业虚拟机管理工具VMware-vsphere" class="headerlink" title="商业虚拟机管理工具VMware vsphere"></a>商业虚拟机管理工具VMware vsphere</h1><p>​		以下均需要付费使用，申请试用后可下载以下软件包。</p>
+<p>​		VMware vcenter server提供功能更强大的服务器虚拟化管理平台，可在web界面上进行管理。必须运行在windows server上</p>
+<p>​		vmware esxi内部有微型操作系统，可直接运行在物理机，物理机与虚拟机间少了一层物理机操作系统，理论上有更好的性能。物理机需要开启辅助虚拟化。安装esxi后，提供web界面，可登录进行管理虚拟机。</p>
+<p>查看官网了解VMware vsphere</p>
+<p><a target="_blank" rel="noopener" href="https://docs.vmware.com/cn/VMware-vSphere/index.html">https://docs.vmware.com/cn/VMware-vSphere/index.html</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%99%9A%E6%8B%9F%E5%8C%96/">虚拟化</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/KVM/">KVM</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/04/docker%E5%AE%B9%E5%99%A8%E5%9F%BA%E7%A1%80/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">docker容器基础</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/31/Zabbix%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/">
+                        <span class="hidden-mobile">Zabbix配置总结</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

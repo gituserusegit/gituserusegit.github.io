@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文包括Mysql数据库基本使用方法，简述了SQL语言的分类和基本用法，并且说明mysql各个关键字查询时候的先后顺序。使用常用关键字[GROUP BY&#x2F;HAVING&#x2F;ORDER BY&#x2F;LIMIT]和相关命令进行数据库查询。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL语言基础">
+<meta property="og:url" content="http://example.com/2022/07/19/SQL%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文包括Mysql数据库基本使用方法，简述了SQL语言的分类和基本用法，并且说明mysql各个关键字查询时候的先后顺序。使用常用关键字[GROUP BY&#x2F;HAVING&#x2F;ORDER BY&#x2F;LIMIT]和相关命令进行数据库查询。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/07/19/SQL%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/image-20220719211008482.png">
+<meta property="article:published_time" content="2022-07-19T18:25:02.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.267Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="SQL语言">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/07/19/SQL%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/image-20220719211008482.png">
+  
+  
+  <title>SQL语言基础 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="SQL语言基础">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-07-19 18:25" pubdate>
+        July 19, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.8k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      49 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SQL语言基础</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文包括Mysql数据库基本使用方法，简述了SQL语言的分类和基本用法，并且说明mysql各个关键字查询时候的先后顺序。使用常用关键字[GROUP BY&#x2F;HAVING&#x2F;ORDER BY&#x2F;LIMIT]和相关命令进行数据库查询。	</p>
+<span id="more"></span>
+
+
+
+<h1 id="SQL语言"><a href="#SQL语言" class="headerlink" title="SQL语言"></a>SQL语言</h1><p>​		SQL全称 Structured Query Language，意为结构化查询语言。目前，所有主要的关系数据库管理系统支持某些形式的SQL，大部分数据库至少遵守ANSI SQL89标准，但大部分的SQL代码在不同的数据库系统中并不具有完全的跨平台性。</p>
+<p>​		Mysql数据库和其他关系型数据库中含有的常见组件有：数据库、表、索引、视图、用户、存储过程、函数、触发器、事件调度器等。</p>
+<h3 id="SQL语言规范"><a href="#SQL语言规范" class="headerlink" title="SQL语言规范"></a>SQL语言规范</h3><ul>
+<li>SQL 语句不区分大小写</li>
+<li>SQL语句可单行或多行书写，默认以 “ ; “ 结尾</li>
+<li>关键词不能跨多行或简写</li>
+<li>对象命名必须以字母开头，后续可以包括字母,数字和三个特殊字符（# _ $）</li>
+<li>关健字Keyword组成子句clause，多条clause组成语句</li>
+</ul>
+<h3 id="SQL语句分类"><a href="#SQL语句分类" class="headerlink" title="SQL语句分类"></a>SQL语句分类</h3><ul>
+<li>DDL: Data Defination Language 数据定义语言</li>
+</ul>
+<p>​		包含的命令有CREATE，DROP，ALTER。分别可用于创建、删除、修改数据库、表、用户或其他对象。</p>
+<ul>
+<li>DML: Data Manipulation Language 数据操纵语言<br>包含的命令有INSERT，DELETE，UPDATE。主要用来编辑某个表的数据，分别可用于插入记录、删除记录、修改记录。</li>
+<li>DQL：Data Query Language 数据查询语言<br>最常用的语句SELECT，用于查看表和变量中的数据，也可配合关键字对表中数据进行搜索、过滤。</li>
+</ul>
+<p>​		关键字包含：WHERE：可按数值过滤查找相应行</p>
+<p>​							   GROUP BY：根据指定的条件把查询结果进行”分组”以用于做”聚合”运算，一旦分组，select语  						句后只跟分组的字段和聚合函。</p>
+<p>​								HAVING: 对分组聚合运算后的结果指定过滤条件</p>
+<p>​							   ORDER BY：指定查询结果的排序方式，其中升序为ASC，降序为DESC</p>
+<p>​							   LIMIT [[offset,]row_count]：对查询的结果进行输出行数数量限制,跳过offset,显示row_count</p>
+<p>​					   行,offset默为值为0</p>
+<p>​		使用SELECT查询时需要注意关键字有查询顺序，从先到后分别为：FROM Clause –&gt; WHERE Clause –&gt; GROUP BY –&gt; HAVING Clause –&gt;SELECT –&gt; ORDER BY –&gt; LIMIT</p>
+<p><img src="image-20220719211008482.png" srcset="/img/loading.gif" lazyload alt="image-20220719211008482"></p>
+<ul>
+<li>DCL：Data Control Language 数据控制语言<br>包含GRANT，REVOKE。分别用于授予和吊销用户的权限，其中注意可以授权用户将权限转授予其他用户。</li>
+<li>TCL：Transaction Control Language 事务控制语言<br>包含COMMIT，ROLLBACK，SAVEPOINT。分别用于提交事务、回滚到事务初始状况，设置保存点。</li>
+</ul>
+<h1 id="Mysql8-0数据库查询示例"><a href="#Mysql8-0数据库查询示例" class="headerlink" title="Mysql8.0数据库查询示例"></a>Mysql8.0数据库查询示例</h1><p>​		在hellodb数据库中有students表格，记录了学生id，姓名，年龄，性别，班级id，老师id。scores表记录了学生id、课程id和分数。表格如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></div></td><td class="code"><pre><code class="hljs mysql">mysql&gt; use hellodb<br>mysql&gt; select * from students;<br>+-------+---------------+-----+--------+---------+-----------+<br>| StuID | Name          | Age | Gender | ClassID | TeacherID |<br>+-------+---------------+-----+--------+---------+-----------+<br>|     1 | Shi Zhongyu   |  22 | M      |       2 |         3 |<br>|     2 | Shi Potian    |  22 | M      |       1 |         7 |<br>|     3 | Xie Yanke     |  53 | M      |       2 |        16 |<br>|     4 | Ding Dian     |  32 | M      |       4 |         4 |<br>|     5 | Yu Yutong     |  26 | M      |       3 |         1 |<br>|     6 | Shi Qing      |  46 | M      |       5 |      NULL |<br>|     7 | Xi Ren        |  19 | F      |       3 |      NULL |<br>|     8 | Lin Daiyu     |  17 | F      |       7 |      NULL |<br>|     9 | Ren Yingying  |  20 | F      |       6 |      NULL |<br>|    10 | Yue Lingshan  |  19 | F      |       3 |      NULL |<br>|    11 | Yuan Chengzhi |  23 | M      |       6 |      NULL |<br>|    12 | Wen Qingqing  |  19 | F      |       1 |      NULL |<br>|    13 | Tian Boguang  |  33 | M      |       2 |      NULL |<br>|    14 | Lu Wushuang   |  17 | F      |       3 |      NULL |<br>|    15 | Duan Yu       |  19 | M      |       4 |      NULL |<br>|    16 | Xu Zhu        |  21 | M      |       1 |      NULL |<br>|    17 | Lin Chong     |  25 | M      |       4 |      NULL |<br>|    18 | Hua Rong      |  23 | M      |       7 |      NULL |<br>|    19 | Xue Baochai   |  18 | F      |       6 |      NULL |<br>|    20 | Diao Chan     |  19 | F      |       7 |      NULL |<br>|    21 | Huang Yueying |  22 | F      |       6 |      NULL |<br>|    22 | Xiao Qiao     |  20 | F      |       1 |      NULL |<br>|    23 | Ma Chao       |  23 | M      |       4 |      NULL |<br>|    24 | Xu Xian       |  27 | M      |    NULL |      NULL |<br>|    25 | Sun Dasheng   | 100 | M      |    NULL |      NULL |<br>+-------+---------------+-----+--------+---------+-----------+<br><br>mysql&gt; select * from scores;<br>+----+-------+----------+-------+<br>| ID | StuID | CourseID | Score |<br>+----+-------+----------+-------+<br>|  1 |     1 |        2 |    77 |<br>|  2 |     1 |        6 |    93 |<br>|  3 |     2 |        2 |    47 |<br>|  4 |     2 |        5 |    97 |<br>|  5 |     3 |        2 |    88 |<br>|  6 |     3 |        6 |    75 |<br>|  7 |     4 |        5 |    71 |<br>|  8 |     4 |        2 |    89 |<br>|  9 |     5 |        1 |    39 |<br>| 10 |     5 |        7 |    63 |<br>| 11 |     6 |        1 |    96 |<br>| 12 |     7 |        1 |    86 |<br>| 13 |     7 |        7 |    83 |<br>| 14 |     8 |        4 |    57 |<br>| 15 |     8 |        3 |    93 |<br>+----+-------+----------+-------+<br></code></pre></td></tr></table></figure>
+
+<p>​		接下来使用SELECT语句和上述关键字查询特定信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#在students表中，查询年龄大于25岁，且为男性的同学的名字和年龄，以年龄排序<br>mysql&gt; select name,age from students where age&gt;25 and gender=&#x27;M&#x27; order by age;<br>+--------------+-----+<br>| name         | age |<br>+--------------+-----+<br>| Yu Yutong    |  26 |<br>| Xu Xian      |  27 |<br>| Ding Dian    |  32 |<br>| Tian Boguang |  33 |<br>| Shi Qing     |  46 |<br>| Xie Yanke    |  53 |<br>| Sun Dasheng  | 100 |<br>+--------------+-----+<br><br>#以ClassID为分组依据，显示每组的平均年龄，且只查看平均年龄大于30的班级<br>mysql&gt; select classid,avg(age) from students group by classid having avg(age)&gt;30;<br>+---------+----------+<br>| classid | avg(age) |<br>+---------+----------+<br>|       2 |  36.0000 |<br>|       5 |  46.0000 |<br>|    NULL |  63.5000 |<br>+---------+----------+<br><br>#以班级分组，显示其年龄大于平均年龄的人数，按人数排序<br>mysql&gt; select classid,count(*) from students where age &gt; (select avg(age) from students) group by classid order by count(*);<br>+---------+----------+<br>| classid | count(*) |<br>+---------+----------+<br>|       4 |        1 |<br>|       5 |        1 |<br>|    NULL |        1 |<br>|       2 |        2 |<br>+---------+----------+<br><br><br>#显示以X开头的名字的同学的班级，以班级id排序<br>mysql&gt; select classid,name from students where name like &#x27;X%&#x27; order by classID desc;<br>+---------+-------------+<br>| classid | name        |<br>+---------+-------------+<br>|       6 | Xue Baochai |<br>|       3 | Xi Ren      |<br>|       2 | Xie Yanke   |<br>|       1 | Xu Zhu      |<br>|       1 | Xiao Qiao   |<br>|    NULL | Xu Xian     |<br>+---------+-------------+<br><br> #以ClassID分组，显示每班的同学的人数，只看最多人的5个班<br> mysql&gt; select classid,count(*) from students group by classid order by count(*) desc limit 5;<br>+---------+----------+<br>| classid | count(*) |<br>+---------+----------+<br>|       1 |        4 |<br>|       4 |        4 |<br>|       3 |        4 |<br>|       6 |        4 |<br>|       7 |        3 |<br>+---------+----------+<br><br>#以Gender分组，显示各组中年龄大于19的学员的年龄之和<br>mysql&gt; select gender,count(*) from students where age&gt;19 group by gender;<br>+--------+----------+<br>| gender | count(*) |<br>+--------+----------+<br>| M      |       14 |<br>| F      |        3 |<br>+--------+----------+<br><br>#查找成绩前5的学生姓名<br>mysql&gt; select s.name,sc.score from students as s left outer join scores as sc on s.stuid=sc.stuid order by score desc limit 5;<br>+-------------+-------+<br>| name        | score |<br>+-------------+-------+<br>| Shi Potian  |    97 |<br>| Shi Qing    |    96 |<br>| Shi Zhongyu |    93 |<br>| Lin Daiyu   |    93 |<br>| Ding Dian   |    89 |<br>+-------------+-------+<br><br>#显示每个班级的平均分<br>mysql&gt; select s.classid,avg(sc.score) from students as s left outer join scores as sc on s.stuid=sc.stuid where classid is not null group by s.classid order by classid;<br>+---------+---------------+<br>| classid | avg(sc.score) |<br>+---------+---------------+<br>|       1 |       72.0000 |<br>|       2 |       83.2500 |<br>|       3 |       67.7500 |<br>|       4 |       80.0000 |<br>|       5 |       96.0000 |<br>|       6 |          NULL |<br>|       7 |       75.0000 |<br>+---------+---------------+<br><br>#查找成绩高于平均分的同学<br>mysql&gt; select avg(score) from scores<br>    -&gt; ;<br>+------------+<br>| avg(score) |<br>+------------+<br>|    76.9333 |<br>+------------+<br>mysql&gt; select s.classid,s.name,sc.score from students as s left outer join scores as sc on s.stuid=sc.stuid where score &gt; (select avg(score) from scores) order by classid;<br>+---------+-------------+-------+<br>| classid | name        | score |<br>+---------+-------------+-------+<br>|       1 | Shi Potian  |    97 |<br>|       2 | Shi Zhongyu |    77 |<br>|       2 | Shi Zhongyu |    93 |<br>|       2 | Xie Yanke   |    88 |<br>|       3 | Xi Ren      |    86 |<br>|       3 | Xi Ren      |    83 |<br>|       4 | Ding Dian   |    89 |<br>|       5 | Shi Qing    |    96 |<br>|       7 | Lin Daiyu   |    93 |<br>+---------+-------------+-------+<br>#统计人数<br>mysql&gt; select s.classid,count(*) as 人数 from students as s left outer join scores as sc on s.stuid=sc.stuid where score &gt; (select avg(score) from scores) group by classid order by classid;<br>+---------+--------+<br>| classid | 人数   |<br>+---------+--------+<br>|       1 |      1 |<br>|       2 |      3 |<br>|       3 |      2 |<br>|       4 |      1 |<br>|       5 |      1 |<br>|       7 |      1 |<br>+---------+--------+<br><br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/SQL%E8%AF%AD%E8%A8%80/">SQL语言</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/20/Mysql%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E5%92%8C%E8%BF%98%E5%8E%9F/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Mysql数据库备份和还原</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/11/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%E6%80%BB%E7%BB%93/">
+                        <span class="hidden-mobile">数据库原理总结</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

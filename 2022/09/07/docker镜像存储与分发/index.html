@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要总结了单机docker镜像仓库和分布式仓库harbor的使用方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker镜像存储与分发">
+<meta property="og:url" content="http://example.com/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要总结了单机docker镜像仓库和分布式仓库harbor的使用方法。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/image-20220907133716296.png">
+<meta property="og:image" content="http://example.com/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/image-20220907155031732.png">
+<meta property="og:image" content="http://example.com/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/image-20220907155221730.png">
+<meta property="og:image" content="http://example.com/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/image-20220907155554587.png">
+<meta property="og:image" content="http://example.com/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/image-20220907160357106.png">
+<meta property="og:image" content="http://example.com/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/image-20220907160548746.png">
+<meta property="article:published_time" content="2022-09-07T12:46:45.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.276Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="harbor">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/09/07/docker%E9%95%9C%E5%83%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E5%88%86%E5%8F%91/image-20220907133716296.png">
+  
+  
+  <title>docker镜像存储与分发 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="docker镜像存储与分发">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-09-07 12:46" pubdate>
+        September 7, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.3k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      45 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">docker镜像存储与分发</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要总结了单机docker镜像仓库和分布式仓库harbor的使用方法。</p>
+<span id="more"></span>
+
+<h1 id="核心组件Docker-Registry"><a href="#核心组件Docker-Registry" class="headerlink" title="核心组件Docker Registry"></a>核心组件Docker Registry</h1><p>以下为docker官方文档节选</p>
+<p><a target="_blank" rel="noopener" href="https://docs.docker.com/registry/">https://docs.docker.com/registry/</a></p>
+<h2 id="What-it-is"><a href="#What-it-is" class="headerlink" title="What it is"></a>What it is</h2><p>The Registry is a stateless, highly scalable server side application that stores and lets you distribute Docker images. </p>
+<h2 id="Requirements"><a href="#Requirements" class="headerlink" title="Requirements"></a>Requirements</h2><p>The Registry is compatible with Docker engine <strong>version 1.6.0 or higher</strong>.</p>
+<h2 id="Basic-commands"><a href="#Basic-commands" class="headerlink" title="Basic commands"></a>Basic commands</h2><p>Start your registry</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">docker</span> run -d -p <span class="hljs-number">5000</span>:<span class="hljs-number">5000</span> --name registry registry:<span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+<p>Pull (or build) some image from the hub</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">docker pull ubuntu</span><br></code></pre></td></tr></table></figure>
+
+<p>Tag the image so that it points to your registry</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">docker image <span class="hljs-keyword">tag</span> <span class="hljs-title">ubuntu</span> localhost:<span class="hljs-number">5000</span>/myfirstimage<br></code></pre></td></tr></table></figure>
+
+<p>Push it</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">docker</span> push localhost:<span class="hljs-number">5000</span>/myfirstimage<br></code></pre></td></tr></table></figure>
+
+<p>Pull it back</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">docker</span> pull localhost:<span class="hljs-number">5000</span>/myfirstimage<br></code></pre></td></tr></table></figure>
+
+<p>Now stop your registry and remove all data</p>
+<figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs axapta">docker <span class="hljs-built_in">container</span> stop registry &amp;&amp; docker <span class="hljs-built_in">container</span> rm -v registry<br></code></pre></td></tr></table></figure>
+
+<h3 id="Customize-the-storage-location"><a href="#Customize-the-storage-location" class="headerlink" title="Customize the storage location"></a>Customize the storage location</h3><figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs livescript">docker run -d <span class="hljs-string">\</span><br> -p <span class="hljs-number">5000</span>:<span class="hljs-number">5000</span> <span class="hljs-string">\</span><br> --restart=always <span class="hljs-string">\</span><br> --name registry <span class="hljs-string">\</span><br> -v /mnt/registry:/<span class="hljs-keyword">var</span>/lib/registry <span class="hljs-string">\</span><br> registry:<span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="搭建单机docker仓库"><a href="#搭建单机docker仓库" class="headerlink" title="搭建单机docker仓库"></a>搭建单机docker仓库</h1><p>​		在上文介绍中可以看到docker仓库以镜像形式下载，以容器形式运行，因此为了保证数据安全性在启动为容器时设置本地存储。</p>
+<p><strong>下载docker  registry</strong></p>
+<figure class="highlight ldif"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ldif">root@ubuntu1804:~<span class="hljs-comment"># docker pull registry</span><br>Using default tag: latest<br><span class="hljs-attribute">latest</span>: Pulling from library/registry<br><span class="hljs-attribute">79e9f2f55bf5</span>: Pull complete <br><span class="hljs-attribute">0d96da54f60b</span>: Pull complete <br><span class="hljs-attribute">5b27040df4a2</span>: Pull complete <br><span class="hljs-attribute">e2ead8259a04</span>: Pull complete <br><span class="hljs-attribute">3790aef225b9</span>: Pull complete <br><span class="hljs-attribute">Digest</span>: sha256:169211e20e2f2d5d115674681eb79d21a217b296b43374b8e39f97fcf866b375<br><span class="hljs-attribute">Status</span>: Downloaded newer image for registry:latest<br></code></pre></td></tr></table></figure>
+
+<p><strong>创建授权使用目录</strong></p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs elixir">root<span class="hljs-variable">@ubuntu1804</span><span class="hljs-symbol">:~</span><span class="hljs-comment"># mkdir /docker/auth -p</span><br>root<span class="hljs-variable">@ubuntu1804</span><span class="hljs-symbol">:~</span><span class="hljs-comment"># cd /docker/</span><br>root<span class="hljs-variable">@ubuntu1804</span><span class="hljs-symbol">:/docker</span><span class="hljs-comment"># htpasswd -Bbn user1 123456 &gt; auth/htpasswd</span><br><br>root<span class="hljs-variable">@ubuntu1804</span><span class="hljs-symbol">:/docker</span><span class="hljs-comment"># docker run -d -p 5000:5000 --restart=always --name registry1 -v /docker/auth:/auth -e &quot;REGISTRY_AUTH=htpasswd&quot; -e &quot;REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm&quot; -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd registry</span><br><span class="hljs-number">750</span>a0331875a4c1b7e7522de7c948046788ee379fa8363387edeed18b3c08669<br><br>root<span class="hljs-variable">@ubuntu1804</span><span class="hljs-symbol">:/docker</span><span class="hljs-comment"># docker ps</span><br><span class="hljs-title class_">CONTAINER</span> <span class="hljs-title class_">ID</span>        <span class="hljs-title class_">IMAGE</span>               <span class="hljs-title class_">COMMAND</span>                  <span class="hljs-title class_">CREATED</span>             <span class="hljs-title class_">STATUS</span>              <span class="hljs-title class_">PORTS</span>                                       <span class="hljs-title class_">NAMES</span><br><span class="hljs-number">750</span>a0331875a        registry            <span class="hljs-string">&quot;/entrypoint.sh /etc…&quot;</span>   <span class="hljs-number">4</span> seconds ago       <span class="hljs-title class_">Up</span> <span class="hljs-number">3</span> seconds        <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span><span class="hljs-symbol">:</span><span class="hljs-number">5000</span>-&gt;<span class="hljs-number">5000</span>/tcp, ::<span class="hljs-symbol">:</span><span class="hljs-number">5000</span>-&gt;<span class="hljs-number">5000</span>/tcp   registry1<br></code></pre></td></tr></table></figure>
+
+<p><img src="image-20220907133716296.png" srcset="/img/loading.gif" lazyload alt="image-20220907133716296"></p>
+<p><strong>登录仓库</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">直接登录会报错，Error response from daemon: Get <span class="hljs-string">&quot;https://10.0.0.151:5000/v2/&quot;</span>: http: server gave HTTP response to HTTPS client</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">进行以下配置</span><br>root@ubuntu1804:/docker# cat /etc/docker/daemon.json <br>&#123;<br>       	&quot;insecure-registries&quot;:[&quot;10.0.0.151:5000&quot;] <br>&#125;<br><br>root@ubuntu1804:/docker# docker login 10.0.0.151:5000<br>Username: user1<br>Password: <br>WARNING! Your password will be stored unencrypted in /root/.docker/config.json.<br>Configure a credential helper to remove this warning. See<br>https://docs.docker.com/engine/reference/commandline/login/#credentials-store<br><br>Login Succeeded<br></code></pre></td></tr></table></figure>
+
+<p><strong>上传镜像</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">root@ubuntu1804:/docker# docker images<br>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE<br>nginx1/centos8-nginx       v1                  d0e6e079bbfd        40 hours ago        342MB<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">需要先打标签</span><br>root@ubuntu1804:/docker# docker tag nginx1/centos8-nginx:v1  10.0.0.151:5000/nginx1/centos8-nginx:v1<br>root@ubuntu1804:/docker# docker push 10.0.0.151:5000/nginx1/centos8-nginx:v1<br>The push refers to repository [10.0.0.151:5000/nginx1/centos8-nginx]<br>0e22592c19fe: Pushed <br>74ddd0ec08fa: Pushed <br>v1: digest: sha256:c61e423da454331aef2dd20f5be17b87701d7c9f020eda7b45d596f46daf5856 size: 741<br></code></pre></td></tr></table></figure>
+
+<p><strong>下载镜像</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">解决上文的报错还可以修改进程文件，添加一个启动参数即可</span><br>[root@docker-server2 ~]#vim /lib/systemd/system/docker.service <br>ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock  --insecure-registry &#x27;10.0.0.151:5000&#x27;<br><br>[root@docker-server2 ~]#systemctl daemon-reload<br>[root@docker-server2 ~]#systemctl restart docker<br>[root@docker-server2 ~]#docker login 10.0.0.151:5000<br>Username: user1<br>Password: <br>WARNING! Your password will be stored unencrypted in /root/.docker/config.json.<br>Configure a credential helper to remove this warning. See<br>https://docs.docker.com/engine/reference/commandline/login/#credentials-store<br><br>Login Succeeded<br><br>[root@docker-server2 ~]#docker pull 10.0.0.151:5000/nginx1/centos8-nginx:v1<br>v1: Pulling from nginx1/centos8-nginx<br>a1d0c7532777: Pull complete <br>88225f54c54f: Pull complete <br>Digest: sha256:c61e423da454331aef2dd20f5be17b87701d7c9f020eda7b45d596f46daf5856<br>Status: Downloaded newer image for 10.0.0.151:5000/nginx1/centos8-nginx:v1<br>10.0.0.151:5000/nginx1/centos8-nginx:v1<br>[root@docker-server2 ~]#docker images<br>REPOSITORY                             TAG       IMAGE ID       CREATED        SIZE<br>10.0.0.151:5000/nginx1/centos8-nginx   v1        d0e6e079bbfd   41 hours ago   342MB<br></code></pre></td></tr></table></figure>
+
+<h1 id="分布式仓库harbor"><a href="#分布式仓库harbor" class="headerlink" title="分布式仓库harbor"></a><strong>分布式仓库harbor</strong></h1><p>​		官网<a target="_blank" rel="noopener" href="https://goharbor.io/">https://goharbor.io/</a></p>
+<p>​		github<a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor">https://github.com/goharbor/harbor</a></p>
+<p>​		Harbor 是一个用于存储和分发 Docker 镜像的企业级 Registry 服务器。Harbor 有助于提升用户使用 Registry 构建和运行环境、传输镜像的效率，总体性能更高。Harbor 还支持安装在多个 Registry 节点的镜像资源复制，可以通过web界面管理多个节点间镜像同步。分布式仓库也实现了负载均衡和高可用。</p>
+<p>​		另外，Harbor 也提供了高级的安全特性，诸如用户管理，访问控制和活动审计等。</p>
+<p><strong>harbor组件</strong></p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs gauss">nginx：反向代理组件，代理 registry、ui、<span class="hljs-built_in">token</span> 等服务。<br>harbor-adminserver：系统管理接口，可以修改系统配置以及获取系统信息。<br>harbor-db：存储项目的元数据、用户、规则、复制策略等信息。 <br>harbor-jobservice：harbor 里面主要是为了镜像仓库之前同步使用的。 <br>harbor-<span class="hljs-built_in">log</span>：收集其他 harbor 的日志信息。 <br>harbor-ui：一个用户界面模块，用来管理 registry。 <br>registry：存储 docker images 的服务，并且提供 pull/<span class="hljs-keyword">push</span> 服务。 <br>redis：存储缓存信息 webhook：当 registry 中的 image 状态发生变化的时候去记录更新日志、复制 等操作。 <br><span class="hljs-built_in">token</span> service：在 docker client 进行 pull/<span class="hljs-keyword">push</span> 的时候负责 <span class="hljs-built_in">token</span> 的发放 <br></code></pre></td></tr></table></figure>
+
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p><strong>System requirements:</strong></p>
+<p><strong>On a Linux host:</strong> docker 17.06.0-ce+ and docker-compose 1.18.0+ .</p>
+<p>Download binaries of **<a target="_blank" rel="noopener" href="https://github.com/vmware/harbor/releases">Harbor release </a>**and follow <strong><a target="_blank" rel="noopener" href="https://goharbor.io/docs/latest/install-config/">Installation &amp; Configuration Guide</a></strong> to install Harbor.</p>
+<p>If you want to deploy Harbor on Kubernetes, please use the <strong><a target="_blank" rel="noopener" href="https://github.com/goharbor/harbor-helm">Harbor chart</a></strong>.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">确保docker版本和docker-compose版本满足要求</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">升级pip 安装docker-compose</span><br>pip install --upgrade pip<br>pip install 安装docker-compose<br><span class="hljs-meta prompt_">#</span><span class="language-bash">解压软件包后执行自带的安装脚本</span><br>root@ubuntu1804:/usr/local/src/harbor# ./install.sh <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">安装后可发现新增大量镜像</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">web访问本机可进入管理界面</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="image-20220907155031732.png" srcset="/img/loading.gif" lazyload alt="image-20220907155031732"></p>
+<p><img src="image-20220907155221730.png" srcset="/img/loading.gif" lazyload alt="image-20220907155221730"></p>
+<h3 id="harbor主要功能"><a href="#harbor主要功能" class="headerlink" title="harbor主要功能"></a>harbor主要功能</h3><p>​		<strong>新建项目</strong></p>
+<p>​		后续镜像可选择上传到哪个项目</p>
+<p><img src="image-20220907155554587.png" srcset="/img/loading.gif" lazyload alt="image-20220907155554587"></p>
+<p>​		<strong>镜像上传和下载</strong></p>
+<p>​		与上文中镜像上传下载方法完全一致。</p>
+<p>​		如果harbor没有配置https，依然会出现上文报错，进行同样配置即可。</p>
+<h3 id="分布式harbor配置"><a href="#分布式harbor配置" class="headerlink" title="分布式harbor配置"></a>分布式harbor配置</h3><p>​		<strong>配置镜像同步</strong></p>
+<p>​		需要确保对方能正常连接。可互相配置同步实习双向复制。</p>
+<p>​		配置完成后可实现镜像仓库的高可用。</p>
+<p><img src="image-20220907160357106.png" srcset="/img/loading.gif" lazyload alt="image-20220907160357106"></p>
+<p><img src="image-20220907160548746.png" srcset="/img/loading.gif" lazyload alt="image-20220907160548746"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/docker/">docker</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/harbor/">harbor</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/10/kubernetes%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">kubernetes基础总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/04/docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/">
+                        <span class="hidden-mobile">docker镜像制作</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

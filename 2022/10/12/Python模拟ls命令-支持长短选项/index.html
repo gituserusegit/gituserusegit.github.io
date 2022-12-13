@@ -1,0 +1,569 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		使用Python编写脚本实现ls命令功能，路径缺省为当前路径，支持-l、-a、-h和–all、–human-readable选项。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python模拟ls命令(支持长短选项)">
+<meta property="og:url" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		使用Python编写脚本实现ls命令功能，路径缺省为当前路径，支持-l、-a、-h和–all、–human-readable选项。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012152439385.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012155632229.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012155648664.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012162434544.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012161332527.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012164234224.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012164637416.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012172057132.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012174101466.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012174124754.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012181502268.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012181524782.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012182243419.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012182137985.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012182211571.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012182320731.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012190323600.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012190452360.png">
+<meta property="og:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012190543605.png">
+<meta property="article:published_time" content="2022-10-12T08:34:47.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.262Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/10/12/Python%E6%A8%A1%E6%8B%9Fls%E5%91%BD%E4%BB%A4-%E6%94%AF%E6%8C%81%E9%95%BF%E7%9F%AD%E9%80%89%E9%A1%B9/image-20221012152439385.png">
+  
+  
+  <title>Python模拟ls命令(支持长短选项) - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Python模拟ls命令(支持长短选项)">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-10-12 08:34" pubdate>
+        October 12, 2022 am
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7.6k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      64 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Python模拟ls命令(支持长短选项)</h1>
+            
+            <div class="markdown-body">
+              <p>​		使用Python编写脚本实现ls命令功能，路径缺省为当前路径，支持-l、-a、-h和–all、–human-readable选项。</p>
+<span id="more"></span>
+
+<h1 id="初步设计思路"><a href="#初步设计思路" class="headerlink" title="初步设计思路"></a>初步设计思路</h1><h3 id="应具有的功能"><a href="#应具有的功能" class="headerlink" title="应具有的功能"></a>应具有的功能</h3><ul>
+<li>​		命令用法应为： ls [-l] [-h] [-a] [path]</li>
+<li>​		最基本的ls显示当前目录文件，-l显示详细信息，-h将文件大小信息转为方便阅读的格式，-a显示隐藏文件，path指定目录</li>
+<li>​		-h有长选项–human-readable	-a有长选项–all</li>
+<li>​		路径参数缺省值为当前目录</li>
+<li>​		各参数位置顺序无影响</li>
+</ul>
+<p>难点是-l选项，需要获取文件各项元数据并按格式排列显示</p>
+<h3 id="使用模块提供必要功能"><a href="#使用模块提供必要功能" class="headerlink" title="使用模块提供必要功能"></a>使用模块提供必要功能</h3><p>​		<strong>argparse模块</strong>：参数分析模块。进行长短选项的参数解析，测试时还可设置传入参数，无需手动传参。</p>
+<p>​		所用方法如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><pre><code class="hljs python">parser = argparse.ArgumentParser() <span class="hljs-comment"># 获得一个参数解析器</span><br>parse_args方法 <span class="hljs-comment">#传参</span><br>add_argument方法 <span class="hljs-comment">#添加位置选项（必须或非必须）</span><br>args = parser.parse_args()  <span class="hljs-comment"># 分析脚本执行时传入参数，参数将成为该对象的属性</span><br>args=  parser.parse_args(<span class="hljs-string">&#x27;-l -a&#x27;</span>.split())	<span class="hljs-comment">#相当于脚本运行时传入参数-l -a，方便测试</span><br>parser.print_help()  <span class="hljs-comment"># 打印帮助</span><br></code></pre></td></tr></table></figure>
+
+<p>​		解析器部分参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">ArgumentParser(prog=None, usage=None, description=None, epilog=None, parents=[], formatter_class=argparse.HelpFormatter, prefix_chars=&#x27;-&#x27;, fromfile_prefix_chars=None, argument_default=None, conflict_handler=&#x27;error&#x27;, add_help=True, allow_abbrev=True)<br>prog #程序的名字，缺省使用 sys.argv[0] 的 basename<br>add_help #自动为解析器增加 -h 和 --help 选项，由于与human-readable短选项冲突，需要设为False<br>description #添加程序功能描述<br></code></pre></td></tr></table></figure>
+
+<p>​		add_argument部分参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">•name or flags - Either a name or a list of option strings, e.g. foo or -f, --foo.<br>•action - The basic type of action to be taken when this argument is encountered at the command line.	#默认为store，保存参数值。store_const保存关键字传参。store_true与是否提供某参数有关，提供为True，否则为False。store_true正好相反<br>•nargs - The number of command-line arguments that should be consumed.	#可写&#x27;?&#x27;、&#x27;*&#x27;和&#x27;+&#x27;<br>•default - The value produced if the argument is absent from the command line.	#很好地与?和*配合<br>•help - A brief description of what the argument does.<br>•metavar - A name for the argument in usage messages.<br>•dest - The name of the attribute to be added to the object returned by parse_args().	#设置属性名<br></code></pre></td></tr></table></figure>
+
+<p>​		<strong>pathlib模块的Path类</strong>：从3.4开始Python提供了pathlib模块，使用Path类进行文件和目录的相关操作更加方便。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">p = Path(&#x27;/etc&#x27;) 	#由字符串构造路径对象<br>iterdir() #将返回一个包含当前目录文件的生成器<br></code></pre></td></tr></table></figure>
+
+<p>​		<strong>stat模块</strong>：将stat()方法取到的元数据mode转化为类型rwx的形式</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Python">stat.filemode(file.stat().st_mode)<br></code></pre></td></tr></table></figure>
+
+<p>​		<strong>datetime模块</strong>：将stat()方法取到的元数据mtime时间戳格式转换为日期</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#从时间戳获取时间对象</span><br>dt = datetime.datetime.fromtimestamp(file.stat().st_mtime)<br><span class="hljs-comment">#时间对象方法，返回某格式的时间字符串</span><br>mtime = dt.strftime(<span class="hljs-string">&#x27;%Y %m %d %H:%M:%S&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="实现ls最基础功能"><a href="#实现ls最基础功能" class="headerlink" title="实现ls最基础功能"></a>实现ls最基础功能</h1><p>​		实现ls [path]功能</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> argparse<br><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path<br><span class="hljs-comment">#创建解析器对象，打开帮助方便观察参数设置是否正确</span><br>lsparser=argparse.ArgumentParser(prog=<span class="hljs-string">&#x27;ls&#x27;</span>,add_help=<span class="hljs-literal">False</span>,description=<span class="hljs-string">&#x27;Show directory contents&#x27;</span>)<br><span class="hljs-comment">#添加名为path的选项，缺省值为&#x27;.&#x27;当前目录</span><br>lsparser.add_argument(<span class="hljs-string">&#x27;path&#x27;</span>,nargs=<span class="hljs-string">&#x27;?&#x27;</span>,default=<span class="hljs-string">&#x27;.&#x27;</span>,<span class="hljs-built_in">help</span>=<span class="hljs-string">&#x27;directory path&#x27;</span>)<br>args=lsparser.parse_args()<br><span class="hljs-comment">#获得包含目录下文件的生成器</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">listdir</span>(<span class="hljs-params">path1</span>):<br>    dirpath = Path(path1)<br>    <span class="hljs-keyword">yield</span> <span class="hljs-keyword">from</span> dirpath.iterdir()<br><br><span class="hljs-comment">#打印目录文件和namespace中的参数信息</span><br><span class="hljs-built_in">print</span>(*listdir(args.path))<br><span class="hljs-built_in">print</span>(args)		<span class="hljs-comment">#测试用</span><br><br><span class="hljs-comment">#打印帮助，测试用</span><br>lsparser.print_help()<br></code></pre></td></tr></table></figure>
+
+<p>​		无任何选项执行效果（-h选项被占用，后续需置false）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">PS E:\Program Files (x86)\pythonProject&gt; python ls.py<br>Namespace(path=<span class="hljs-string">&#x27;.&#x27;</span>)<br><span class="hljs-comment">#当前目录文件</span><br>.ab.txt .abc.txt .idea a ls.py main.py test.py test3.py venv xyz<br><span class="hljs-comment">#打印的帮助信息</span><br>usage: ls [path]<br><br>Show directory contents<br><br>positional arguments:<br>  path  directory path<br></code></pre></td></tr></table></figure>
+
+<p>​		指定目录</p>
+<p><img src="image-20221012152439385.png" srcset="/img/loading.gif" lazyload alt="image-20221012152439385"></p>
+<h1 id="实现-a-选项"><a href="#实现-a-选项" class="headerlink" title="实现-a 选项"></a>实现-a 选项</h1><p>​		从上文运行示例可见，由于是在window是环境，以’.’开头的隐藏文件也被打印了出来。可对函数稍作修改使-a选项实现windows和linux一样选择是否打印隐藏文件。</p>
+<p>​		以上文代码为基础，仅作以下修改</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-comment">#添加-a和--all选项，缺省为false</span><br>lsparser.add_argument(<span class="hljs-string">&#x27;-a&#x27;</span>,<span class="hljs-string">&#x27;--all&#x27;</span>,action=<span class="hljs-string">&#x27;store_true&#x27;</span>,<span class="hljs-built_in">help</span>=<span class="hljs-string">&#x27;show all contents of the directory containing hidden files&#x27;</span>)<br><br><span class="hljs-comment">#修改函数</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">listdir</span>(<span class="hljs-params">path1,<span class="hljs-built_in">all</span>=<span class="hljs-literal">False</span></span>):<br>    dirpath = Path(path1)<br>    <span class="hljs-keyword">for</span> file <span class="hljs-keyword">in</span> dirpath.iterdir():<br>        <span class="hljs-keyword">if</span> file.name.startswith(<span class="hljs-string">&#x27;.&#x27;</span>) <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">all</span>:<br>            <span class="hljs-keyword">continue</span><br>        <span class="hljs-keyword">yield</span> file.name<br><br><span class="hljs-comment">#打印</span><br><span class="hljs-built_in">print</span>(*listdir(args.path,<span class="hljs-built_in">all</span>=args.<span class="hljs-built_in">all</span>))<br></code></pre></td></tr></table></figure>
+
+<p>​		打印帮助变为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs Python">usage: ls [-a] [path]<br><br>Show directory contents<br><br>positional arguments:<br>  path       directory path<br><br>optional arguments:<br>  -a, --<span class="hljs-built_in">all</span>  show <span class="hljs-built_in">all</span> contents of the directory containing hidden files<br></code></pre></td></tr></table></figure>
+
+<p>​		测试选项效果</p>
+<p><img src="image-20221012155632229.png" srcset="/img/loading.gif" lazyload alt="image-20221012155632229"></p>
+<p><img src="image-20221012155648664.png" srcset="/img/loading.gif" lazyload alt="image-20221012155648664"></p>
+<p><img src="image-20221012162434544.png" srcset="/img/loading.gif" lazyload alt="image-20221012162434544"></p>
+<h1 id="实现-l选项"><a href="#实现-l选项" class="headerlink" title="实现-l选项"></a>实现-l选项</h1><p>​		ll效果如下。可见-l选项需要获取文件的元数据有mode、硬链接数、所属者、所属组、大小、日期、文件名	<img src="image-20221012161332527.png" srcset="/img/loading.gif" lazyload alt="image-20221012161332527"></p>
+<h3 id="添加选项"><a href="#添加选项" class="headerlink" title="添加选项"></a>添加选项</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">lsparser.add_argument(<span class="hljs-string">&#x27;-l&#x27;</span>,action=<span class="hljs-string">&#x27;store_true&#x27;</span>,<span class="hljs-built_in">help</span>=<span class="hljs-string">&#x27;use a long listing format&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>​		以下为新的帮助信息</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">usage: ls [-a] [-l] [path]<br><br>Show directory contents<br><br>positional arguments:<br>  path       directory path<br><br>optional arguments:<br>  -a, --<span class="hljs-built_in">all</span>  show <span class="hljs-built_in">all</span> contents of the directory containing hidden files<br>  -l         use a long listing <span class="hljs-built_in">format</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="格式转换"><a href="#格式转换" class="headerlink" title="格式转换"></a>格式转换</h3><p>​		以下为stat（）方法取到的元数据，可见与ll显示格式不一致，需要作转换</p>
+<p><img src="image-20221012164234224.png" srcset="/img/loading.gif" lazyload alt="image-20221012164234224"></p>
+<p>​		<strong>mode转换</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-comment">#将上文生成器函数略作修改，进行测试</span><br><span class="hljs-keyword">yield</span> stat.filemode(printfile.stat().st_mode)<br></code></pre></td></tr></table></figure>
+
+<p>​		测试效果如下</p>
+<p><img src="image-20221012164637416.png" srcset="/img/loading.gif" lazyload alt="image-20221012164637416"></p>
+<p>​		<strong>时间转换</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#将上文生成器函数略作修改，进行测试</span><br><span class="hljs-keyword">yield</span> datetime.datetime.fromtimestamp(printfile.stat().st_mtime).strftime(<span class="hljs-string">&#x27;%m %d %H:%M&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>​		测试效果如下</p>
+<p><img src="image-20221012172057132.png" srcset="/img/loading.gif" lazyload alt="image-20221012172057132"></p>
+<h3 id="修改函数"><a href="#修改函数" class="headerlink" title="修改函数"></a>修改函数</h3><p>​		以上文函数和测试代码为基础进行修改</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">listdir</span>(<span class="hljs-params">path1,<span class="hljs-built_in">all</span>=<span class="hljs-literal">False</span>,longlist=<span class="hljs-literal">False</span></span>):<br>    dirpath = Path(path1)<br>    <span class="hljs-keyword">for</span> printfile <span class="hljs-keyword">in</span> dirpath.iterdir():<br>        <span class="hljs-keyword">if</span> printfile.name.startswith(<span class="hljs-string">&#x27;.&#x27;</span>) <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">all</span>:<br>            <span class="hljs-keyword">continue</span><br>        stats = printfile.stat()<br>        mode = stat.filemode(stats.st_mode)<br>        mtime = datetime.datetime.fromtimestamp(stats.st_mtime).strftime(<span class="hljs-string">&#x27;%m %d %H:%M&#x27;</span>)<br>        <span class="hljs-keyword">yield</span> printfile.name <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> longlist <span class="hljs-keyword">else</span> (mode, stats.st_nlink, stats.st_uid, stats.st_gid,stats.st_size, mtime, printfile.name)<br>        <br><br><span class="hljs-built_in">print</span>(*listdir(args.path,<span class="hljs-built_in">all</span>=args.<span class="hljs-built_in">all</span>,longlist=args.l),sep=<span class="hljs-string">&#x27;\n&#x27;</span>) <span class="hljs-keyword">if</span> args.l <span class="hljs-keyword">else</span> <span class="hljs-built_in">print</span>(*listdir(args.path,<span class="hljs-built_in">all</span>=args.<span class="hljs-built_in">all</span>,longlist=args.l),sep=<span class="hljs-string">&#x27;\t&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>​		测试效果</p>
+<p><img src="image-20221012174101466.png" srcset="/img/loading.gif" lazyload alt="image-20221012174101466"></p>
+<p><img src="image-20221012174124754.png" srcset="/img/loading.gif" lazyload alt="image-20221012174124754"></p>
+<h1 id="实现-h选项"><a href="#实现-h选项" class="headerlink" title="实现-h选项"></a>实现-h选项</h1><p>​		默认显示单位为字节，转换为K、M、G等单位。</p>
+<h3 id="添加选项-1"><a href="#添加选项-1" class="headerlink" title="添加选项"></a>添加选项</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">lsparser.add_argument(<span class="hljs-string">&#x27;-h&#x27;</span>,<span class="hljs-string">&#x27;--human-readable&#x27;</span>,action=<span class="hljs-string">&#x27;store_true&#x27;</span>,<span class="hljs-built_in">help</span>=<span class="hljs-string">&#x27;with -l and -s, print sizes like 1K 234M 2G etc&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>​		新的帮助信息</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">usage: ls [-<span class="hljs-keyword">a</span>] [-l] [-h] [path]<br><br>Show <span class="hljs-built_in">directory</span> contents<br><br>positional arguments:<br>  path                  <span class="hljs-built_in">directory</span> path<br><br>optional arguments:<br>  -<span class="hljs-keyword">a</span>, <span class="hljs-comment">--all             show all contents of the directory containing hidden</span><br> 						<span class="hljs-built_in">files</span><br>  -l                    use <span class="hljs-keyword">a</span> <span class="hljs-keyword">long</span> listing <span class="hljs-built_in">format</span><br>  -h, <span class="hljs-comment">--human-readable  with -l and -s, print sizes like 1K 234M 2G etc</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="函数修改"><a href="#函数修改" class="headerlink" title="函数修改"></a>函数修改</h3><p>​		添加转换字节单位函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">humanreadable</span>(<span class="hljs-params">size</span>):<br>    k = <span class="hljs-number">0</span><br>    units = <span class="hljs-string">&quot; KMG&quot;</span><br>    <span class="hljs-keyword">while</span> size//<span class="hljs-number">1000</span>:<br>        size = size//<span class="hljs-number">1000</span><br>        k += <span class="hljs-number">1</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&#123;&#125;&#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(size,units[k])<br></code></pre></td></tr></table></figure>
+
+<p>​		listdir函数仅作以下修改</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#添加参数</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">listdir</span>(<span class="hljs-params">path1,<span class="hljs-built_in">all</span>=<span class="hljs-literal">False</span>,longlist=<span class="hljs-literal">False</span>,hread=<span class="hljs-literal">False</span></span>):<br>    dirpath = Path(path1)<br>    <span class="hljs-keyword">for</span> printfile <span class="hljs-keyword">in</span> dirpath.iterdir():<br>        <span class="hljs-keyword">if</span> printfile.name.startswith(<span class="hljs-string">&#x27;.&#x27;</span>) <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">all</span>:<br>            <span class="hljs-keyword">continue</span><br>        stats = printfile.stat()<br>        mode = stat.filemode(stats.st_mode)<br>        mtime = datetime.datetime.fromtimestamp(stats.st_mtime).strftime(<span class="hljs-string">&#x27;%m %d %H:%M&#x27;</span>)<br>        <span class="hljs-comment">#根据参数返回不同的size值</span><br>        size = humanreadable(stats.st_size) <span class="hljs-keyword">if</span> hread <span class="hljs-keyword">else</span> stats.st_size<br>        <span class="hljs-keyword">yield</span> printfile.name <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> longlist <span class="hljs-keyword">else</span> (mode, stats.st_nlink, stats.st_uid, stats.st_gid,size, mtime, printfile.name)<br></code></pre></td></tr></table></figure>
+
+<p>​			打印及传参</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(*listdir(args.path,<span class="hljs-built_in">all</span>=args.<span class="hljs-built_in">all</span>,longlist=args.l,hread=args.human_readable),sep=<span class="hljs-string">&#x27;\n&#x27;</span>) <span class="hljs-keyword">if</span> args.l <span class="hljs-keyword">else</span> <span class="hljs-built_in">print</span>(*listdir(args.path,<span class="hljs-built_in">all</span>=args.<span class="hljs-built_in">all</span>,longlist=args.l,hread=args.human_readable),sep=<span class="hljs-string">&#x27;\t&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>​		测试效果如下</p>
+<p><img src="image-20221012181502268.png" srcset="/img/loading.gif" lazyload alt="image-20221012181502268"></p>
+<p><img src="image-20221012181524782.png" srcset="/img/loading.gif" lazyload alt="image-20221012181524782"></p>
+<h1 id="最终代码附录"><a href="#最终代码附录" class="headerlink" title="最终代码附录"></a>最终代码附录</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> argparse<br><span class="hljs-keyword">import</span> datetime<br><span class="hljs-keyword">import</span> stat<br><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path<br><br>lsparser=argparse.ArgumentParser(prog=<span class="hljs-string">&#x27;ls&#x27;</span>,add_help=<span class="hljs-literal">False</span>,description=<span class="hljs-string">&#x27;Show directory contents&#x27;</span>)<br>lsparser.add_argument(<span class="hljs-string">&#x27;path&#x27;</span>,nargs=<span class="hljs-string">&#x27;?&#x27;</span>,default=<span class="hljs-string">&#x27;.&#x27;</span>,<span class="hljs-built_in">help</span>=<span class="hljs-string">&#x27;directory path&#x27;</span>)<br>lsparser.add_argument(<span class="hljs-string">&#x27;-a&#x27;</span>,<span class="hljs-string">&#x27;--all&#x27;</span>,action=<span class="hljs-string">&#x27;store_true&#x27;</span>,<span class="hljs-built_in">help</span>=<span class="hljs-string">&#x27;show all contents of the directory containing hidden files&#x27;</span>)<br>lsparser.add_argument(<span class="hljs-string">&#x27;-l&#x27;</span>,action=<span class="hljs-string">&#x27;store_true&#x27;</span>,<span class="hljs-built_in">help</span>=<span class="hljs-string">&#x27;use a long listing format&#x27;</span>)<br>lsparser.add_argument(<span class="hljs-string">&#x27;-h&#x27;</span>,<span class="hljs-string">&#x27;--human-readable&#x27;</span>,action=<span class="hljs-string">&#x27;store_true&#x27;</span>,<span class="hljs-built_in">help</span>=<span class="hljs-string">&#x27;with -l and -s, print sizes like 1K 234M 2G etc&#x27;</span>)<br>args=lsparser.parse_args()<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">humanreadable</span>(<span class="hljs-params">size</span>):<br>    k = <span class="hljs-number">0</span><br>    units = <span class="hljs-string">&quot; KMG&quot;</span><br>    <span class="hljs-keyword">while</span> size//<span class="hljs-number">1000</span>:<br>        size = size//<span class="hljs-number">1000</span><br>        k += <span class="hljs-number">1</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;&#123;&#125;&#123;&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(size,units[k])<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">listdir</span>(<span class="hljs-params">path1,<span class="hljs-built_in">all</span>=<span class="hljs-literal">False</span>,longlist=<span class="hljs-literal">False</span>,hread=<span class="hljs-literal">False</span></span>):<br>    dirpath = Path(path1)<br>    <span class="hljs-keyword">for</span> printfile <span class="hljs-keyword">in</span> dirpath.iterdir():<br>        <span class="hljs-keyword">if</span> printfile.name.startswith(<span class="hljs-string">&#x27;.&#x27;</span>) <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">all</span>:<br>            <span class="hljs-keyword">continue</span><br>        stats = printfile.stat()<br>        mode = stat.filemode(stats.st_mode)<br>        mtime = datetime.datetime.fromtimestamp(stats.st_mtime).strftime(<span class="hljs-string">&#x27;%m %d %H:%M&#x27;</span>)<br>        size = humanreadable(stats.st_size) <span class="hljs-keyword">if</span> hread <span class="hljs-keyword">else</span> stats.st_size<br>        <span class="hljs-keyword">yield</span> printfile.name <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> longlist <span class="hljs-keyword">else</span> (mode, stats.st_nlink, stats.st_uid, stats.st_gid,size, mtime, printfile.name)<br><br><br><span class="hljs-built_in">print</span>(*listdir(args.path,<span class="hljs-built_in">all</span>=args.<span class="hljs-built_in">all</span>,longlist=args.l,hread=args.human_readable),sep=<span class="hljs-string">&#x27;\n&#x27;</span>) <span class="hljs-keyword">if</span> args.l <span class="hljs-keyword">else</span> <span class="hljs-built_in">print</span>(*listdir(args.path,<span class="hljs-built_in">all</span>=args.<span class="hljs-built_in">all</span>,longlist=args.l,hread=args.human_readable),sep=<span class="hljs-string">&#x27;\t&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p><img src="image-20221012182243419.png" srcset="/img/loading.gif" lazyload alt="image-20221012182243419"></p>
+<p><img src="image-20221012182137985.png" srcset="/img/loading.gif" lazyload alt="image-20221012182137985"></p>
+<p><img src="image-20221012182211571.png" srcset="/img/loading.gif" lazyload alt="image-20221012182211571"></p>
+<p><img src="image-20221012182320731.png" srcset="/img/loading.gif" lazyload alt="image-20221012182320731"></p>
+<h3 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h3><p><img src="image-20221012190323600.png" srcset="/img/loading.gif" lazyload alt="image-20221012190323600"></p>
+<p><img src="image-20221012190452360.png" srcset="/img/loading.gif" lazyload alt="image-20221012190452360"></p>
+<p><img src="image-20221012190543605.png" srcset="/img/loading.gif" lazyload alt="image-20221012190543605"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Python/">Python</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Python/">Python</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/12/11/%E5%88%9D%E8%AF%86%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">初识网络编程</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/28/%E5%AE%9E%E7%94%A8shell%E5%B0%8F%E8%84%9A%E6%9C%AC/">
+                        <span class="hidden-mobile">实用shell小脚本</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

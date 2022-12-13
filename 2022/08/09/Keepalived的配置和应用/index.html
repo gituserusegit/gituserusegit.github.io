@@ -1,0 +1,514 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文总结了Keepalived的配置方法，提供了使用案例。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Keepalived的配置和应用">
+<meta property="og:url" content="http://example.com/2022/08/09/Keepalived%E7%9A%84%E9%85%8D%E7%BD%AE%E5%92%8C%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文总结了Keepalived的配置方法，提供了使用案例。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-08-09T15:12:26.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.216Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Keepalived">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>Keepalived的配置和应用 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Keepalived的配置和应用">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-09 15:12" pubdate>
+        August 9, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      12k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      102 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Keepalived的配置和应用</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文总结了Keepalived的配置方法，提供了使用案例。</p>
+<span id="more"></span>
+
+
+
+<h1 id="安装文件说明"><a href="#安装文件说明" class="headerlink" title="安装文件说明"></a>安装文件说明</h1><p>​		yum和apt安装软件包：keepalived</p>
+<p>​		编译安装需要前置：gcc 	  openssl-devel 	libnl3-devel 	net-snmp-devel</p>
+<p>​		源码包官网： <a target="_blank" rel="noopener" href="https://keepalived.org/software">https://keepalived.org/software</a></p>
+<p>​		编译安装后&#x2F;etc&#x2F;下缺失配置文件，需要从 &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf手动复制，否则无法启动</p>
+<ul>
+<li><p>软件包名：keepalived </p>
+</li>
+<li><p>主程序文件：&#x2F;usr&#x2F;sbin&#x2F;keepalived</p>
+</li>
+<li><p>主配置文件：&#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf</p>
+</li>
+<li><p>配置文件示例：&#x2F;usr&#x2F;share&#x2F;doc&#x2F;keepalived&#x2F;</p>
+</li>
+<li><p>Unit File：&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;keepalived.service</p>
+</li>
+<li><p>Unit File的环境配置文件：</p>
+<p>&#x2F;etc&#x2F;sysconfig&#x2F;keepalived CentOS</p>
+<p>&#x2F;etc&#x2F;default&#x2F;keepalived Ubuntu</p>
+</li>
+</ul>
+<h1 id="Keepalived配置和使用"><a href="#Keepalived配置和使用" class="headerlink" title="Keepalived配置和使用"></a>Keepalived配置和使用</h1><p>​		配置文件组成</p>
+<p><strong>GLOBAL CONFIGURATION</strong></p>
+<p>​		Global definitions：定义邮件配置，route_id，vrrp配置，多播地址等</p>
+<p><strong>VRRP CONFIGURATION</strong></p>
+<p>​		VRRP instance(s)：定义每个vrrp虚拟路由器</p>
+<p><strong>LVS CONFIGURATION</strong></p>
+<p>​		Virtual server group(s)</p>
+<p>​		Virtual server(s)：LVS集群的VS和RS</p>
+<p>可以使用man  keepalived.conf查看配置文件帮助</p>
+<h3 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><pre><code class="hljs shell">global_defs &#123;<br> notification_email &#123;<br> root@localhost #keepalived 发生故障切换时邮件发送的目标邮箱，可以按行区分写多个<br> 9527@qq.com <br> &#125;<br> notification_email_from keepalived@localhost  #发邮件的地址<br> smtp_server 127.0.0.1     #邮件服务器地址<br> smtp_connect_timeout 30   #邮件服务器连接timeout<br> router_id ka1.example.com #每个keepalived主机唯一标识，建议使用当前主机名，但多节点重名不影响<br> vrrp_skip_check_adv_addr  #对所有通告报文都检查，会比较消耗性能，启用此配置后，如果收到的通告报文和上一个报文是同一个路由器，则跳过检查，默认值为全检查<br> vrrp_strict #严格遵守VRRP协议,启用此项后以下状况将无法启动服务:1.无VIP地址 2.配置了单播邻居 3.在VRRP版本2中有IPv6地址，开启动此项并且没有配置vrrp_iptables时会自动开启iptables防火墙规则，默认导致VIP无法访问,建议不加此项配置<br> vrrp_garp_interval 0 #gratuitous ARP messages 报文发送延迟，0表示不延迟<br> vrrp_gna_interval 0  #unsolicited NA messages （不请自来）消息发送延迟<br> vrrp_mcast_group4 224.0.0.18 #指定组播IP地址范围：224.0.0.0到239.255.255.255,默认值：224.0.0.18<br></code></pre></td></tr></table></figure>
+
+<h3 id="虚拟路由配置"><a href="#虚拟路由配置" class="headerlink" title="虚拟路由配置"></a>虚拟路由配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs shell">vrrp_instance &lt;STRING&gt; &#123; #&lt;String&gt;为vrrp的实例名,一般为业务名称<br> 配置参数<br> ......<br> &#125;<br><span class="hljs-meta prompt_"> </span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">配置参数：</span><br>state MASTER|BACKUP#当前节点在此虚拟路由器上的初始状态，状态为MASTER或者BACKUP<br>interface IFACE_NAME #绑定为当前虚拟路由器使用的物理接口，如：eth0,bond0,br0,可以和VIP不在一个网卡<br>virtual_router_id VRID #每个虚拟路由器惟一标识，范围：0-255，每个虚拟路由器此值必须唯一，否则服务无法启动，同属一个虚拟路由器的多个keepalived节点必须相同,务必要确认在同一网络中此值必须唯一<br>priority 100 #当前物理节点在此虚拟路由器的优先级，范围：1-254，值越大优先级越高,每个Keepalived主机节点此值不同<br>advert_int 1 #vrrp通告的时间间隔，默认1s<br>authentication &#123; #认证机制<br> auth_type AH|PASS   #AH为IPSEC认证(不推荐),PASS为简单密码(建议使用)<br> auth_pass &lt;PASSWORD&gt; #预共享密钥，仅前8位有效，同一个虚拟路由器的多个keepalived节点必须一样<br>&#125;<br>virtual_ipaddress &#123; #虚拟IP,生产环境可能指定上百个IP地址<br> &lt;IPADDR&gt;/&lt;MASK&gt; brd &lt;IPADDR&gt; dev &lt;STRING&gt; scope &lt;SCOPE&gt; label &lt;LABEL&gt;<br> 192.168.200.100 #指定VIP，不指定网卡，默认为eth0,注意：不指定/prefix,默认为/32<br> 192.168.200.101/24 dev eth1   #指定VIP的网卡，建议和interface指令指定的岗卡不在一个网卡<br> 192.168.200.102/24 dev eth2 label eth2:1 #指定VIP的网卡label <br>&#125;<br>track_interface &#123; #配置监控网络接口，一旦出现故障，则转为FAULT状态实现地址转移<br> eth0<br> eth1<br> …<br>&#125;<br><br>include /etc/keepalived/conf.d/*.conf   #将VRRP相关配置放在子配置文件中<br></code></pre></td></tr></table></figure>
+
+<h3 id="单主架构"><a href="#单主架构" class="headerlink" title="单主架构"></a>单主架构</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">master配置</span><br>global_defs &#123;<br> notification_email &#123;<br> root@localhost #keepalived 发生故障时邮件发送给本机的root<br> &#125;<br> notification_email_from keepalived@localhost<br> smtp_server 127.0.0.1<br> smtp_connect_timeout 30<br> router_id ka1.example.com		#本机Keepalived服务器的名称，同一集群中方便区分<br> vrrp_skip_check_adv_addr #所有报文都检查比较消耗性能，此配置为如果收到的报文和上一个报文是同一个路由器则跳过检查报文中的源地址<br> vrrp_garp_interval 0 #ARP报文发送延迟<br> vrrp_gna_interval 0 #消息发送延迟<br> vrrp_mcast_group4 224.0.100.100 #默认组播IP地址，可指定组播范围：224.0.0.0到239.255.255.255<br> &#125;<br>vrrp_instance VI_1 &#123;<br> state MASTER           #在另一个结点上为BACKUP<br> interface eth0<br> virtual_router_id 66 #每个虚拟路由器必须唯一，同属一个虚拟路由器的多个keepalived节点必须相同<br> priority 100           #需要比备用的高<br> advert_int 1<br> authentication &#123;<br>   auth_type PASS       #预共享密钥认证<br>   auth_pass 12345678<br> &#125;<br> virtual_ipaddress &#123;<br>    10.0.0.10 dev eth0 label eth0:0		#虚拟ip设置，带标签<br> &#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">backup配置，可直接复制上方配置作少量修改</span><br>global_defs &#123;<br> notification_email &#123;<br> root@localhost<br> &#125;<br> notification_email_from keepalived@localhost<br> smtp_server 127.0.0.1<br> smtp_connect_timeout 30<br> router_id ka2.example.com         #需要修改，方便区分<br> vrrp_skip_check_adv_addr <br><span class="hljs-meta prompt_">  #</span><span class="language-bash">vrrp_strict</span> <br> vrrp_garp_interval 0<br> vrrp_gna_interval 0<br> vrrp_mcast_group4 224.0.100.100<br>&#125;<br>vrrp_instance VI_1 &#123;<br> state BACKUP 		#修改此行，标注为备用节点<br> interface eth0<br> virtual_router_id 66 <br> priority 80 		#修改此行，需要比主节点低<br> advert_int 1<br> authentication &#123;<br>   auth_type PASS<br>   auth_pass 12345678<br> &#125;<br> virtual_ipaddress &#123;<br>    10.0.0.10 dev eth0 label eth0:0<br> &#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">默认为抢占模式preempt，即当高优先级的主机恢复在线后，会抢占低优先级的主机的master角色，造成网络抖动，建议设置为非抢占模式 nopreempt ，即高优先级主机恢复后，并不会抢占低优先级主机的master角。</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">要关闭 VIP抢占，必须将各 keepalived 服务器state配置为BACKUP</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="多主架构"><a href="#多主架构" class="headerlink" title="多主架构"></a>多主架构</h3><p>​		master&#x2F;slave的单主架构，同一时间只有一个Keepalived对外提供服务，此主机繁忙，而另一台主机却</p>
+<p>很空闲，利用率低下，可以使用master&#x2F;master的双主架构，解决此问题。即将两个或以上VIP分别运行在不同的keepalived服务器，以实现服务器并行提供web访问的目的，提高服务器资源利用率。</p>
+<p>​		以下是双主架构，一台主机有2个vip，2主机互为备用服务器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">依然复制上方配置，仅需少量修改</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">以下也可分别写入子配置文件中</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">主机1</span><br>global_defs &#123;<br> notification_email &#123;<br> root@wangxiaochun.com<br> &#125;<br> notification_email_from keepalived@localhost<br> smtp_server 127.0.0.1<br> smtp_connect_timeout 30<br> router_id ka1.magedu.org<br> vrrp_mcast_group4 224.0.100.100<br>&#125;<br>vrrp_instance VI_1 &#123;<br> state MASTER   #另一个主机上为BACKUP<br> interface eth0<br> virtual_router_id 66 	#集群1<br> priority 100   <br> advert_int 1<br> authentication &#123;<br> auth_type PASS<br> auth_pass 12345678<br> &#125;<br> virtual_ipaddress &#123;<br> 10.0.0.10/24 dev eth0 label eth0:1 		#指定VIP1<br> &#125;<br>&#125;<br><span class="hljs-meta prompt_"> #</span><span class="language-bash">仿照集群1编写</span><br>vrrp_instance VI_2 &#123;           <br> state BACKUP   	#在另一个主机上为MASTER<br> interface eth0<br> virtual_router_id 88 		#集群2<br> priority 80     	#注意优先值<br> advert_int 1<br> authentication &#123;<br> auth_type PASS<br> auth_pass 12345678<br> &#125;<br> virtual_ipaddress &#123;<br> 10.0.0.20/24 dev eth0 label eth0:1  #指定VIP2<br> &#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">主机2同上，仅有以下行不同</span><br>router_id ka2.magedu.org	#方便区分主机<br>vrrp_instance VI_1 &#123;<br>		...<br>	state BACKUP	#在集群1中备用<br>	priority 80<br>		...<br>&#125;<br>vrrp_instance VI_1 &#123;<br>		...<br>	state MASTER	#集群2中工作<br>	priority 100<br>		...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="实现服务器高可用"><a href="#实现服务器高可用" class="headerlink" title="实现服务器高可用"></a>实现服务器高可用</h1><h3 id="虚拟服务器配置"><a href="#虚拟服务器配置" class="headerlink" title="虚拟服务器配置"></a>虚拟服务器配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">实际使用在上文的配置块后加入以下配置</span><br>virtual_server IP port &#123;<br>   ...<br> real_server &#123;<br> ...<br> &#125;<br> real_server &#123;<br> ...<br> &#125;<br> …<br>&#125;<br><br>virtual_server IP port     #定义虚拟主机IP地址及其端口<br>virtual_server fwmark int #ipvs的防火墙打标，实现基于防火墙的负载均衡集群<br>virtual_server group string #使用虚拟服务器组<br><br>virtual_server IP port &#123; #VIP和PORT<br> 	delay_loop &lt;INT&gt; #检查后端服务器的时间间隔<br> 	lb_algo rr|wrr|lc|wlc|lblc|sh|dh #定义调度算法<br> 	lb_kind NAT|DR|TUN #集群的类型,注意要大写<br> 	persistence_timeout &lt;INT&gt; #持久连接时长<br> 	protocol TCP|UDP|SCTP #指定服务协议,一般为TCP<br> 	sorry_server &lt;IPADDR&gt; &lt;PORT&gt; #所有RS故障时，备用服务器地址<br> <br>	 real_server &lt;IPADDR&gt; &lt;PORT&gt; &#123;          #RS的IP和PORT<br>	 		weight &lt;INT&gt;   #RS权重<br>	 		notify_up &lt;STRING&gt;|&lt;QUOTED-STRING&gt;  #RS上线通知脚本，需要自己编写，一般为邮件通知<br>			notify_down &lt;STRING&gt;|&lt;QUOTED-STRING&gt; #RS下线通知脚本<br> 			HTTP_GET|SSL_GET|TCP_CHECK|SMTP_CHECK|MISC_CHECK &#123; ... &#125; #定义当前主机健康状态检测方法<br> 	 &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="应用层监测"><a href="#应用层监测" class="headerlink" title="应用层监测"></a>应用层监测</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">在上文real_server配置块中</span><br>HTTP_GET|SSL_GET &#123;<br> url &#123;<br>   path &lt;URL_PATH&gt; #定义要监控的URL<br>   status_code &lt;INT&gt; #判断上述检测机制为健康状态的响应码，一般为 200<br> &#125;<br> connect_timeout &lt;INTEGER&gt; #客户端请求的超时时长, 相当于haproxy的timeout server<br> nb_get_retry &lt;INT&gt; #重试次数<br> delay_before_retry &lt;INT&gt; #重试之前的延迟时长<br> connect_ip &lt;IP ADDRESS&gt; #向当前RS哪个IP地址发起健康状态检测请求<br> connect_port &lt;PORT&gt; #向当前RS的哪个PORT发起健康状态检测请求<br> bindto &lt;IP ADDRESS&gt; #向当前RS发出健康状态检测请求时使用的源地址<br> bind_port &lt;PORT&gt; #向当前RS发出健康状态检测请求时使用的源端口<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="传输层TCP监测"><a href="#传输层TCP监测" class="headerlink" title="传输层TCP监测"></a>传输层TCP监测</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">TCP_CHECK &#123;<br>     connect_ip &lt;IP ADDRESS&gt; #向当前RS的哪个IP地址发起健康状态检测请求<br>     connect_port &lt;PORT&gt; #向当前RS的哪个PORT发起健康状态检测请求<br>     bindto &lt;IP ADDRESS&gt; #发出健康状态检测请求时使用的源地址<br>     bind_port &lt;PORT&gt; #发出健康状态检测请求时使用的源端口<br>     connect_timeout &lt;INTEGER&gt; #客户端请求的超时时长, 等于haproxy的timeout server   <br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="LVS高可用"><a href="#LVS高可用" class="headerlink" title="LVS高可用"></a>LVS高可用</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">LVS环境准备、配置过程省略</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">准备两台RS网页内容 10.0.0.7为rs1.test.com		10.0.0.17为rs1.test.com     两台Keepalived主机上sorry server页面分别为Sorry Server on ka1    Sorry Server on ka2</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">可沿用上文部分配置</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">节点1</span><br>global_defs &#123;<br> notification_email &#123;<br> 	root@localhost<br> &#125;<br> notification_email_from keepalived@localhost<br> smtp_server 127.0.0.1<br> smtp_connect_timeout 30<br> router_id ka1.magedu.org<br> vrrp_mcast_group4 224.0.100.100<br> &#125;<br>vrrp_instance VI_1 &#123;<br> state MASTER<br> interface eth0<br> virtual_router_id 66<br> priority 100<br> advert_int 1<br> authentication &#123;<br> 	auth_type PASS<br> 	auth_pass 123456<br> &#125;<br> virtual_ipaddress &#123;<br> 	10.0.0.10/24 dev eth0 label eth0:1<br> &#125;<br> &#125;<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">##################以上与之前的相同#########################################################</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">触发通知脚本，脚本为根据后面参数发不同的邮件</span><br>notify_master &quot;/etc/keepalived/notify.sh master&quot;<br>notify_backup &quot;/etc/keepalived/notify.sh backup&quot;<br>notify_fault &quot;/etc/keepalived/notify.sh fault&quot;<br><br>virtual_server 10.0.0.10 80 &#123;<br> delay_loop 3<br> lb_algo rr<br> lb_kind DR<br> protocol TCP<br> sorry_server 127.0.0.1 80		#本机作为sorry server<br> real_server 10.0.0.7 80 &#123;<br>	 weight 1<br> 	 HTTP_GET &#123;               #应用层检测<br> 	 url &#123;<br> 		path /<br>	 	status_code 200		#设定认为健康的返回状态码为200<br> 		&#125;<br>	 connect_timeout 1		#客户端请求超时时长1秒<br>	 nb_get_retry 3			#最多重试3次<br> 	 delay_before_retry 1	#重试前的延迟<br>	 &#125;<br> &#125;<br> real_server 10.0.0.17 80 &#123;<br> weight 1<br>       TCP_CHECK &#123;              #另一台主机使用TCP检测<br>       		connect_timeout 5<br>       		nb_get_retry 3<br>       		delay_before_retry 3<br>            connect_port 80		#向80端口发起健康状态检测请求<br> 		    &#125;<br> &#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">节点2可直接复制节点1配置，仅需修改以下3行</span><br>global_defs &#123;<br>		...<br>		router_id ka2.magedu.org<br>		...<br>&#125;<br>vrrp_instance VI_1 &#123;<br>		...<br>		state BACKUP <br> 		...<br>		priority 80 <br>		...<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">测试</span><br>[root@centos8 ~]#curl 10.0.0.10<br>rs1.test.com<br>[root@centos8 ~]#curl 10.0.0.10<br>rs2.test.com<br><span class="hljs-meta prompt_">#</span><span class="language-bash">自动生成IPVS规则</span><br>[root@ka1 ~]#ipvsadm -Ln<br>IP Virtual Server version 1.2.1 (size=4096)<br>Prot LocalAddress:Port Scheduler Flags<br><span class="hljs-meta prompt_">  -&gt; </span><span class="language-bash">RemoteAddress:Port           Forward Weight ActiveConn InActConn</span><br>TCP  10.0.0.10:80 rr<br><span class="hljs-meta prompt_">  -&gt; </span><span class="language-bash">10.0.0.7:80                 Route   1      0          0</span>         <br><span class="hljs-meta prompt_">  -&gt; </span><span class="language-bash">10.0.0.17:80                 Route   1      0          0</span>  <br><span class="hljs-meta prompt_">  </span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">第一台RS1故障，检测到故障后即使采用rr算法也不会调度到RS1上</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">实际原理是修改了IPVS规则，删除了RS1</span><br>[root@rs1 ~]#systemctl stop httpd<br>[root@centos8 ~]#curl 10.0.0.10<br>rs2.test.com<br>[root@centos8 ~]#curl 10.0.0.10<br>rs2.test.com<br>[root@rs2 ~]#systemctl stop httpd<br>[root@centos8 ~]#curl 10.0.0.10<br>Sorry Server on ka1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">ka1故障，ka2自动获得VIP</span><br>[root@ka1 ~]#killall keepalived<br>[root@ka2 ~]#hostname -I<br>10.0.0.18 10.0.0.10<br>[root@centos8 ~]#curl 10.0.0.10<br>Sorry Server on ka2<br></code></pre></td></tr></table></figure>
+
+<h3 id="实现其它应用的高可用"><a href="#实现其它应用的高可用" class="headerlink" title="实现其它应用的高可用"></a>实现其它应用的高可用</h3><p>​		想要配合其它应用实现高可用，需要使用vrrp_script：自定义资源监控脚本。注意脚本定义一定要放在调用部分之前。</p>
+<p>​		定义</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">vrrp_script &lt;SCRIPT_NAME&gt; &#123;<br>	 script &lt;STRING&gt;|&lt;QUOTED-STRING&gt; #shell命令或脚本路径(注意执行权限)<br>     interval &lt;INTEGER&gt; #间隔时间，单位为秒，默认1秒<br>     timeout &lt;INTEGER&gt; #超时时间<br>     weight &lt;INTEGER:-254..254&gt; #默认为0,如果设置此值为负数，当上面脚本返回值为非0时，会将此值与本节点权重相加可以降低本节点权重，即表示fall. 如果是正数，当脚本返回值为0，会将此值与本节点权重相加可以提高本节点权重，即表示 rise.通常使用负值<br>     fall &lt;INTEGER&gt;       #执行脚本连续几次都失败,则转换为失败，建议设为2次以上<br>     rise &lt;INTEGER&gt;       #执行脚本连续几次都成功，把服务器从失败标记为成功<br>     user USERNAME [GROUPNAME] #执行监测脚本的用户或组      <br>     init_fail         #设置默认标记为失败状态，监测成功之后再转换为成功状态<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​		调用</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xml">vrrp_instance VI_1 &#123;<br> …<br> track_script &#123;<br> 	<span class="hljs-tag">&lt;<span class="hljs-name">SCRIPT_NAME</span>&gt;</span><br> 	<span class="hljs-tag">&lt;<span class="hljs-name">SCRIPT_NAME2</span>&gt;</span><br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例：实现Nginx高可用"><a href="#案例：实现Nginx高可用" class="headerlink" title="案例：实现Nginx高可用"></a>案例：实现Nginx高可用</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">两台Nginx配置如下</span><br>http &#123;<br> 	upstream websrvs &#123;<br> 		server 10.0.0.7:80 weight=1;<br> 		server 10.0.0.17:80 weight=1;<br> 		&#125;<br> 	server &#123;<br> 		listen 80;<br> 		location / &#123;<br> 			proxy_pass http://websrvs/;<br> 		    &#125;<br> 		&#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">节点1Keepalived配置</span><br>global_defs &#123;<br> notification_email &#123;<br> 	root@localhost<br> 	&#125;<br> notification_email_from kaadmin@localhost<br> smtp_server 127.0.0.1<br> smtp_connect_timeout 30<br> router_id ka1.magedu.org <br> vrrp_mcast_group4 224.0.100.100<br>&#125;<br>vrrp_script check_nginx &#123;<br>   script &quot;/usr/bin/killall -0 nginx&quot;   #发送检查信号<br>   interval 1<br>   weight -30	#故障则本节点优先值-30<br>   fall 3		#3次返回非0值认为故障		<br>   rise 5		#连续5次检测为健康则认为修复<br>   timeout 2 <br>   &#125;<br>vrrp_instance VI_1 &#123;<br> state MASTER <br> interface eth0<br> virtual_router_id 66<br> priority 100 <br> advert_int 1<br> authentication &#123;<br> 	auth_type PASS<br> 	auth_pass 123456<br> &#125;<br> virtual_ipaddress &#123;<br> 	10.0.0.10/24 dev eth0 label eth0:1<br> &#125;<br> track_interface &#123;<br> 	eth0<br> &#125;<br> notify_master &quot;/etc/keepalived/notify.sh master&quot;<br> notify_backup &quot;/etc/keepalived/notify.sh backup&quot;<br> notify_fault &quot;/etc/keepalived/notify.sh fault&quot;<br> track_script &#123;		#调用脚本<br>	 check_nginx<br> &#125;<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">节点2可直接复制节点1配置，依然只修改上一个案例3行</span><br>router_id ka2.magedu.org<br>state BACKUP<br>priority 80<br></code></pre></td></tr></table></figure>
+
+<h3 id="案例：Mysql高可用"><a href="#案例：Mysql高可用" class="headerlink" title="案例：Mysql高可用"></a>案例：Mysql高可用</h3><p>​		Mysql采用多主架构，配合Keepalived实现高可用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">与上个案例类似，更换脚本即可</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">Mysql多主架构搭建过程参考往期文章</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">健康性检查脚本check_mysql.sh内容</span><br>mysqladmin -uroot -p123456  ping &amp;&gt; /dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">节点1Keepalived配置</span><br>global_defs &#123;<br> notification_email &#123;<br> root@localhost<br> &#125;<br> notification_email_from kaadmin@localhost<br> smtp_server 127.0.0.1<br> smtp_connect_timeout 30<br> router_id ka1.magedu.org <br> vrrp_mcast_group4 224.0.100.100<br>&#125;<br>vrrp_script check_mysql &#123; <br>   script &quot;/etc/keepalived/check_mysql.sh&quot;	#可先写成shell脚本<br>   interval 1<br>   weight -30<br>   fall 3<br>   rise 2<br>   timeout 2 <br>   &#125;<br>vrrp_instance VI_1 &#123;<br> state MASTER <br> interface eth0<br> virtual_router_id 66<br> priority 100 <br> advert_int 1<br> authentication &#123;<br> 	auth_type PASS<br> 	auth_pass 123456<br> &#125;<br> virtual_ipaddress &#123;<br> 	10.0.0.10/24 dev eth0 label eth0:1<br> &#125;<br> track_interface &#123;<br> 	eth0<br> &#125;<br> notify_master &quot;/etc/keepalived/notify.sh master&quot;<br> notify_backup &quot;/etc/keepalived/notify.sh backup&quot;<br> notify_fault &quot;/etc/keepalived/notify.sh fault&quot;<br>   track_script &#123;		#调用脚本<br>       check_mysql 		<br>   &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E9%AB%98%E5%8F%AF%E7%94%A8/">高可用</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Keepalived/">Keepalived</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/09/HAproxy%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">HAproxy配置总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/09/LVS%E5%8E%9F%E7%90%86%E5%92%8C%E9%85%8D%E7%BD%AE/">
+                        <span class="hidden-mobile">LVS原理和配置</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

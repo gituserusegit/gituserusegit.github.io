@@ -1,0 +1,569 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要总结了k8s中如何在管理节点上通过yaml文件来创建常用对象，以及编写yaml文件时的要点和注意事项。主要参考官方文档https:&#x2F;&#x2F;kubernetes.io&#x2F;zh-cn&#x2F;docs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes对象的创建和yaml文件规范总结">
+<meta property="og:url" content="http://example.com/2022/09/23/Kubernetes%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8Cyaml%E6%96%87%E4%BB%B6%E8%A7%84%E8%8C%83%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要总结了k8s中如何在管理节点上通过yaml文件来创建常用对象，以及编写yaml文件时的要点和注意事项。主要参考官方文档https:&#x2F;&#x2F;kubernetes.io&#x2F;zh-cn&#x2F;docs">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-09-23T16:01:10.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.216Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>Kubernetes对象的创建和yaml文件规范总结 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Kubernetes对象的创建和yaml文件规范总结">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-09-23 16:01" pubdate>
+        September 23, 2022 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7.6k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      63 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Kubernetes对象的创建和yaml文件规范总结</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要总结了k8s中如何在管理节点上通过yaml文件来创建常用对象，以及编写yaml文件时的要点和注意事项。主要参考官方文档<a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs">https://kubernetes.io/zh-cn/docs</a></p>
+<span id="more"></span>
+
+<h1 id="yaml规范"><a href="#yaml规范" class="headerlink" title="yaml规范"></a>yaml规范</h1><p>​		在ansible中playbook和role文件都使用yaml格式编写，通过ansible-playbook命令来生效。在k8s中也非常类似，为某对象编写yaml文件后，可通过kubectl  apply  -f命令创建该对象。</p>
+<p>​		yaml文件具有上下级关系，将对象的各种属性以列表和键值对的形式表现。有以下规范</p>
+<ul>
+<li>大小写敏感 </li>
+<li>使⽤缩进表示层级关系 </li>
+<li>缩进时不允许使⽤Tal键，只允许使⽤空格 </li>
+<li>缩进的空格数⽬不重要，只要相同层级的元素左侧对⻬即可 </li>
+<li>使⽤”#” 表示注释，从这个字符⼀直到⾏尾，都会被解析器忽略</li>
+<li>需要指定apiVersion（组件版本，可以通过kubectl api-versions查看） kind  和metadata （识别对象的唯一性数据，用于查找和调用）</li>
+</ul>
+<p>API对象三大属性分类：metadata（元数据）、spec（规范，可理解为期望状态）、status（实际状态）</p>
+<p>API对象可写在同一yaml文件中，也可以分开写，分别启用，也可以使用kubectl apply . 应用目录下所有yaml文件</p>
+<h1 id="创建对象Namespace"><a href="#创建对象Namespace" class="headerlink" title="创建对象Namespace"></a>创建对象Namespace</h1><p>​		namespace命名空间对象是用来进行逻辑上的分组，实现隔离资源和资源访问控制。即可按照namespace来设置资源限制，实现不同服务资源隔离，隔离不同pod的通讯。同时，处于不同的命名空间的对象可以重名。</p>
+<p>​		实际使用中，可针对每个项目设置namespace对象，在resources列表中指定该namespace对象设置资源限制，在apiserver中针对不同namespace设置访问控制。</p>
+<p>​		示例</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span>  <span class="hljs-comment">#版本</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Namespace</span> <br><span class="hljs-attr">metadata:</span>  		<span class="hljs-comment">#元数据</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">test1</span> <br><br><span class="hljs-comment">#查看命令kubectl get namespaces</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="创建对象pod"><a href="#创建对象pod" class="headerlink" title="创建对象pod"></a>创建对象pod</h1><p>​		可以在 Kubernetes 中创建和管理的、最小的可部署的计算单元。pod中的容器共享存储、网络、以及怎样运行这些容器的声明。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br><span class="hljs-attr">spec:</span>				<span class="hljs-comment">#pod模板规范，定义每个pod运行的容器（可写多种）</span><br>  <span class="hljs-attr">containers:</span>	<br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx:1.14.2</span>		<span class="hljs-comment">#可以指定私有或公有仓库的镜像</span><br>    <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span><br></code></pre></td></tr></table></figure>
+
+<p>​		工作负载的控制器会使用负载对象中的 pod模板来生成实际的 Pod。 Pod模板是你用来运行应用时指定的负载资源的目标状态的一部分。</p>
+<p>​		pod模板示例，该 Pod 中的容器会打印一条消息之后暂停</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">batch/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Job</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">hello</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">hello</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">busybox:1.28</span><br>        <span class="hljs-attr">command:</span> [<span class="hljs-string">&#x27;sh&#x27;</span>, <span class="hljs-string">&#x27;-c&#x27;</span>, <span class="hljs-string">&#x27;echo &quot;Hello, Kubernetes!&quot; &amp;&amp; sleep 3600&#x27;</span>]<br>      <span class="hljs-attr">restartPolicy:</span> <span class="hljs-string">OnFailure</span>		<span class="hljs-comment">#重启容器的策略</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="创建对象Job"><a href="#创建对象Job" class="headerlink" title="创建对象Job"></a>创建对象Job</h1><p>​		Job 会创建一个或者多个 Pod，并将继续重试 Pod 的执行，直到指定数量的 Pod 成功终止。 随着 Pod 成功结束，Job 跟踪记录成功完成的 Pod 个数。 当数量达到指定的成功个数阈值时，任务（即 Job）结束。</p>
+<p>​		示例见上文</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">检查上文job状态<br>kubectl describe <span class="hljs-built_in">jobs</span>/hello<br></code></pre></td></tr></table></figure>
+
+<h1 id="创建对象Deployment"><a href="#创建对象Deployment" class="headerlink" title="创建对象Deployment"></a>创建对象Deployment</h1><p>​		副本控制器，由RC发展到RS，最后发展为使用Deployment调用RS。负责创建和管理pod内的容器，可理解为确保pod对象的status与设定的spec一致。简单的例子是发现pod副本多于replicas设置的数量就减少，少于就添加。更新yaml文件后应用将以滚动升级的方式逐个pod重新启动。</p>
+<p>​		该对象需要指定：控制器元数据、副本数量和模板标签</p>
+<p>​		示例：创建3个pod，每个pod使用nginx:1.14.2镜像创建nginx容器</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">metadata:</span>		<span class="hljs-comment">#控制器元数据</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-deployment</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br><span class="hljs-attr">spec:</span>			<br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span>	<span class="hljs-comment">#pod副本数量</span><br>  <span class="hljs-attr">selector:</span>		<span class="hljs-comment">#用于匹配template标签</span><br>    <span class="hljs-attr">matchLabels:</span> <span class="hljs-comment">#RS or Deployment</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-comment">#matchExpressions:	Deployment新支持的更复杂的匹配规则，一般不需要</span><br>    <span class="hljs-comment">#  - &#123;key: app, operator: In, values: [nginx,nginx-81]&#125;</span><br><br> <br> <span class="hljs-attr">template:</span>		<span class="hljs-comment">#pod模板</span><br>    <span class="hljs-attr">metadata:</span>	<br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">spec:</span>		<br>      <span class="hljs-attr">containers:</span>		<br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">nginx:1.14.2</span>	<br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span><br><br><span class="hljs-comment">#查看状态kubectl get deployments [-n namespace]</span><br><span class="hljs-string">NAME</span>               <span class="hljs-string">READY</span>   <span class="hljs-string">UP-TO-DATE</span>   <span class="hljs-string">AVAILABLE</span>   <span class="hljs-string">AGE</span><br><span class="hljs-string">nginx-deployment</span>   <span class="hljs-number">3</span><span class="hljs-string">/3</span>     <span class="hljs-number">3</span>            <span class="hljs-number">3</span>           <span class="hljs-string">18s</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="创建对象service"><a href="#创建对象service" class="headerlink" title="创建对象service"></a>创建对象service</h1><p>​		service是将运行在一组pods上的应用程序公开为网络服务的抽象方法。k8s集群中通过service实现pod间通信。</p>
+<p>​		示例：pod暴露80端口，创建一个名为nginx-service的service对象，将本机80端口转发至具有app.kubernetes.io&#x2F;name键且值为proxy的pod的端口上。端口可用名称指代</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app.kubernetes.io/name:</span> <span class="hljs-string">proxy</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">nginx:stable</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">80</span><br>        <span class="hljs-attr">name:</span> <span class="hljs-string">http-web-svc</span><br><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx-service</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span>							<span class="hljs-comment">#转发给匹配的pod</span><br>    <span class="hljs-attr">app.kubernetes.io/name:</span> <span class="hljs-string">proxy</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">name-of-service-port</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span>					<span class="hljs-comment">#转发协议</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span>						<span class="hljs-comment">#service提供的访问端口</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-string">http-web-svc</span>		<span class="hljs-comment">#pod端口</span><br>    <span class="hljs-attr">nodePort:</span> <span class="hljs-number">30003</span>					<span class="hljs-comment">#宿主机端口	</span><br><span class="hljs-comment">#查看kubectl get services</span><br></code></pre></td></tr></table></figure>
+
+<p>​		由于许多服务需要公开多个端口，因此 Kubernetes 在service对象上支持多个端口定义，每个端口定义具有不同的协议。</p>
+<h1 id="创建对象ResourceQuota"><a href="#创建对象ResourceQuota" class="headerlink" title="创建对象ResourceQuota"></a>创建对象ResourceQuota</h1><p>​		资源配额，通过 <code>ResourceQuota</code> 对象来定义，对每个命名空间的资源消耗总量提供限制。 它可以限制命名空间中某种类型的对象的<strong>总数目上限</strong>，也可以限制命名空间中的 Pod 可以使用的<strong>计算资源的总上限</strong>。</p>
+<p>​		<strong>request和limits：</strong>request是容器运行时，向k8s节点申请的最少保障资源。limits是容器在k8s节点上消耗的资源上限。</p>
+<p>​		如果配额中指定了 <code>requests.cpu</code> 或 <code>requests.memory</code> 的值，则它要求每个容器都显式给出对这些资源的请求。 同理，如果配额中指定了 <code>limits.cpu</code> 或 <code>limits.memory</code> 的值，那么它要求每个容器都显式设定对应资源的限制。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment">#如果node剩余资源无法满足request值将无法创建</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">container:</span>  <br>  	<span class="hljs-string">...</span><br>  	<span class="hljs-string">...</span><br>    <span class="hljs-attr">resources:</span> <br>      <span class="hljs-attr">limits:</span> <br>        <span class="hljs-attr">cpu:</span> <span class="hljs-number">2</span> <br>        <span class="hljs-attr">memory:</span> <span class="hljs-string">2Gi</span> <br>      <span class="hljs-attr">requests:</span> <br>        <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span> <br>        <span class="hljs-attr">memory:</span> <span class="hljs-string">1Gi</span><br></code></pre></td></tr></table></figure>
+
+<p>​		<strong>计算资源</strong></p>
+<table>
+<thead>
+<tr>
+<th><code>limits.cpu</code></th>
+<th>所有非终止状态的 Pod，其 CPU 限额总量不能超过该值。</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>limits.memory</code></td>
+<td>所有非终止状态的 Pod，其内存限额总量不能超过该值。</td>
+</tr>
+<tr>
+<td><code>requests.cpu</code></td>
+<td>所有非终止状态的 Pod，其 CPU 需求总量不能超过该值。</td>
+</tr>
+<tr>
+<td><code>requests.memory</code></td>
+<td>所有非终止状态的 Pod，其内存需求总量不能超过该值。</td>
+</tr>
+</tbody></table>
+<p>​		<strong>对象数量</strong></p>
+<table>
+<thead>
+<tr>
+<th><code>configmaps</code></th>
+<th>在该命名空间中允许存在的 ConfigMap 总数上限。</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>persistentvolumeclaims</code></td>
+<td>在该命名空间中允许存在的 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims">PVC</a> 的总数上限。</td>
+</tr>
+<tr>
+<td><code>pods</code></td>
+<td>在该命名空间中允许存在的非终止状态的 Pod 总数上限。Pod 终止状态等价于 Pod 的 <code>.status.phase in (Failed, Succeeded)</code> 为真。</td>
+</tr>
+<tr>
+<td><code>replicationcontrollers</code></td>
+<td>在该命名空间中允许存在的 ReplicationController 总数上限。</td>
+</tr>
+<tr>
+<td><code>resourcequotas</code></td>
+<td>在该命名空间中允许存在的 ResourceQuota 总数上限。</td>
+</tr>
+<tr>
+<td><code>services</code></td>
+<td>在该命名空间中允许存在的 Service 总数上限。</td>
+</tr>
+<tr>
+<td><code>services.loadbalancers</code></td>
+<td>在该命名空间中允许存在的 LoadBalancer 类型的 Service 总数上限。</td>
+</tr>
+<tr>
+<td><code>services.nodeports</code></td>
+<td>在该命名空间中允许存在的 NodePort 类型的 Service 总数上限。</td>
+</tr>
+<tr>
+<td><code>secrets</code></td>
+<td>在该命名空间中允许存在的 Secret 总数上限。</td>
+</tr>
+</tbody></table>
+<p>​		示例：实现多种资源限制。可以在pod的spec规范中添加scopName键：该键value使用该限制。如下例为添加PriorityClass：high</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">List</span><br><span class="hljs-attr">items:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br>  <span class="hljs-attr">kind:</span> <span class="hljs-string">ResourceQuota</span><br>  <span class="hljs-attr">metadata:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">pods-high</span><br>  <span class="hljs-attr">spec:</span><br>    <span class="hljs-attr">hard:</span><br>      <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;1000&quot;</span><br>      <span class="hljs-attr">memory:</span> <span class="hljs-string">200Gi</span><br>      <span class="hljs-attr">pods:</span> <span class="hljs-string">&quot;10&quot;</span><br>    <span class="hljs-attr">scopeSelector:</span>			<span class="hljs-comment">#采用拓展的匹配规则</span><br>      <span class="hljs-attr">matchExpressions:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">operator :</span> <span class="hljs-string">In</span><br>        <span class="hljs-attr">scopeName:</span> <span class="hljs-string">PriorityClass</span><br>        <span class="hljs-attr">values:</span> [<span class="hljs-string">&quot;high&quot;</span>]<br><span class="hljs-bullet">-</span> <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br>  <span class="hljs-attr">kind:</span> <span class="hljs-string">ResourceQuota</span><br>  <span class="hljs-attr">metadata:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">pods-medium</span><br>  <span class="hljs-attr">spec:</span><br>    <span class="hljs-attr">hard:</span><br>      <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;10&quot;</span><br>      <span class="hljs-attr">memory:</span> <span class="hljs-string">20Gi</span><br>      <span class="hljs-attr">pods:</span> <span class="hljs-string">&quot;10&quot;</span><br>    <span class="hljs-attr">scopeSelector:</span><br>      <span class="hljs-attr">matchExpressions:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">operator :</span> <span class="hljs-string">In</span><br>        <span class="hljs-attr">scopeName:</span> <span class="hljs-string">PriorityClass</span><br>        <span class="hljs-attr">values:</span> [<span class="hljs-string">&quot;medium&quot;</span>]<br><span class="hljs-bullet">-</span> <span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br>  <span class="hljs-attr">kind:</span> <span class="hljs-string">ResourceQuota</span><br>  <span class="hljs-attr">metadata:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">pods-low</span><br>  <span class="hljs-attr">spec:</span><br>    <span class="hljs-attr">hard:</span><br>      <span class="hljs-attr">cpu:</span> <span class="hljs-string">&quot;5&quot;</span><br>      <span class="hljs-attr">memory:</span> <span class="hljs-string">10Gi</span><br>      <span class="hljs-attr">pods:</span> <span class="hljs-string">&quot;10&quot;</span><br>    <span class="hljs-attr">scopeSelector:</span><br>      <span class="hljs-attr">matchExpressions:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">operator :</span> <span class="hljs-string">In</span><br>        <span class="hljs-attr">scopeName:</span> <span class="hljs-string">PriorityClass</span><br>        <span class="hljs-attr">values:</span> [<span class="hljs-string">&quot;low&quot;</span>]<br><br><span class="hljs-comment">#查看kubectl describe quota</span><br><span class="hljs-attr">Name:</span>       <span class="hljs-string">pods-high</span><br><span class="hljs-attr">Namespace:</span>  <span class="hljs-string">default</span><br><span class="hljs-string">Resource</span>    <span class="hljs-string">Used</span>  <span class="hljs-string">Hard</span><br><span class="hljs-string">--------</span>    <span class="hljs-string">----</span>  <span class="hljs-string">----</span><br><span class="hljs-string">cpu</span>         <span class="hljs-number">0</span>     <span class="hljs-string">1k</span><br><span class="hljs-string">memory</span>      <span class="hljs-number">0</span>     <span class="hljs-string">200Gi</span><br><span class="hljs-string">pods</span>        <span class="hljs-number">0</span>     <span class="hljs-number">10</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="创建对象Volume"><a href="#创建对象Volume" class="headerlink" title="创建对象Volume"></a>创建对象Volume</h1><p>​		Kubernetes 支持很多类型的卷。pod可以同时使用任意数目的卷类型。 emptyDir类型的生命周期与 Pod 相同，但持久卷可以比 Pod 的存活期长。 常用的为nfs共享卷、configmap配置文件、hostPath本地卷。 对于给定 Pod 中任何类型的卷，在容器重启期间数据都不会丢失。</p>
+<p>​		nfs示例</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spec:</span><br>  <span class="hljs-string">...</span><br>  <span class="hljs-string">...</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-string">...</span><br>    <span class="hljs-string">...</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>        <span class="hljs-attr">volumeMounts:</span> 		    <span class="hljs-comment">#容器挂载点</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-page</span><br>          <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/data/tomcat/webapps/myapp/static</span> <br>          <span class="hljs-attr">readOnly:</span> <span class="hljs-literal">false</span> <br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-images</span> <br>          <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/data/tomcat/webapps/myapp/images</span> <br>          <span class="hljs-attr">readOnly:</span> <span class="hljs-literal">false</span><br>      <span class="hljs-attr">volumes:</span>				<span class="hljs-comment">#指定使用的共享存储目录</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-page</span> <br>          <span class="hljs-attr">nfs:</span> <br>            <span class="hljs-attr">server:</span> <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.108</span>  <span class="hljs-comment">#nfs server</span><br>            <span class="hljs-attr">path:</span> <span class="hljs-string">/path/dir/static</span> <br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-images</span> <br>          <span class="hljs-attr">nfs:</span> <br>            <span class="hljs-attr">server:</span> <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.108</span> <br>            <span class="hljs-attr">path:</span> <span class="hljs-string">/path/dir/images</span><br></code></pre></td></tr></table></figure>
+
+<p>​		configmap示例：将名为 <code>log-config</code> 的 ConfigMap 挂载到名为 <code>configmap-pod</code> 的 Pod 中。</p>
+<p>​		容器中可看到&#x2F;etc&#x2F;config&#x2F;log_level&#x2F;</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">containers:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test</span><br>      <span class="hljs-attr">image:</span> <span class="hljs-string">busybox:1.28</span><br>      <span class="hljs-attr">volumeMounts:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">config-vol</span><br>          <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/etc/config</span>		<span class="hljs-comment">#挂载点，配置文件目录</span><br>  <span class="hljs-attr">volumes:</span>						<br>    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">config-vol</span>			<span class="hljs-comment">#卷的名称，用于被挂载点匹配</span><br>      <span class="hljs-attr">configMap:</span>				<br>        <span class="hljs-attr">name:</span> <span class="hljs-string">log-config</span>		<span class="hljs-comment">#这是配置集的名称，k8s会根据这个名字来寻找对应的ConfigMap		</span><br>        <span class="hljs-attr">items:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">key:</span> <span class="hljs-string">log_level</span>		<span class="hljs-comment">#要挂载的文件名</span><br>            <span class="hljs-attr">path:</span> <span class="hljs-string">log_level</span>		<span class="hljs-comment">#最终容器中的文件名</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="综合示例"><a href="#综合示例" class="headerlink" title="综合示例"></a>综合示例</h1><p>​		tomcat示例：部署3个tomcat的pod，每个pod由私有仓库中拉取tomcat-app1-container镜像，</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-comment">#apiVersion: extensions/v1beta1</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">tomcat-app1-deployment-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">tomcat-app1-deployment</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">project1</span>			<span class="hljs-comment">#指定namespace</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">tomcat-app1-selector</span>		<span class="hljs-comment">#筛选pod副本</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">tomcat-app1-selector</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">tomcat-app1-container</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">harbor.test.com/project1/tomcat-app1:v1</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">Always</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span>		<span class="hljs-comment">#containerPort是pod内部容器的端口，targetPort映射到containerPort。</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>          <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>        <span class="hljs-attr">env:</span>					<span class="hljs-comment">#设置环境变量</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;password&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;123456&quot;</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&quot;age&quot;</span><br>          <span class="hljs-attr">value:</span> <span class="hljs-string">&quot;18&quot;</span><br>        <span class="hljs-attr">resources:</span>				<span class="hljs-comment">#pod资源限制</span><br>          <span class="hljs-attr">limits:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-number">1</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;2048Mi&quot;</span><br>          <span class="hljs-attr">requests:</span><br>            <span class="hljs-attr">cpu:</span> <span class="hljs-string">500m</span><br>            <span class="hljs-attr">memory:</span> <span class="hljs-string">&quot;512Mi&quot;</span><br>        <span class="hljs-attr">volumeMounts:</span>			<span class="hljs-comment">#挂载卷</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-images</span><br>          <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/usr/local/nginx/html/webapp/images</span><br>          <span class="hljs-attr">readOnly:</span> <span class="hljs-literal">false</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-static</span><br>          <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/usr/local/nginx/html/webapp/static</span><br>          <span class="hljs-attr">readOnly:</span> <span class="hljs-literal">false</span><br>      <span class="hljs-attr">volumes:</span>					<span class="hljs-comment">#使用共享存储</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-images</span><br>        <span class="hljs-attr">nfs:</span><br>          <span class="hljs-attr">server:</span> <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.108</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/data/k8sdata/project1/images</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">test-static</span><br>        <span class="hljs-attr">nfs:</span><br>          <span class="hljs-attr">server:</span> <span class="hljs-number">172.31</span><span class="hljs-number">.3</span><span class="hljs-number">.104</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/data/k8sdata/project1/static</span><br><span class="hljs-comment">#      nodeSelector:			#node绑定</span><br><span class="hljs-comment">#        project: project1</span><br><span class="hljs-comment">#        app: tomcat</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">tomcat-app1-service-label</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">tomcat-app1-service</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">project1</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">type:</span> <span class="hljs-string">NodePort</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">http</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span>			<span class="hljs-comment">#k8s集群内部访问service的端口</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">8080</span>	<span class="hljs-comment">#pod的端口，从service接受流量经过kube-proxy流入到后端pod的targetPort上</span><br>    <span class="hljs-comment">#nodePort: 40003	#node上监听并转发给该service的端口</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">tomcat-app1-selector</span>		<span class="hljs-comment">#指定service管理的副本</span><br><br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/k8s/">k8s</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/k8s/">k8s</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/24/%E5%B8%B8%E7%94%A8%E6%9C%8D%E5%8A%A1%E8%B0%83%E4%BC%98%E5%B0%8F%E7%BB%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">常用服务调优小结（持续更新）</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/21/Linux%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E7%9A%84%E5%91%BD%E4%BB%A4/">
+                        <span class="hidden-mobile">Linux查看系统性能指标的命令</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

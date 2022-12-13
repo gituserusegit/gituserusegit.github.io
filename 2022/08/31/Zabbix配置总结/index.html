@@ -1,0 +1,471 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​		本文主要总结了zabbix server、zabbix agent、zabbix proxy的配置文件中一些比较重要参数。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zabbix配置总结">
+<meta property="og:url" content="http://example.com/2022/08/31/Zabbix%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​		本文主要总结了zabbix server、zabbix agent、zabbix proxy的配置文件中一些比较重要参数。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/08/31/Zabbix%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/image-20220831144346897.png">
+<meta property="og:image" content="http://example.com/2022/08/31/Zabbix%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/image-20220831145943251.png">
+<meta property="article:published_time" content="2022-08-31T10:02:06.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.274Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Zabbix">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/08/31/Zabbix%E9%85%8D%E7%BD%AE%E6%80%BB%E7%BB%93/image-20220831144346897.png">
+  
+  
+  <title>Zabbix配置总结 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Zabbix配置总结">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-31 10:02" pubdate>
+        August 31, 2022 am
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      14k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      119 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Zabbix配置总结</h1>
+            
+            <div class="markdown-body">
+              <p>​		本文主要总结了zabbix server、zabbix agent、zabbix proxy的配置文件中一些比较重要参数。</p>
+<span id="more"></span>
+
+
+
+<h1 id="zabbix监控结构"><a href="#zabbix监控结构" class="headerlink" title="zabbix监控结构"></a>zabbix监控结构</h1><p>​		agent被动模式需要server定期打开随机端口发送数据收集指令，agent收集相应数据；主动模式为agent主动以随机端口连接server获取监控项，然后主动发送数据，server仅需打开一个固定端口，可减轻server压力。</p>
+<p>​		proxy被动和主动模式与agent类似。proxy与server和agent配置有许多相通之处。</p>
+<p><img src="image-20220831144346897.png" srcset="/img/loading.gif" lazyload alt="image-20220831144346897"></p>
+<p><img src="image-20220831145943251.png" srcset="/img/loading.gif" lazyload alt="image-20220831145943251"></p>
+<h1 id="zabbix-server-配置"><a href="#zabbix-server-配置" class="headerlink" title="zabbix server 配置"></a>zabbix server 配置</h1><p>​		二进制包安装默认位置&#x2F;etc&#x2F;zabbix&#x2F;zabbix_server.conf</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: SourceIP</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Source IP address <span class="hljs-keyword">for</span> outgoing connections. 	当本机有多个IP时需要指定用哪个对外连接</span><br>SourceIP=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: LogType</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Specifies <span class="hljs-built_in">where</span> <span class="hljs-built_in">log</span> messages are written to:		指定日志类型</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">		system  - syslog</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">		file    - file specified with LogFile parameter</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">		console - standard output</span><br>LogType=file <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: LogFileSize</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Maximum size of <span class="hljs-built_in">log</span> file <span class="hljs-keyword">in</span> MB.			以MB为单位滚动写入日志，达到指定大小会从头开始写</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	0 - <span class="hljs-built_in">disable</span> automatic <span class="hljs-built_in">log</span> rotation.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1024</span><br>LogFileSize=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: DebugLevel</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Specifies debug level:		记录哪个级别的日志，调试排错时可选4，默认3</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	0 - basic information about starting and stopping of Zabbix processes</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	1 - critical information</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	2 - error information</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	3 - warnings</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	4 - <span class="hljs-keyword">for</span> debugging (produces lots of information)</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	5 - extended debugging (produces even more information)</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-5</span><br>DebugLevel=3<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: DBHost			数据库主机地址</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Database host name.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	If <span class="hljs-built_in">set</span> to localhost, socket is used <span class="hljs-keyword">for</span> MySQL.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	If <span class="hljs-built_in">set</span> to empty string, socket is used <span class="hljs-keyword">for</span> PostgreSQL.</span><br>DBHost=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: DBName		数据库名</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Database name.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">DBName=</span><br>DBName=zabbix_server <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: DBUser		登录数据库账号</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Database user.</span><br>DBUser=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: DBPassword		登录数据库账号密码</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Database password.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Comment this line <span class="hljs-keyword">if</span> no password is used.	 没有密码就注释</span><br>DBPassword=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: DBSocket		指定socket文件路径</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Path to MySQL socket.</span><br>DBSocket= <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: HistoryStorageURL  		elasticsearch服务器地址，保存zabbix历史数据</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	History storage HTTP[S] URL.</span><br>HistoryStorageURL= <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: HistoryStorageTypes			elasticsearch索引类型</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Comma separated list of value types to be sent to the <span class="hljs-built_in">history</span> storage.</span><br>HistoryStorageTypes=uint,dbl,str,log,text <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">########### ADVANCED PARAMETERS ################</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartPollers		预启动多少个实例数量</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of pollers.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1000</span><br>StartPollers=5 <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartIPMIPollers</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of IPMI pollers.		IPMI收集子进程数量</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      The IPMI manager process is automatically started when at least one IPMI poller is started.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1000</span><br>StartIPMIPollers=0 #IPMI收集数量<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartPreprocessors</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of preprocessing workers.		预启动多少个进程用于处理zabbix agent数据</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      The preprocessing manager process is automatically started when preprocessor worker is started.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-1000</span><br>StartPreprocessors=3 <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartPollersUnreachable		不可达主机的轮询进程的初始实例启动数量</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of pollers <span class="hljs-keyword">for</span> unreachable hosts (including IPMI and Java).</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	At least one poller <span class="hljs-keyword">for</span> unreachable hosts must be running <span class="hljs-keyword">if</span> regular, IPMI or Java pollers are started.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1000</span><br>StartPollersUnreachable=1 <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartTrappers		预启动的Trappers进程数据</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of trappers.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Trappers accept incoming connections from Zabbix sender, active agents and active proxies.				Trappers接收主动代理或主动客户端发来的连接</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	At least one trapper process must be running to display server availability and view queue <span class="hljs-keyword">in</span> the frontend.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1000</span><br>StartTrappers=5<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartPingers		ICMP ping进程的初始实例数量</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of ICMP pingers.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1000</span><br>StartPingers=1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartHTTPPollers	 http实例进程数量</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of HTTP pollers.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1000</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">StartHTTPPollers=1</span> <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartTimers		计时器实例数量，计时器用于计算问题的发生时间和步骤同步等</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of timers.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Timers process maintenance periods.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Only the first timer process handles host maintenance updates. Problem suppression updates are shared</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	between all timers.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-1000</span><br>StartTimers=1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartEscalators		用于处理动作中的自动步骤的进程的数量</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of escalators.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-100</span><br>StartEscalators=1 <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartAlerters		报警实例预启动数量</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of alerters.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Alerters send the notifications created by action operations.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-100</span><br>StartAlerters=3<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: JavaGateway		javagateway服务器地址，java pollers必须设置，如监控tomcat时需要配置</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	IP address (or hostname) of Zabbix Java gateway.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Only required <span class="hljs-keyword">if</span> Java pollers are started.</span><br>JavaGateway=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: JavaGatewayPort</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Port that Zabbix Java gateway listens on.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1024-32767</span><br>JavaGatewayPort=10052<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartJavaPollers		java轮训实例预启动数量</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of Java pollers.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># Mandatory: no</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1000</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Default:</span><br>StartJavaPollers=20<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: SNMPTrapperFile		snmp触发器临时文件路径</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Temporary file used <span class="hljs-keyword">for</span> passing data from SNMP <span class="hljs-built_in">trap</span> daemon to the server.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Must be the same as <span class="hljs-keyword">in</span> zabbix_trap_receiver.pl or SNMPTT configuration file.</span><br>SNMPTrapperFile=/tmp/zabbix_traps.tmp <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ListenIP		trapper监听地址</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	List of comma delimited IP addresses that the trapper should listen on.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Trapper will listen on all network interfaces <span class="hljs-keyword">if</span> this parameter is missing.</span><br>ListenIP=0.0.0.0 <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: HousekeepingFrequency		多少小时清理一次代理端数据库的历史数据</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	How often Zabbix will perform housekeeping procedure (<span class="hljs-keyword">in</span> hours).</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Housekeeping is removing outdated information from the database.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	To prevent Housekeeper from being overloaded, no more than 4 <span class="hljs-built_in">times</span> HousekeepingFrequency</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	hours of outdated information are deleted <span class="hljs-keyword">in</span> one housekeeping cycle, <span class="hljs-keyword">for</span> each item.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	To lower load on server startup housekeeping is postponed <span class="hljs-keyword">for</span> 30 minutes after server start.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	With HousekeepingFrequency=0 the housekeeper can be only executed using the runtime control option.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	In this <span class="hljs-keyword">case</span> the period of outdated information deleted <span class="hljs-keyword">in</span> one housekeeping cycle is 4 <span class="hljs-built_in">times</span> the</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	period since the last housekeeping cycle, but not less than 4 hours and not greater than 4 days.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-24</span><br>HousekeepingFrequency=1 <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: MaxHousekeeperDelete		每次最多删除历史数据的行数</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	The table <span class="hljs-string">&quot;housekeeper&quot;</span> contains <span class="hljs-string">&quot;tasks&quot;</span> <span class="hljs-keyword">for</span> housekeeping procedure <span class="hljs-keyword">in</span> the format:</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	[housekeeperid], [tablename], [field], [value].</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	No more than <span class="hljs-string">&#x27;MaxHousekeeperDelete&#x27;</span> rows (corresponding to [tablename], [field], [value])</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	will be deleted per one task <span class="hljs-keyword">in</span> one housekeeping cycle.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	If <span class="hljs-built_in">set</span> to 0 <span class="hljs-keyword">then</span> no <span class="hljs-built_in">limit</span> is used at all. In this <span class="hljs-keyword">case</span> you must know what you are doing!</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-1000000</span><br>MaxHousekeeperDelete=5000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: CacheSize		配置信息缓存大小</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Size of configuration cache, <span class="hljs-keyword">in</span> bytes.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Shared memory size <span class="hljs-keyword">for</span> storing host, item and trigger data.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 128K-8G</span><br>CacheSize=8M <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: CacheUpdateFrequency		更新缓存数据的频率，单位为秒</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	How often Zabbix will perform update of configuration cache, <span class="hljs-keyword">in</span> seconds.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-3600</span><br>CacheUpdateFrequency=60 <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: HistoryCacheSize		历史数据的缓存大小</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Size of <span class="hljs-built_in">history</span> cache, <span class="hljs-keyword">in</span> bytes.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Shared memory size <span class="hljs-keyword">for</span> storing <span class="hljs-built_in">history</span> data.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 128K-2G</span><br>HistoryCacheSize=16M <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: TrendCacheSize		用于设置划分多少系统共享内存用于存储计算出来的趋势数据，此参数值从一定程度上可影响数据库读压力</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Size of trend cache, <span class="hljs-keyword">in</span> bytes.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Shared memory size <span class="hljs-keyword">for</span> storing trends data.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Mandatory: no</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 128K-2G</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Default:</span><br>TrendCacheSize=4M <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: Timeout		数据获取等待超时时间</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Specifies how long we <span class="hljs-built_in">wait</span> <span class="hljs-keyword">for</span> agent, SNMP device or external check (<span class="hljs-keyword">in</span> seconds).</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-30</span><br>Timeout=3<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: TrapperTimeout		触发器处理新数据的最长时间，单位是秒</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Specifies how many seconds trapper may spend processing new data.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-300</span><br>TrapperTimeout=300<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: UnreachablePeriod		当主机不可达多少秒后，设置为主机不可用，单位是秒</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	After how many seconds of unreachability treat a host as unavailable.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-3600</span><br>UnreachablePeriod=45 <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: UnavailableDelay		主机不可达后多久检查一次该主机的可用性</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	How often host is checked <span class="hljs-keyword">for</span> availability during the unavailability period, <span class="hljs-keyword">in</span> seconds.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-3600</span><br>UnavailableDelay=60<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: AlertScriptsPath		监控报警脚本路径,取决于编译时候的datadir参数</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Full path to location of custom alert scripts.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Default depends on compilation options.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	To see the default path run <span class="hljs-built_in">command</span> <span class="hljs-string">&quot;zabbix_server --help&quot;</span>.</span><br>AlertScriptsPath=$&#123;datadir&#125;/zabbix/alertscripts<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ExternalScripts			脚本存储路径</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Full path to location of external scripts.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Default depends on compilation options.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	To see the default path run <span class="hljs-built_in">command</span> <span class="hljs-string">&quot;zabbix_server --help&quot;</span>.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Default:</span><br>ExternalScripts=$&#123;datadir&#125;/zabbix/externalscripts<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartProxyPollers		启用多少子进程与代理端通信</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Number of pre-forked instances of pollers <span class="hljs-keyword">for</span> passive proxies.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-250</span><br>StartProxyPollers=1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ProxyConfigFrequency		被动模式下，server多少秒同步配置文件至proxy</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	How often Zabbix Server sends configuration data to a Zabbix Proxy <span class="hljs-keyword">in</span> seconds.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	This parameter is used only <span class="hljs-keyword">for</span> proxies <span class="hljs-keyword">in</span> the passive mode.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-3600*24*7</span><br>ProxyConfigFrequency=3600<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ProxyDataFrequency		被动模式下，zabbix server间隔多少秒获取数据</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	How often Zabbix Server requests <span class="hljs-built_in">history</span> data from a Zabbix Proxy <span class="hljs-keyword">in</span> seconds.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	This parameter is used only <span class="hljs-keyword">for</span> proxies <span class="hljs-keyword">in</span> the passive mode.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-3600</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Default:</span><br>ProxyDataFrequency=1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: AllowRoot		是否允许root身份运行zabbix</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Allow the server to run as <span class="hljs-string">&#x27;root&#x27;</span>. If disabled and the server is started by <span class="hljs-string">&#x27;root&#x27;</span>, the server</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	will try to switch to the user specified by the User configuration option instead.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Has no effect <span class="hljs-keyword">if</span> started under a regular user.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	0 - <span class="hljs-keyword">do</span> not allow</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	1 - allow</span><br>AllowRoot=0<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: User		设置zabbix 启动用户</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Drop privileges to a specific, existing user on the system.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Only has effect <span class="hljs-keyword">if</span> run as <span class="hljs-string">&#x27;root&#x27;</span> and AllowRoot is disabled.</span><br>User=zabbix<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: Include			导入其他目录的配置文件</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	You may include individual files or all files <span class="hljs-keyword">in</span> a directory <span class="hljs-keyword">in</span> the configuration file.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Installing Zabbix will create include directory <span class="hljs-keyword">in</span> /usr/local/etc, unless modified during the compile time.</span><br>Include=/usr/local/etc/zabbix_server.general.conf <br>Include=/usr/local/etc/zabbix_server.conf.d/<br>Include=/usr/local/etc/zabbix_server.conf.d/*.conf<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StatsAllowedIP		允许访问zabbix server的IP地址列表</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	List of comma delimited IP addresses, optionally <span class="hljs-keyword">in</span> CIDR notation, or DNS names of external Zabbix instances.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Stats request will be accepted only from the addresses listed here. If this parameter is not <span class="hljs-built_in">set</span> no stats requests</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	will be accepted.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	If IPv6 support is enabled <span class="hljs-keyword">then</span> <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>, <span class="hljs-string">&#x27;::127.0.0.1&#x27;</span>, <span class="hljs-string">&#x27;::ffff:127.0.0.1&#x27;</span> are treated equally</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	and <span class="hljs-string">&#x27;::/0&#x27;</span> will allow any IPv4 or IPv6 address.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	<span class="hljs-string">&#x27;0.0.0.0/0&#x27;</span> can be used to allow any IPv4 address.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">	Example: StatsAllowedIP=127.0.0.1,192.168.1.0/24,::1,2001:db8::/32,zabbix.example.com</span><br>StatsAllowedIP=<br></code></pre></td></tr></table></figure>
+
+<h1 id="zabbix-agent配置"><a href="#zabbix-agent配置" class="headerlink" title="zabbix agent配置"></a>zabbix agent配置</h1><p>​		&#x2F;etc&#x2F;zabbix&#x2F;zabbix_agentd.conf 	</p>
+<p>​		与server配置中相同作用的参数省略</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: LogRemoteCommands		是否允许远程执行命令，有时需要开启</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Enable logging of executed shell commands as warnings.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      0 - disabled</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      1 - enabled</span><br>LogRemoteCommands=0<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#### Passive checks related  以下为被动模式相关配置</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: Server		允许哪些主机获取本机的监控数据，多个IP用逗号隔开，需要注意即使采用主动模式也要在这里配置允许其访问本机</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      List of comma delimited IP addresses, optionally <span class="hljs-keyword">in</span> CIDR notation, or DNS names of Zabbix servers and Zabbix proxies.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Incoming connections will be accepted only from the hosts listed here.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      If IPv6 support is enabled <span class="hljs-keyword">then</span> <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>, <span class="hljs-string">&#x27;::127.0.0.1&#x27;</span>, <span class="hljs-string">&#x27;::ffff:127.0.0.1&#x27;</span> are treated equally</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      and <span class="hljs-string">&#x27;::/0&#x27;</span> will allow any IPv4 or IPv6 address.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      <span class="hljs-string">&#x27;0.0.0.0/0&#x27;</span> can be used to allow any IPv4 address.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Example: Server=127.0.0.1,192.168.1.0/24,::1,2001:db8::/32,zabbix.example.com</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Mandatory: <span class="hljs-built_in">yes</span>, <span class="hljs-keyword">if</span> StartAgents is not explicitly <span class="hljs-built_in">set</span> to 0</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Default:</span><br>Server=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: StartAgents			处理被动模式请求的zabbix_agentd进程实例数量</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Number of pre-forked instances of zabbix_agentd that process passive checks.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      If <span class="hljs-built_in">set</span> to 0, disables passive checks and the agent will not listen on any TCP port.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># Mandatory: no</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-100</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Default:</span><br>StartAgents=3<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#### Active checks related  以下为主动模式相关配置</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ServerActive		填写要接收数据的zabbix server地址，也可以是zabbix proxy地址</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Zabbix server/proxy address to get active checks from.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Server/proxy address is IP address or DNS name and optional port separated by colon.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Multiple Zabbix servers and Zabbix proxies can be specified, separated by comma.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      More than one Zabbix proxy should not be specified from each Zabbix server.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      If Zabbix proxy is specified <span class="hljs-keyword">then</span> Zabbix server <span class="hljs-keyword">for</span> that proxy should not be specified.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Multiple comma-delimited addresses can be provided to use several independent Zabbix servers <span class="hljs-keyword">in</span> parallel. Spaces are allowed.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      If port is not specified, default port is used.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      IPv6 addresses must be enclosed <span class="hljs-keyword">in</span> square brackets <span class="hljs-keyword">if</span> port <span class="hljs-keyword">for</span> that host is specified.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      If port is not specified, square brackets <span class="hljs-keyword">for</span> IPv6 addresses are optional.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      If this parameter is not specified, active checks are disabled.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Example: ServerActive=127.0.0.1:20051,zabbix.example.com,[::1]:30051,::1,[12fc::1]</span><br>ServerActive=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: Hostname		必须唯一且与管理界面中的主机名一致</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Unique, <span class="hljs-keyword">case</span> sensitive hostname.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Required <span class="hljs-keyword">for</span> active checks and must match hostname as configured on the server.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Value is acquired from HostnameItem <span class="hljs-keyword">if</span> undefined.</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># Mandatory: no</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Default:</span><br>Hostname=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: HostnameItem		不推荐使用，有可能产生主机名与配置不一致问题</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Item used <span class="hljs-keyword">for</span> generating Hostname <span class="hljs-keyword">if</span> it is undefined. Ignored <span class="hljs-keyword">if</span> Hostname is defined.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Does not support UserParameters or aliases.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">HostnameItem=system.hostname</span><br><br></code></pre></td></tr></table></figure>
+
+<h1 id="zabbix-proxy-配置"><a href="#zabbix-proxy-配置" class="headerlink" title="zabbix proxy 配置"></a>zabbix proxy 配置</h1><p>​		&#x2F;etc&#x2F;zabbix&#x2F;zabbix_proxy.conf</p>
+<p>​		与上述配置中相同作用的参数省略</p>
+<p>​		proxy也需要配置数据库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ProxyMode</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Proxy operating mode.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      0 - proxy <span class="hljs-keyword">in</span> the active mode</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      1 - proxy <span class="hljs-keyword">in</span> the passive mode</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># Mandatory: no</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Default:</span><br>ProxyMode=0<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: Server		主动模式为获取监控项与配置的server地址，被动模式为允许访问本机的地址</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      If ProxyMode is <span class="hljs-built_in">set</span> to active mode:</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">              IP address or DNS name of Zabbix server to get configuration data from and send data to.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      If ProxyMode is <span class="hljs-built_in">set</span> to passive mode:</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">              List of comma delimited IP addresses, optionally <span class="hljs-keyword">in</span> CIDR notation, or DNS names of Zabbix server.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">              Incoming connections will be accepted only from the addresses listed here.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">              If IPv6 support is enabled <span class="hljs-keyword">then</span> <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>, <span class="hljs-string">&#x27;::127.0.0.1&#x27;</span>, <span class="hljs-string">&#x27;::ffff:127.0.0.1&#x27;</span> are treated equally</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">              and <span class="hljs-string">&#x27;::/0&#x27;</span> will allow any IPv4 or IPv6 address.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">              <span class="hljs-string">&#x27;0.0.0.0/0&#x27;</span> can be used to allow any IPv4 address.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">              Example: Server=127.0.0.1,192.168.1.0/24,::1,2001:db8::/32,zabbix.example.com</span><br>Server=<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: Hostname		必须与管理界面中的主机名一致，否则无法获取监控数据</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Unique, <span class="hljs-keyword">case</span> sensitive Proxy name. Make sure the Proxy name is known to the server!</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Value is acquired from HostnameItem <span class="hljs-keyword">if</span> undefined.</span><br>Hostname=proxy-active<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">######## PROXY SPECIFIC PARAMETERS #############		以下为proxy专有参数</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ProxyLocalBuffer		保留已上传数据多少小时</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Proxy will keep data locally <span class="hljs-keyword">for</span> N hours, even <span class="hljs-keyword">if</span> the data have already been synced with the server.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      This parameter may be used <span class="hljs-keyword">if</span> <span class="hljs-built_in">local</span> data will be used by third party applications.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-720</span><br>ProxyLocalBuffer=0<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ProxyOfflineBuffer		保存没有上传数据多少小时</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Proxy will keep data <span class="hljs-keyword">for</span> N hours <span class="hljs-keyword">in</span> <span class="hljs-keyword">case</span> <span class="hljs-keyword">if</span> no connectivity with Zabbix Server.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Older data will be lost.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-720</span><br>ProxyOfflineBuffer=1<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: HeartbeatFrequency			proxy可用性心跳检测频率，如果是被动代理此参数将被忽略</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Frequency of heartbeat messages <span class="hljs-keyword">in</span> seconds.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Used <span class="hljs-keyword">for</span> monitoring availability of Proxy on server side.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      0 - heartbeat messages disabled.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      For a proxy <span class="hljs-keyword">in</span> the passive mode this parameter will be ignored.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 0-3600</span><br>HeartbeatFrequency=60<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: ConfigFrequency		proxy获取配置的频率</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      How often proxy retrieves configuration data from Zabbix Server <span class="hljs-keyword">in</span> seconds.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      For a proxy <span class="hljs-keyword">in</span> the passive mode this parameter will be ignored.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-3600*24*7</span><br>ConfigFrequency=10<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Option: DataSenderFrequency		监控数据发送频率</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      Proxy will send collected data to the Server every N seconds.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">      For a proxy <span class="hljs-keyword">in</span> the passive mode this parameter will be ignored.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Range: 1-3600</span><br>DataSenderFrequency=30<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">ADVANCED PARAMETERS参考server中的配置，以下不再赘述</span><br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%9B%91%E6%8E%A7/">监控</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Zabbix/">Zabbix</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/03/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%9F%BA%E7%A1%80%E5%92%8CKVM%E7%AE%A1%E7%90%86%E8%99%9A%E6%8B%9F%E6%9C%BA/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">虚拟化基础和KVM管理虚拟机</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/30/Zabbix%E9%83%A8%E7%BD%B2/">
+                        <span class="hidden-mobile">Zabbix部署</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

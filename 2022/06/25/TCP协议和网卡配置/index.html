@@ -1,0 +1,473 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="TCP协议三次握手（建立连接）和四次挥手（断开）原理，网卡配置和绑定 TCP&#x2F;IP协议">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP协议和网卡配置">
+<meta property="og:url" content="http://example.com/2022/06/25/TCP%E5%8D%8F%E8%AE%AE%E5%92%8C%E7%BD%91%E5%8D%A1%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="TCP协议三次握手（建立连接）和四次挥手（断开）原理，网卡配置和绑定 TCP&#x2F;IP协议">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/06/25/TCP%E5%8D%8F%E8%AE%AE%E5%92%8C%E7%BD%91%E5%8D%A1%E9%85%8D%E7%BD%AE/image-20220625094701727.png">
+<meta property="og:image" content="http://example.com/2022/06/25/TCP%E5%8D%8F%E8%AE%AE%E5%92%8C%E7%BD%91%E5%8D%A1%E9%85%8D%E7%BD%AE/image-20220625100829523.png">
+<meta property="article:published_time" content="2022-06-25T09:22:06.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.267Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="TCP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/06/25/TCP%E5%8D%8F%E8%AE%AE%E5%92%8C%E7%BD%91%E5%8D%A1%E9%85%8D%E7%BD%AE/image-20220625094701727.png">
+  
+  
+  <title>TCP协议和网卡配置 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="TCP协议和网卡配置">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-06-25 09:22" pubdate>
+        June 25, 2022 am
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.8k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      24 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">TCP协议和网卡配置</h1>
+            
+            <div class="markdown-body">
+              <p>TCP协议三次握手（建立连接）和四次挥手（断开）原理，网卡配置和绑定</p>
+<h1 id="TCP-x2F-IP协议"><a href="#TCP-x2F-IP协议" class="headerlink" title="TCP&#x2F;IP协议"></a>TCP&#x2F;IP协议</h1><span id="more"></span>
+
+<p>​	全称Transmission Control Protocol&#x2F;Internet Protocol 传输控制协议&#x2F;因特网互联协议，与UDP协议相比更注重通信双方连接的稳定性和可靠性，也因此应用于对传输速度要求不高的领域，与UDP协议形成互补。</p>
+<h3 id="TCP三次握手（建立连接）"><a href="#TCP三次握手（建立连接）" class="headerlink" title="TCP三次握手（建立连接）"></a>TCP三次握手（建立连接）</h3><p>​	建立连接过程双方共需要发送3次数据报文，是因为需要分别确定请求连接方和对方都能成功接收和发送信息给对方。</p>
+<p><img src="image-20220625094701727.png" srcset="/img/loading.gif" lazyload alt="image-20220625094701727"></p>
+<p>​	链接发起方先发送带有SYN（表明该报文段用于建立连接）的同步请求报文，自身进入同步发送态，等待接收回复；对方收到请求后若同意连接则回复应答：含有ACK&#x3D;1（表示同意）seq&#x3D;y和ack&#x3D;x+1表示自身和希望的对方的数据初始序号，随后进入同步收到态。</p>
+<p>​	连接发起方收到回复后就确定了自己能够成功发送和接收对方数据，进入连接状态，同时向对方发送确认报文，报文数据的初始序号为对方上条报文ack&#x3D;x+1确定的位置。</p>
+<p>​	对方收到上条报文后也确定了自己能够成功发送和接收对方数据，进入连接状态。</p>
+<h3 id="TCP四次挥手（断开连接）"><a href="#TCP四次挥手（断开连接）" class="headerlink" title="TCP四次挥手（断开连接）"></a>TCP四次挥手（断开连接）</h3><p>​	四次挥手的原理与三次握手类似，但还需要在断开连接前完成残余数据的发送。客户端最终的时间等待状态是考虑到网络延迟的问题，防止服务器端关闭等待状态中部分发送的数据包还未到达从而丢失的问题。</p>
+<p><img src="image-20220625100829523.png" srcset="/img/loading.gif" lazyload alt="image-20220625100829523"></p>
+<p>​	客户端数据发送完成，则它向服务端发送连接释放请求报文，携带FIN&#x3D;1表示该报文段是一个连接释放请求，seq&#x3D;u可得发送数据的最后一个字节位置，客户端将进入终止等待1状态。</p>
+<p>​	服务器收到客户端连接释放报文，通知相应的高层应用进程客户端方向的连接已经释放了。此时服务端进入了关闭等待状态，并向客户端发出连接释放的应答报文包含：ACK&#x3D;1（表示同意），ack&#x3D;u+1表示希望收到从第u+1个字节开始的报文段，应答报文开始序列号seq&#x3D;v。开始残余数据发送。客户端收到应答后进入终止等待2态，等待接收残余数据。</p>
+<p>​	服务端将最后的数据发送完毕后，就向客户端发送连接释放报文，包含：FIN&#x3D;1，ack&#x3D;u+1。此时，服务器就进入了最后确认态，等待客户端的确认。</p>
+<p>​	客户端收到服务器的连接释放报文后，向服务端发出确认应答，报文头：ACK&#x3D;1，ack&#x3D;w+1，而自己的序列号是seq&#x3D;u+1，此时，客户端就进入了时间等待状态，过一段时间后进入断开态。服务器收到该应答则会立即断开。</p>
+<h1 id="网卡配置"><a href="#网卡配置" class="headerlink" title="网卡配置"></a>网卡配置</h1><h3 id="静态IP配置"><a href="#静态IP配置" class="headerlink" title="静态IP配置"></a>静态IP配置</h3><p>CentOS</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">修改网卡配置文件</span><br>[root@centos8 ~]$vim /etc/sysconfig/network-scripts/ifcfg-eth0 <br>DEVICE=eth0		#设备名<br>NAME=eth0<br>BOOTPROTO=static		#需要修改，=dhcp为自动分配ip，static使用静态地址<br>IPADDR=10.0.0.150		#需要添加，指定IP地址<br>PREFIX=24		#子网掩码  <br>GATEWAY=10.0.0.2		#网关，连接其他网段时必需<br>DNS1=10.0.0.2<br>DNS2=180.76.76.76<br>ONBOOT=yes   #是否启用<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">使配置文件生效</span><br>[root@centos8 ~]$nmcli connection reload eth0<br>[root@centos8 ~]$nmcli connection  up eth0<br></code></pre></td></tr></table></figure>
+
+<p>Ubuntu</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">修改网卡配置文件，该文件缩进严格，若格式不对网卡将不生效</span><br>root@ubuntu1804:~# vim /etc/netplan/01-netcfg.yaml <br>network:<br>  version: 2<br>  renderer: networkd<br>  ethernets:<br>    ens33:     #网卡设备名<br>      addresses: [10.0.0.151/24]   #需要添加，指定IP地址<br>      gateway4: 10.0.0.2		<br>      #dhcp4: yes		#默认dhcp分配ip，需要关闭<br><span class="hljs-meta prompt_">#</span><span class="language-bash">立即生效</span><br>root@ubuntu1804:~# netplan apply<br></code></pre></td></tr></table></figure>
+
+<h3 id="网卡绑定bond0"><a href="#网卡绑定bond0" class="headerlink" title="网卡绑定bond0"></a>网卡绑定bond0</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">使用nmcli工具生成配置文件</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-built_in">type</span>指定网卡类型为bond，  mode选择聚合链路模式为0  设置网卡ip</span><br>[root@centos8 ~]$nmcli con add type bond con-name ethbond0 ifname bond0 mode balance-rr ipv4.method manual ipv4.addresses 10.0.0.160/24<br>Connection &#x27;ethbond0&#x27; (e6fae3c2-46fe-4892-b457-fc813fab0ed1) successfully added.<br><span class="hljs-meta prompt_">#</span><span class="language-bash">添加从属网卡</span><br>[root@centos8 ~]$nmcli  con add type bond-slave ifname eth0 master bond0<br>Connection &#x27;bond-slave-eth0&#x27; (eaa05680-87e6-4684-b69b-ab9f1e0ffe96) successfully added.<br>[root@centos8 ~]$nmcli  con add type bond-slave ifname eth1 master bond0<br>Connection &#x27;bond-slave-eth1&#x27; (844df635-954f-4496-8fec-1740dc768a6c) successfully added.<br><span class="hljs-meta prompt_">#</span><span class="language-bash">启用bond网卡</span><br>[root@centos8 ~]$nmcli con up bond-slave-eth0<br>[root@centos8 ~]$nmcli con up bond-slave-eth1<br>[root@centos8 ~]$nmcli con up ethbond0<br>[root@centos8 ~]$nmcli connection show<br>NAME             UUID                                  TYPE      DEVICE <br>ethbond0         e6fae3c2-46fe-4892-b457-fc813fab0ed1  bond      bond0  <br>virbr0           b553e4bb-f868-428f-902b-0df0c73d2fe4  bridge    virbr0 <br>bond-slave-eth0  eaa05680-87e6-4684-b69b-ab9f1e0ffe96  ethernet  eth0   <br>bond-slave-eth1  844df635-954f-4496-8fec-1740dc768a6c  ethernet  eth1   <br>eth0             5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03  ethernet  -- <br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E7%BD%91%E7%BB%9C/">网络</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/TCP/">TCP</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/02/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux启动流程</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/24/%E9%80%BB%E8%BE%91%E5%8D%B7%E5%92%8CRAID%E7%BB%83%E4%B9%A0/">
+                        <span class="hidden-mobile">逻辑卷和RAID练习</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

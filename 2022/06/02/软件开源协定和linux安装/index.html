@@ -1,0 +1,553 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="​	开源是指一种更自由的软件发布模式，软件程序和源代码文件一起打包提供给用户，让用户在不受限制地使用某个软件功能的基础上还可以对代码按需修改。用户一般享有使用自由、复制自由、修改自由、创建衍生品自由，以及收费自由。 软件开源协定">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软件开源协定和linux安装">
+<meta property="og:url" content="http://example.com/2022/06/02/%E8%BD%AF%E4%BB%B6%E5%BC%80%E6%BA%90%E5%8D%8F%E5%AE%9A%E5%92%8Clinux%E5%AE%89%E8%A3%85/index.html">
+<meta property="og:site_name" content="DXL&#39;s blog">
+<meta property="og:description" content="​	开源是指一种更自由的软件发布模式，软件程序和源代码文件一起打包提供给用户，让用户在不受限制地使用某个软件功能的基础上还可以对代码按需修改。用户一般享有使用自由、复制自由、修改自由、创建衍生品自由，以及收费自由。 软件开源协定">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/06/02/%E8%BD%AF%E4%BB%B6%E5%BC%80%E6%BA%90%E5%8D%8F%E5%AE%9A%E5%92%8Clinux%E5%AE%89%E8%A3%85/image-20220602130449822.png">
+<meta property="og:image" content="http://example.com/2022/06/02/%E8%BD%AF%E4%BB%B6%E5%BC%80%E6%BA%90%E5%8D%8F%E5%AE%9A%E5%92%8Clinux%E5%AE%89%E8%A3%85/image-20220602195103420.png">
+<meta property="og:image" content="http://example.com/2022/06/02/%E8%BD%AF%E4%BB%B6%E5%BC%80%E6%BA%90%E5%8D%8F%E5%AE%9A%E5%92%8Clinux%E5%AE%89%E8%A3%85/image-20220602115109504.png">
+<meta property="article:published_time" content="2022-06-02T09:03:31.000Z">
+<meta property="article:modified_time" content="2022-12-13T08:18:23.317Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="linux基础知识">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2022/06/02/%E8%BD%AF%E4%BB%B6%E5%BC%80%E6%BA%90%E5%8D%8F%E5%AE%9A%E5%92%8Clinux%E5%AE%89%E8%A3%85/image-20220602130449822.png">
+  
+  
+  <title>软件开源协定和linux安装 - DXL&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Linux</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="软件开源协定和linux安装">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-06-02 09:03" pubdate>
+        June 2, 2022 am
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      17 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">软件开源协定和linux安装</h1>
+            
+            <div class="markdown-body">
+              <p>​	开源是指一种更自由的软件发布模式，软件程序和源代码文件一起打包提供给用户，让用户在不受限制地使用某个软件功能的基础上还可以对代码按需修改。用户一般享有使用自由、复制自由、修改自由、创建衍生品自由，以及收费自由。</p>
+<h1 id="软件开源协定"><a href="#软件开源协定" class="headerlink" title="软件开源协定"></a>软件开源协定</h1><span id="more"></span>
+
+<p>​	为了保护开源软件工作者的权益，开源促进组织OSI确认了多种开源许可证。其中主要的许可证可有：GPL、BSD、MIT、Mozilla、Apache和LGPL。可以根据软件权益需要选择相应开源协定。</p>
+<p>​	<strong>GNU通用公共许可证（</strong>General Public License，<strong>GPL）</strong>：目前广泛使用的开源软件许可协议之一，用户享有运行、学习、共享和修改软件的自由。含有GPL许可证的软件必须开源、免费。</p>
+<p>​	<strong>较宽松通用公共许可证（</strong>Lesser GPL, LGPL）：允许商业软件以类库引用的方式使用开源代码，而不用将其产品整体开源。</p>
+<p>​	<strong>伯克利软件发布版</strong>（Berkeley Software Distribution, BSD）许可证：另一款被广泛使用的开源软件许可协议。相较于GPL许可证，BSD更加宽松，适合于商业用途。</p>
+<p>​	<strong>MIT许可证</strong>（Massachusetts Institute of Technology License）：MIT许可证是目前限制最少的开源许可证之一，用户可以使用、复制、修改、再发布软件。</p>
+<p>​	<strong>Mozilla公共许可证</strong>（Mozilla Public License，MPL）：在使用基于MPL许可证的源代码时，后续只需要继续开源这部分特定代码即可，新研发的软件不用完全被该许可证控制。</p>
+<p>​	<strong>Apache许可证（</strong>Apache License）：该软件及其衍生品必须继续使用Apache许可证，如果修改了程序源代码，需要在文档中进行声明，若软件是基于他人的源代码编写而成的，则需要保留原始代码的许可证、商标、专利声明及原作者声明的其他内容信息。</p>
+<p>​	开源协定的区别可见下图</p>
+<p><img src="image-20220602130449822.png" srcset="/img/loading.gif" lazyload alt="image-20220602130449822"></p>
+<h1 id="安装Linux系统"><a href="#安装Linux系统" class="headerlink" title="安装Linux系统"></a>安装Linux系统</h1><h3 id="安装前的准备"><a href="#安装前的准备" class="headerlink" title="安装前的准备"></a>安装前的准备</h3><p>​		从开源镜像站点如阿里云、搜狐、163等网站下载系统镜像文件。安装VMware Workstation虚拟机软件。</p>
+<p>​		虚拟机硬件配置参考</p>
+<p>​		<img src="image-20220602195103420.png" srcset="/img/loading.gif" lazyload alt="image-20220602195103420"></p>
+<p>​		配置完硬件后开机，选择install开始安装，可随安装过程进行以下设置。</p>
+<h3 id="安装CentOS-8"><a href="#安装CentOS-8" class="headerlink" title="安装CentOS 8"></a>安装CentOS 8</h3><p>​		进入安装界面后选择语言，设置磁盘分配策略，在manual partitioning创建分区，分别创建&#x2F;boot &#x2F; &#x2F;swap &#x2F;data分区。</p>
+<p>​		在network&amp;host name中设置主机名，打开虚拟网卡。设置时区为亚洲&#x2F;上海时区。</p>
+<p>​		开始安装后可设置root用户密码，创建一个普通用户。重启后可正常登陆使用则安装成功。</p>
+<h3 id="安装Ubuntu"><a href="#安装Ubuntu" class="headerlink" title="安装Ubuntu"></a>安装Ubuntu</h3><p>​		进入安装界面后选择语言为英语，选择地区香港，选择键盘布局为英语。</p>
+<p>​		制定主机名，设置用户密码(第一次登录不能使用root)，设置时区为亚洲&#x2F;上海。</p>
+<p>​		在partitioning method界面选择自定义，选择磁盘进行分区，选择FREE SPACE分区，创建根分区占全部剩余空间99%，选择剩余空间创建swap分区，为分区选择文件系统。写入磁盘。</p>
+<p>​		空格选择安装openSSH，确认安装GNUB启动程序。重启后可登录使用。</p>
+<p>​	</p>
+<h3 id="ifconfig命令显示或设置网络设备参数信息"><a href="#ifconfig命令显示或设置网络设备参数信息" class="headerlink" title="ifconfig命令显示或设置网络设备参数信息"></a>ifconfig命令显示或设置网络设备参数信息</h3><p>​	网卡名为eth0或ens***   inet后为ip地址。若用ifconfig修改配置信息，在重启后将会失效。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><pre><code class="hljs x86asm">ifconfig eth0 <span class="hljs-meta">down</span>  关闭指定网卡设备<br>ifconfig eth0 <span class="hljs-meta">up</span>    启动<br><span class="hljs-keyword">add</span>&lt;地址&gt; del&lt;地址&gt;  设置或删除IPv6地址<br></code></pre></td></tr></table></figure>
+
+<p><img src="image-20220602115109504.png" srcset="/img/loading.gif" lazyload alt="image-20220602115109504"></p>
+<h1 id="Linux的文件层级结构标准（FHS）"><a href="#Linux的文件层级结构标准（FHS）" class="headerlink" title="Linux的文件层级结构标准（FHS）"></a>Linux的文件层级结构标准（FHS）</h1><table>
+<thead>
+<tr>
+<th>目录名称</th>
+<th>应放置文件的内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x2F;boot</td>
+<td>开机所需文件—内核、开机菜单以及所需配置文件等</td>
+</tr>
+<tr>
+<td>&#x2F;dev</td>
+<td>以文件形式存放任何设备与接口</td>
+</tr>
+<tr>
+<td>&#x2F;etc</td>
+<td>配置文件</td>
+</tr>
+<tr>
+<td>&#x2F;home</td>
+<td>用户主目录</td>
+</tr>
+<tr>
+<td>&#x2F;bin</td>
+<td>存放单用户模式下还可以操作的<a target="_blank" rel="noopener" href="https://www.linuxcool.com/">命令</a></td>
+</tr>
+<tr>
+<td>&#x2F;lib</td>
+<td>开机时用到的函数库，以及&#x2F;bin与&#x2F;sbin下面的命令要调用的函数</td>
+</tr>
+<tr>
+<td>&#x2F;sbin</td>
+<td>开机过程中需要的命令</td>
+</tr>
+<tr>
+<td>&#x2F;media</td>
+<td>用于挂载设备文件的目录</td>
+</tr>
+<tr>
+<td>&#x2F;opt</td>
+<td>放置第三方的软件</td>
+</tr>
+<tr>
+<td>&#x2F;root</td>
+<td>系统管理员的家目录</td>
+</tr>
+<tr>
+<td>&#x2F;srv</td>
+<td>一些网络服务的数据文件目录</td>
+</tr>
+<tr>
+<td>&#x2F;tmp</td>
+<td>任何人均可使用的“共享”临时目录</td>
+</tr>
+<tr>
+<td>&#x2F;proc</td>
+<td>虚拟文件系统，例如系统内核、进程、外部设备及网络状态等</td>
+</tr>
+<tr>
+<td>&#x2F;usr&#x2F;local</td>
+<td>用户自行安装的软件</td>
+</tr>
+<tr>
+<td>&#x2F;usr&#x2F;sbin</td>
+<td>Linux系统开机时不会使用到的软件&#x2F;命令&#x2F;<a target="_blank" rel="noopener" href="https://www.linuxcool.com/">脚本</a></td>
+</tr>
+<tr>
+<td>&#x2F;usr&#x2F;share</td>
+<td>帮助与说明文件，也可放置共享文件</td>
+</tr>
+<tr>
+<td>&#x2F;var</td>
+<td>主要存放经常变化的文件，如日志</td>
+</tr>
+<tr>
+<td>&#x2F;lost+found</td>
+<td>当文件系统发生错误时，将一些丢失的文件片段存放在这里</td>
+</tr>
+</tbody></table>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux%E7%B3%BB%E7%BB%9F/">Linux系统</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">linux基础知识</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/06/Linux%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%92%8C%E4%BD%BF%E7%94%A8%E5%B8%AE%E5%8A%A9/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux基础概念和使用帮助</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
